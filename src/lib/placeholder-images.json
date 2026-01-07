@@ -1,0 +1,112 @@
+{
+  "placeholderImages": [
+    {
+      "id": "logo",
+      "description": "Venga Elite App Logo",
+      "imageUrl": "https://i.ibb.co/XZ1jGh0x/In-Shot-20231119-124433570.jpg",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "intro-gif",
+      "description": "Introductory GIF for the app",
+      "imageUrl": "https://i.ibb.co/jk9tgFjs/In-Shot-20251127-124506071.gif",
+      "imageHint": "woman animation"
+    },
+    {
+      "id": "promo-1",
+      "description": "Promotional image one",
+      "imageUrl": "https://i.ibb.co/7JtbMFgj/milena-2874916-prepago-bogota-4619f295c5dfe2dada00-308x500.jpg",
+      "imageHint": "woman fashion"
+    },
+    {
+      "id": "promo-2",
+      "description": "Promotional image two",
+      "imageUrl": "https://i.ibb.co/HTWtqgLC/sexy4.webp",
+      "imageHint": "woman lingerie"
+    },
+    {
+      "id": "profile-1",
+      "description": "Profile image for Sofia",
+      "imageUrl": "https://images.unsplash.com/photo-1610462679576-e591f04e6e1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx3b21hbiUyMHByb2ZpbGV8ZW58MHx8fHwxNzY1NDc2OTEzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman profile"
+    },
+    {
+      "id": "profile-2",
+      "description": "Profile image for Camila",
+      "imageUrl": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx3b21hbiUyMHByb2ZpbGV8ZW58MHx8fHwxNzY1NDc2OTEzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman profile"
+    },
+    {
+      "id": "profile-3",
+      "description": "Profile image for Isabella",
+      "imageUrl": "https://images.unsplash.com/photo-1614283233556-f35b0c801ef1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx3b21hbiUyMHByb2ZpbGV8ZW58MHx8fHwxNzY1NDc2OTEzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman profile"
+    },
+    {
+      "id": "profile-4",
+      "description": "Profile image for Mariana",
+      "imageUrl": "https://images.unsplash.com/photo-1532074205216-d0e1f4b87368?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx3b21hbiUyMHByb2ZpbGV8ZW58MHx8fHwxNzY1NDc2OTEzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman profile"
+    },
+    {
+      "id": "profile-5",
+      "description": "Profile image for Gabriela",
+      "imageUrl": "https://images.unsplash.com/photo-1611590027211-b954fd027b51?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8d29tYW4lMjBwcm9maWxlfGVufDB8fHx8MTc2NTQ3NjkxM3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman profile"
+    },
+    {
+      "id": "profile-6",
+      "description": "Profile image for Daniela",
+      "imageUrl": "https://images.unsplash.com/photo-1521252659862-eec69941b071?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx3b21hbiUyMHByb2ZpbGV8ZW58MHx8fHwxNzY1NDc2OTEzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman profile"
+    },
+    {
+      "id": "profile-7",
+      "description": "Profile image for Luciana",
+      "imageUrl": "https://images.unsplash.com/photo-1581403341630-a6e0b9d2d257?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHx3b21hbiUyMHByb2ZpbGV8ZW58MHx8fHwxNzY1NDc2OTEzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman profile"
+    },
+    {
+      "id": "profile-8",
+      "description": "Profile image for Valeria",
+      "imageUrl": "https://images.unsplash.com/photo-1532074205216-d0e1f4b87368?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx3b21hbiUyMHByb2ZpbGV8ZW58MHx8fHwxNzY1NDc2OTEzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman profile"
+    },
+    {
+      "id": "profile-9",
+      "description": "Profile image for Martina",
+      "imageUrl": "https://images.unsplash.com/photo-1611590027211-b954fd027b51?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8d29tYW4lMjBwcm9maWxlfGVufDB8fHx8MTc2NTQ3NjkxM3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman profile"
+    },
+    {
+      "id": "profile-10",
+      "description": "Profile image for Antonella",
+      "imageUrl": "https://images.unsplash.com/photo-1614283233556-f35b0c801ef1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx3b21hbiUyMHByb2ZpbGV8ZW58MHx8fHwxNzY1NDc2OTEzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman profile"
+    },
+    {
+      "id": "subscription-bg",
+      "description": "Neon lips background for subscription page",
+      "imageUrl": "https://i.ibb.co/VYVzBLXq/lamiendo-labios-letrero-neon-1262-21356.jpg",
+      "imageHint": "neon lips"
+    },
+    {
+      "id": "chat-bg",
+      "description": "Neon sign of a sexy lady body",
+      "imageUrl": "https://i.ibb.co/kgm2LSwW/HDJSign-Sexy-Lady-Body-Neon-Sign-HDJ-Sign-2380.jpg",
+      "imageHint": "neon body"
+    },
+    {
+      "id": "profile-bg",
+      "description": "Silhouette of a woman",
+      "imageUrl": "https://i.ibb.co/gMrKhtLp/In-Shot-20251123-182048081.jpg",
+      "imageHint": "woman silhouette"
+    },
+    {
+      "id": "info-bg",
+      "description": "Neon sign of licking lips",
+      "imageUrl": "https://i.ibb.co/JWcG8T2V/lamiendo-labios-letrero-neon-1262-21356.jpg",
+      "imageHint": "neon lips"
+    }
+  ]
+}
