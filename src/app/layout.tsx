@@ -37,9 +37,7 @@ export default function RootLayout({
       <body className="font-body antialiased bg-background">
         <Theme>
           <div className="flex flex-col min-h-screen">
-            <section className="flex-grow container mx-auto px-4 py-8 pb-24">
-              {children}
-            </section>
+            {children}
 
             <BottomNav />
           </div>
