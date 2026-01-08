@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 
 import { useUser } from "@/context/user-context";
 import { useRouter } from "next/navigation";
-import { onSubmitLoginUser } from "./handler";
+import { onSubmitLoginGmailUser, onSubmitLoginUser } from "./handler";
 import { loginFormSchema } from "./schema";
 
 export default function SignInPage() {
@@ -49,11 +49,16 @@ export default function SignInPage() {
     }
   }
 
-  function handleGoogleSignIn() {
-    // Aquí puedes implementar la lógica de inicio de sesión con Google.
-    // Esto podría implicar redirigir al usuario a la página de autenticación de Google
-    // o usar una librería como `next-auth` o `@react-oauth/google`.
-    console.log("Iniciando sesión con Google...");
+  async function handleGoogleSignIn() {
+    toast.message("Iniciando sesión con Google...");
+    const res = await onSubmitLoginGmailUser();
+
+    if (res.success && res.data) {
+      toast.success(res.message);
+      setUser(res.data);
+    } else {
+      toast.error(res.message);
+    }
   }
 
   return (
