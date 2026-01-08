@@ -120,7 +120,6 @@ export async function onSubmitLoginGmailUser(): Promise<ApiResponse<AppUser>> {
 
     return ApiResponse.success(user, "Inicio de sesión exitoso.");
   } catch (error: any) {
-    console.log(error);
     return ApiResponse.failure(getGoogleSignInErrorMessage(error.code));
   }
 }

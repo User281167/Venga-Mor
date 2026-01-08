@@ -117,7 +117,6 @@ export async function onSubmitRegisterGmailUser(): Promise<
 
     return ApiResponse.success(user, "Usuario creado exitosamente");
   } catch (error: any) {
-    console.log(error);
     return ApiResponse.failure(getGoogleSignInErrorMessage(error.code));
   }
 }
