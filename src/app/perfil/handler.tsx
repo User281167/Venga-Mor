@@ -1,8 +1,7 @@
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
-import { setUser } from "@/context/user-context";
 
-export async function logout() {
+export async function logout(setUser: (user: any) => void) {
   await signOut(auth);
   setUser(null);
 

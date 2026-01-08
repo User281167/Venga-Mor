@@ -18,7 +18,7 @@ import Image from "next/image";
 export default function PerfilPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "profile-bg");
 
-  const { user, loading } = useUser();
+  const { user, loading, setUser } = useUser();
   const router = useRouter();
 
   useEffect(() => {
@@ -26,6 +26,10 @@ export default function PerfilPage() {
       router.push("/iniciar-sesion");
     }
   }, [user, loading, router]);
+
+  function logoutHandler() {
+    logout(setUser);
+  }
 
   return (
     <Section className="relative min-h-screen min-w-full flex flex-col items-center justify-center px-4 text-center bg-primary/10 overflow-hidden">
@@ -66,7 +70,7 @@ export default function PerfilPage() {
             Editar Perfil
           </Button>
 
-          <Button variant="outline" className="mt-6" onClick={logout}>
+          <Button variant="outline" className="mt-6" onClick={logoutHandler}>
             Cerrar Sesión
           </Button>
         </Flex>
