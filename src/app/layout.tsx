@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
-import { ToastContainer } from "react-toastify";
 import { Theme } from "@radix-ui/themes";
 import { BottomNav } from "@/components/bottom-nav";
+import { Toaster } from "sonner";
+
 import "@radix-ui/themes/styles.css";
 import "./globals.css";
+import { UserProvider } from "@/context/user-context";
 
 export const metadata: Metadata = {
   title: "Venga Mor",
@@ -36,12 +38,15 @@ export default function RootLayout({
 
       <body className="font-body antialiased bg-background">
         <Theme>
-          <div className="flex flex-col min-h-screen">
-            {children}
+          <UserProvider>
+            <main className="flex flex-col min-h-screen">
+              {children}
 
-            <BottomNav />
-          </div>
-          <ToastContainer />
+              <BottomNav />
+            </main>
+          </UserProvider>
+
+          <Toaster richColors />
         </Theme>
       </body>
     </html>

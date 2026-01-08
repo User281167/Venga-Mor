@@ -1,5 +1,9 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth  } from "firebase/auth";
+import {
+  getAuth,
+  setPersistence,
+  browserLocalPersistence,
+} from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { ENV } from "./env";
 
@@ -14,6 +18,8 @@ const firebaseConfig = {
 
 // Initialize Firebase
 // Initialize Firebase Authentication and get a reference to the service
-export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp()
+export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+setPersistence(auth, browserLocalPersistence);

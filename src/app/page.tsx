@@ -1,10 +1,9 @@
 "use client";
-import Image from "next/image";
 import Link from "next/link";
-import { Button, Flex, Heading, Section } from "@radix-ui/themes";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { Button, Flex, Heading } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
 import PayPalPayment from "@/components/pay-pal";
+import HeaderGif from "@/components/header-gif";
 
 const rotatingTexts = [
   "Servicios íntimos",
@@ -15,7 +14,6 @@ const rotatingTexts = [
 ];
 
 export default function LoginPage() {
-  const introGif = PlaceHolderImages.find((p) => p.id === "intro-gif");
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
 
   useEffect(() => {
@@ -28,20 +26,7 @@ export default function LoginPage() {
   }, []);
 
   return (
-    <Section className="relative min-h-screen min-w-full flex flex-col items-center justify-center px-4 text-center bg-primary/10 overflow-hidden">
-      {introGif && (
-        <Image
-          src={introGif.imageUrl}
-          alt="Introducción Venga Mor"
-          unoptimized
-          priority
-          className="absolute -z-10 h-screen w-full opacity-30 object-cover object-center"
-          data-ai-hint={introGif.imageHint}
-          width={1920}
-          height={1080}
-        />
-      )}
-
+    <HeaderGif>
       <Flex direction="column" align="center" gap="5">
         <Heading
           className="text-8xl md:text-9xl font-headline text-primary"
@@ -72,6 +57,6 @@ export default function LoginPage() {
 
         <PayPalPayment className="w-full" />
       </Flex>
-    </Section>
+    </HeaderGif>
   );
 }
