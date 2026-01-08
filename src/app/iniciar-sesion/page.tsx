@@ -20,8 +20,8 @@ export default function SignInPage() {
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      email: "neres36395@24faw.com",
-      password: "asdasdasdA1!",
+      email: "",
+      password: "",
     },
   });
 
@@ -68,7 +68,7 @@ export default function SignInPage() {
           className="text-4xl md:text-6xl font-headline text-primary"
           style={{ fontFamily: "'Playball', cursive" }}
         >
-          Venga Mor
+          <Link href="/">Venga Mor</Link>
         </Heading>
 
         <Heading

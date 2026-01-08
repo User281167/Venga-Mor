@@ -39,7 +39,7 @@ export default function LoginPage() {
           {rotatingTexts[currentTextIndex]}
         </p>
 
-        <Link href="/login" className="w-full">
+        <Link href="/iniciar-sesion" className="w-full">
           <Button size="4" className="bg-primary w-full cursor-pointer">
             Ingresar
           </Button>

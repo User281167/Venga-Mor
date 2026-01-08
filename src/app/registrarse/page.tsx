@@ -20,10 +20,10 @@ export default function LoginPage() {
   const form = useForm<z.infer<typeof registerFormSchema>>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
-      email: "neres36395@24faw.com",
-      password: "asdasdasdA1!",
-      nombre: "Juan",
-      apellido: "Sanchez",
+      email: "",
+      password: "",
+      nombre: "",
+      apellido: "",
     },
   });
 
@@ -70,7 +70,7 @@ export default function LoginPage() {
           className="text-4xl md:text-6xl font-headline text-primary"
           style={{ fontFamily: "'Playball', cursive" }}
         >
-          Venga Mor
+          <Link href="/">Venga Mor</Link>
         </Heading>
 
         <Heading
