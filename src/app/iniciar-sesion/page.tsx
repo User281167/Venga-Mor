@@ -26,17 +26,25 @@ export default function SignInPage() {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+  const [loadingForm, setLoadingForm] = useState(true);
   const { user, setUser, loading } = useUser();
 
   const router = useRouter();
 
   useEffect(() => {
-    if (!!user) {
+    if (!loading && !!user) {
       router.push("/perfil");
     }
-  }, [user]);
+  }, [user, loading]);
+
+  useEffect(() => {
+    if (!loading) {
+      setLoadingForm(false);
+    }
+  }, [loading]);
 
   async function onSubmit(values: z.infer<typeof loginFormSchema>) {
+    setLoadingForm(true);
     toast.message("Iniciando sesión...");
 
     const res = await onSubmitLoginUser(values);
@@ -47,9 +55,12 @@ export default function SignInPage() {
     } else {
       toast.error(res.message);
     }
+
+    setLoadingForm(false);
   }
 
   async function handleGoogleSignIn() {
+    setLoadingForm(true);
     toast.message("Iniciando sesión con Google...");
     const res = await onSubmitLoginGmailUser();
 
@@ -59,6 +70,8 @@ export default function SignInPage() {
     } else {
       toast.error(res.message);
     }
+
+    setLoadingForm(false);
   }
 
   return (
@@ -90,7 +103,7 @@ export default function SignInPage() {
 
               <Form.Control asChild className="w-full">
                 <TextField.Root
-                  disabled={loading}
+                  disabled={loadingForm}
                   {...form.register("email")}
                   type="email"
                 />
@@ -110,7 +123,7 @@ export default function SignInPage() {
 
               <Form.Control asChild className="w-full">
                 <TextField.Root
-                  disabled={loading}
+                  disabled={loadingForm}
                   {...form.register("password")}
                   type={showPassword ? "text" : "password"}
                 >
@@ -141,7 +154,7 @@ export default function SignInPage() {
           </Form.Field>
 
           <Button
-            disabled={loading}
+            disabled={loadingForm}
             type="submit"
             className="bg-primary hover:bg-primary/80"
             size="3"
@@ -162,7 +175,7 @@ export default function SignInPage() {
           </div>
 
           <Button
-            disabled={loading}
+            disabled={loadingForm}
             type="button"
             onClick={handleGoogleSignIn}
             size="3"
