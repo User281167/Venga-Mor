@@ -11,9 +11,10 @@ import {
   Text,
 } from "@radix-ui/themes";
 import { logout } from "./handler";
-import { useEffect } from "react";
+import { use, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import FormUserInfo from "./form-user-info";
 
 export default function PerfilPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "profile-bg");
@@ -51,11 +52,14 @@ export default function PerfilPage() {
       </Heading>
 
       <Card className="bg-card/80 w-full max-w-screen-lg">
-        <Flex className="pt-6 flex flex-col items-center">
+        <Flex
+          className="pt-6 flex flex-col items-center max-w-xl mx-auto"
+          gap="4"
+        >
           <Avatar
-            className="h-24 w-24 mb-4 border-2 border-primary"
-            src="https://github.com/shadcn.png"
-            fallback="U"
+            className="h-24 w-24 border-2 border-primary"
+            src={user?.foto || ""}
+            fallback={user?.nombre?.charAt(0) || "U"}
           />
 
           <Heading as="h2" className="text-2xl font-bold">
@@ -66,11 +70,9 @@ export default function PerfilPage() {
             {user?.email}
           </Text>
 
-          <Button variant="outline" className="mt-6">
-            Editar Perfil
-          </Button>
+          <FormUserInfo user={user} />
 
-          <Button variant="outline" className="mt-6" onClick={logoutHandler}>
+          <Button variant="outline" className="w-full" onClick={logoutHandler}>
             Cerrar Sesión
           </Button>
         </Flex>

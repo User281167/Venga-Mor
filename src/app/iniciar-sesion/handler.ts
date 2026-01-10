@@ -1,7 +1,7 @@
 import z from "zod";
 import { loginFormSchema } from "./schema";
 import { ApiResponse } from "@/lib/api-response";
-import { AppUser } from "@/lib/types";
+import { AppUser } from "@/types/user";
 import {
   GoogleAuthProvider,
   signInWithEmailAndPassword,

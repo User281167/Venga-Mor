@@ -7,7 +7,7 @@ import { auth } from "@/lib/firebase";
 import { ApiResponse } from "@/lib/api-response";
 import { registerFormSchema } from "../registrarse/schema";
 import z from "zod";
-import { AppUser } from "@/lib/types";
+import { AppUser } from "@/types/user";
 
 function getFirebaseAuthErrorMessage(code: string) {
   switch (code) {
@@ -55,7 +55,20 @@ export async function onSubmitRegisterUser(
       body: JSON.stringify({ token: token }),
     });
 
-    return ApiResponse.success(user, "Usuario creado exitosamente");
+    const resUser = await fetch("/api/usuarios", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken: token, userData: user }),
+    });
+
+    // puede hacer auth pero fallar el put en store
+    const resPutUser = (await resUser.json()) as ApiResponse<AppUser>;
+
+    return ApiResponse.success(
+      user,
+      "Usuario creado exitosamente",
+      resPutUser.errors,
+    );
   } catch (error: any) {
     return ApiResponse.failure(getFirebaseAuthErrorMessage(error.code));
   }

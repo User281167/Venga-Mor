@@ -6,7 +6,7 @@ import {
   ReactNode,
   useEffect,
 } from "react";
-import { AppUser } from "@/lib/types";
+import { AppUser } from "@/types/user";
 import { auth } from "@/lib/firebase";
 import { onIdTokenChanged } from "firebase/auth";
 

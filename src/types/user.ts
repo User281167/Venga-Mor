@@ -6,4 +6,5 @@ export interface AppUser {
   foto?: string | null;
   userType: "client";
   creado: number; // timestamp en ms
+  descripcion?: string;
 }

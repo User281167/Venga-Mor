@@ -49,6 +49,10 @@ export default function LoginPage() {
     } else {
       toast.error(res.message);
     }
+
+    if (res.errors) {
+      toast.error(res.errors.join(", "));
+    }
   }
 
   async function handleGoogleSignIn() {
@@ -155,7 +159,7 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"}
                 >
                   <TextField.Slot side="right">
-                    <button>
+                    <button type="button">
                       {showPassword ? (
                         <EyeClosedIcon
                           onClick={() => setShowPassword(false)}
