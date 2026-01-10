@@ -52,7 +52,7 @@ export async function POST(req: Request) {
       email,
       nombre,
       apellido,
-      foto: decoded.picture ?? null,
+      foto: user.foto ?? null,
       userType: "client" as const,
       creado: user.creado ?? new Date(),
       descripcion: "",

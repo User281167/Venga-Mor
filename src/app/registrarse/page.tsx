@@ -28,17 +28,25 @@ export default function LoginPage() {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+  const [loadingForm, setLoadingForm] = useState(true);
   const { user, setUser, loading } = useUser();
 
   const router = useRouter();
 
   useEffect(() => {
-    if (!!user) {
+    if (!loading && !!user) {
       router.push("/perfil");
     }
-  }, [user]);
+  }, [user, loading]);
+
+  useEffect(() => {
+    if (!loading) {
+      setLoadingForm(false);
+    }
+  }, [loading]);
 
   async function onSubmit(values: z.infer<typeof registerFormSchema>) {
+    setLoadingForm(true);
     toast.message("Creando tu cuenta...");
 
     const res = await onSubmitRegisterUser(values);
@@ -53,9 +61,12 @@ export default function LoginPage() {
     if (res.errors) {
       toast.error(res.errors.join(", "));
     }
+
+    setLoadingForm(false);
   }
 
   async function handleGoogleSignIn() {
+    setLoadingForm(true);
     toast.message("Iniciando sesión con Google...");
     const res = await onSubmitRegisterGmailUser();
 
@@ -65,6 +76,12 @@ export default function LoginPage() {
     } else {
       toast.error(res.message);
     }
+
+    if (res.errors) {
+      toast.error(res.errors.join(", "));
+    }
+
+    setLoadingForm(false);
   }
 
   return (
@@ -96,7 +113,7 @@ export default function LoginPage() {
 
               <Form.Control asChild className="w-full">
                 <TextField.Root
-                  disabled={loading}
+                  disabled={loadingForm}
                   {...form.register("nombre")}
                 />
               </Form.Control>
@@ -115,7 +132,7 @@ export default function LoginPage() {
 
               <Form.Control asChild className="w-full">
                 <TextField.Root
-                  disabled={loading}
+                  disabled={loadingForm}
                   {...form.register("apellido")}
                 />
               </Form.Control>
@@ -134,7 +151,7 @@ export default function LoginPage() {
 
               <Form.Control asChild className="w-full">
                 <TextField.Root
-                  disabled={loading}
+                  disabled={loadingForm}
                   {...form.register("email")}
                   type="email"
                 />
@@ -154,7 +171,7 @@ export default function LoginPage() {
 
               <Form.Control asChild className="w-full">
                 <TextField.Root
-                  disabled={loading}
+                  disabled={loadingForm}
                   {...form.register("password")}
                   type={showPassword ? "text" : "password"}
                 >
@@ -185,7 +202,7 @@ export default function LoginPage() {
           </Form.Field>
 
           <Button
-            disabled={loading}
+            disabled={loadingForm}
             type="submit"
             className="bg-primary hover:bg-primary/80"
             size="3"
@@ -206,7 +223,7 @@ export default function LoginPage() {
           </div>
 
           <Button
-            disabled={loading}
+            disabled={loadingForm}
             type="button"
             onClick={handleGoogleSignIn}
             size="3"

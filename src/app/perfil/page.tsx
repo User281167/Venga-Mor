@@ -58,7 +58,7 @@ export default function PerfilPage() {
         >
           <Avatar
             className="h-24 w-24 border-2 border-primary"
-            src={user?.foto || ""}
+            src={user?.foto || undefined}
             fallback={user?.nombre?.charAt(0) || "U"}
           />
 

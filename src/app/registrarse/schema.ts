@@ -32,9 +32,7 @@ export const registerFormSchemaWithoutPassword = z.object({
   nombre: z.string().min(3, {
     message: "El nombre debe tener al menos 3 caracteres.",
   }),
-  apellido: z.string().min(3, {
-    message: "El apellido debe tener al menos 3 caracteres.",
-  }),
+  apellido: z.string().optional(),
 });
 
 export type RegisterFormValues = z.infer<typeof registerFormSchema>;
