@@ -12,7 +12,7 @@ export async function logout(setUser: (user: any) => void) {
 
 export async function updateUser(data: UpdateUserInfo): Promise<ApiResponse> {
   try {
-    const res = await fetch("/api/user", {
+    const res = await fetch("/api/usuarios", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

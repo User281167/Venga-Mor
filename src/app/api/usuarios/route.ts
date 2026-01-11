@@ -77,7 +77,7 @@ export async function POST(req: Request) {
 
 export async function PUT(req: Request) {
   try {
-    const token = cookies().get("token")?.value;
+    const token = (await cookies()).get("token")?.value;
 
     if (!token) {
       return new Response(ApiResponse.failure("No autorizado").toJSON(), {
@@ -104,14 +104,14 @@ export async function PUT(req: Request) {
       });
     }
 
-    const { name, apellido, foto } = parsed.data;
+    const { nombre, apellido, foto } = parsed.data;
 
     // Actualizar los datos en Firestore
     await adminDb
       .collection("usuarios")
       .doc(uid)
       .update({
-        name,
+        nombre,
         apellido,
         foto: foto || null,
       });
@@ -124,7 +124,7 @@ export async function PUT(req: Request) {
     console.error("Error al actualizar usuario:", error);
     return new Response(
       ApiResponse.failure(
-        "Error inesperado al actualizar la información.",
+        "Error inesperado al actualizar la información. 123",
       ).toJSON(),
       { status: 500 },
     );

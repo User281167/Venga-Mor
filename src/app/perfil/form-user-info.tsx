@@ -18,6 +18,9 @@ import { setInfoFormSchema } from "./schema";
 
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { updateUser } from "./handler";
+import { toast } from "sonner";
+import { useUser } from "@/context/user-context";
 
 export default function FormUserInfo({ user }: { user: AppUser | null }) {
   const form = useForm<z.infer<typeof setInfoFormSchema>>({
@@ -30,6 +33,7 @@ export default function FormUserInfo({ user }: { user: AppUser | null }) {
   });
 
   const [loading, setLoading] = useState(true);
+  const { setUser } = useUser();
 
   useEffect(() => {
     if (user) {
@@ -47,25 +51,33 @@ export default function FormUserInfo({ user }: { user: AppUser | null }) {
     setLoading(true);
 
     try {
-      await fetch("/api/user", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+      const res = await updateUser(data);
+
+      if (res.success) {
+        toast.success("Perfil actualizado correctamente.");
+
+        setUser({
+          ...user,
+          nombre: data.nombre,
+          apellido: data.apellido,
+          descripcion: data.descripcion,
+        } as AppUser);
+      } else {
+        toast.error(res.message);
+      }
 
       setLoading(false);
     } catch (error) {
-      console.error(error);
-      setLoading(false);
+      toast.error("Error al actualizar el perfil. Intentelo más tarde.");
     }
+
+    setLoading(false);
   }
 
   return (
     <Dialog.Root>
       <Dialog.Trigger aschild="true">
-        <Button variant="outline" className="w-full">
+        <Button variant="outline" className="w-full" disabled={loading}>
           Editar Perfil
         </Button>
       </Dialog.Trigger>

@@ -73,7 +73,12 @@ export default function PerfilPage() {
           <FormUserInfo user={user} />
           {error && <Text className="text-red-500">{error}</Text>}
 
-          <Button variant="outline" className="w-full" onClick={logoutHandler}>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={logoutHandler}
+            disabled={loading}
+          >
             Cerrar Sesión
           </Button>
         </Flex>
