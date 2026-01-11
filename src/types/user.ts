@@ -1,5 +1,5 @@
 export interface AppUser {
-  id: string; // UID de Firebase
+  uid: string; // UID de Firebase
   email: string;
   nombre: string;
   apellido: string;

@@ -1,17 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { serialize } from "cookie";
+import { cookies } from "next/headers";
 import { ApiResponse } from "@/lib/api-response";
 
 export async function POST(req: NextRequest) {
   try {
     const token = await req.json().then((data) => data.token as string);
 
-    const cookie = serialize("token", token, {
+    (await cookies()).set({
+      name: "token",
+      value: token,
       httpOnly: true,
       path: "/",
       secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60, // 1 hora
       sameSite: "strict",
+      maxAge: 60 * 60, // 1 hora
     });
 
     return NextResponse.json(ApiResponse.success(token, "Token renovado"), {
@@ -27,16 +29,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const cookie = serialize("token", "", {
-    httpOnly: true,
-    path: "/",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 0,
-    sameSite: "strict",
-  });
+  (await cookies()).delete("token");
 
   return NextResponse.json(ApiResponse.success(null, "Token eliminado"), {
-    headers: { "Set-Cookie": cookie },
     status: 200,
   });
 }

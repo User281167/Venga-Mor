@@ -19,7 +19,7 @@ import FormUserInfo from "./form-user-info";
 export default function PerfilPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "profile-bg");
 
-  const { user, loading, setUser } = useUser();
+  const { user, loading, setUser, error } = useUser();
   const router = useRouter();
 
   useEffect(() => {
@@ -71,6 +71,7 @@ export default function PerfilPage() {
           </Text>
 
           <FormUserInfo user={user} />
+          {error && <Text className="text-red-500">{error}</Text>}
 
           <Button variant="outline" className="w-full" onClick={logoutHandler}>
             Cerrar Sesión

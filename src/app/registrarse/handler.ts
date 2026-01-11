@@ -40,7 +40,7 @@ export async function onSubmitRegisterUser(
       : null;
 
     const user = {
-      id: res.user.uid,
+      uid: res.user.uid,
       email: res.user.email!,
       nombre: nombre,
       apellido: apellido,
@@ -113,7 +113,7 @@ export async function onSubmitRegisterGmailUser(): Promise<
       : null;
 
     const user: AppUser = {
-      id: res.user.uid,
+      uid: res.user.uid,
       email: res.user.email!,
       nombre: res.user.displayName || "",
       apellido: "",

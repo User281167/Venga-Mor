@@ -2,6 +2,8 @@ import { registerFormSchemaWithoutPassword } from "@/app/registrarse/schema";
 import { adminAuth, adminDb } from "@/lib/firebase-admin-connection";
 import { ApiResponse } from "@/lib/api-response";
 import { AppUser } from "@/types/user";
+import { UpdateUserInfoSchema, UserDto } from "@/dtos/user.dto";
+import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
   try {
@@ -48,7 +50,7 @@ export async function POST(req: Request) {
 
     // Crear documento de usuario
     const userDoc = {
-      id: uid,
+      uid: uid,
       email,
       nombre,
       apellido,
@@ -68,6 +70,90 @@ export async function POST(req: Request) {
 
     return Response.json(
       ApiResponse.failure("Error interno del servidor", ["Error inesperado"]),
+      { status: 500 },
+    );
+  }
+}
+
+export async function PUT(req: Request) {
+  try {
+    const body = await req.json();
+    const parsed = UpdateUserInfoSchema.safeParse(body);
+
+    if (!parsed.success) {
+      // Convertimos los errores por campo a string[]
+      const errors: string[] = Object.entries(
+        parsed.error.flatten().fieldErrors,
+      ).flatMap(
+        ([field, msgs]) => msgs?.map((msg) => `${field}: ${msg}`) ?? [],
+      );
+
+      return Response.json(ApiResponse.failure("Validación fallida", errors), {
+        status: 400,
+      });
+    }
+
+    const { uid, name, apellido, foto } = parsed.data;
+    const userId = uid;
+
+    // Actualizar los datos en Firestore
+    await adminDb
+      .collection("usuarios")
+      .doc(userId)
+      .update({
+        name,
+        apellido,
+        foto: foto || null,
+      });
+
+    return new Response(
+      ApiResponse.success("Usuario actualizado exitosamente.").toJSON(),
+      { status: 200 },
+    );
+  } catch (error) {
+    console.error("Error al actualizar usuario:", error);
+    return new Response(
+      ApiResponse.failure(
+        "Error inesperado al actualizar la información.",
+      ).toJSON(),
+      { status: 500 },
+    );
+  }
+}
+
+export async function GET() {
+  try {
+    // Tomamos el token del usuario desde la cookie
+    const token = (await cookies()).get("token")?.value;
+
+    if (!token)
+      return new Response(ApiResponse.failure("No autorizado").toJSON(), {
+        status: 401,
+      });
+
+    // Verificamos el token con Admin SDK
+    const decoded = await adminAuth.verifyIdToken(token);
+    const uid = decoded.uid;
+
+    // Obtenemos el documento de Firestore del usuario
+    const userDoc = await adminDb.collection("usuarios").doc(uid).get();
+
+    const user: UserDto = userDoc.data() as UserDto;
+
+    if (!userDoc.exists) {
+      return new Response(
+        ApiResponse.failure("Usuario no encontrado").toJSON(),
+        { status: 404 },
+      );
+    }
+
+    return new Response(
+      ApiResponse.success(user, "Usuario obtenido").toJSON(),
+      { status: 200 },
+    );
+  } catch (error: any) {
+    return new Response(
+      ApiResponse.failure(error.message || "Error inesperado").toJSON(),
       { status: 500 },
     );
   }

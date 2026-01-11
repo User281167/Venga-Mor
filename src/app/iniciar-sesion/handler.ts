@@ -51,7 +51,7 @@ export async function onSubmitLoginUser(
       : null;
 
     const user = {
-      id: res.user.uid,
+      uid: res.user.uid,
       email: res.user.email!,
       nombre: res.user.displayName || "",
       apellido: "",
@@ -103,7 +103,7 @@ export async function onSubmitLoginGmailUser(): Promise<ApiResponse<AppUser>> {
       : null;
 
     const user: AppUser = {
-      id: res.user.uid,
+      uid: res.user.uid,
       email: res.user.email!,
       nombre: res.user.displayName || "",
       apellido: "",

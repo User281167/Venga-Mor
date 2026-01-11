@@ -9,11 +9,14 @@ import {
 import { AppUser } from "@/types/user";
 import { auth } from "@/lib/firebase";
 import { onIdTokenChanged } from "firebase/auth";
+import { ApiResponse } from "@/lib/api-response";
+import { UserDto } from "@/dtos/user.dto";
 
 interface UserContextType {
   user: AppUser | null;
   setUser: (user: AppUser | null) => void;
   loading: boolean;
+  error: string | null;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -21,6 +24,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const unsubscribe = onIdTokenChanged(auth, async (firebaseUser) => {
@@ -34,16 +38,28 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           body: JSON.stringify({ token: await firebaseUser.getIdToken() }),
         });
 
-        // Actualizar contexto
-        setUser({
-          id: firebaseUser.uid,
-          email: firebaseUser.email!,
-          nombre: "",
-          apellido: "",
-          userType: "client",
-          creado: Date.now(),
-          foto: firebaseUser.photoURL,
+        const resUser = await fetch(`/api/usuarios`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
         });
+
+        const user = (await resUser.json()) as ApiResponse<UserDto>;
+        console.log(user);
+
+        if (user.success) {
+          setUser({
+            ...user.data,
+            uid: firebaseUser.uid,
+            email: firebaseUser.email!,
+            foto: user.data?.foto,
+            nombre: user.data.nombre,
+            apellido: user.data.apellido,
+          });
+
+          setError(null);
+        } else {
+          setError(user.message);
+        }
       } else {
         setUser(null);
       }
@@ -55,7 +71,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, setUser, loading }}>
+    <UserContext.Provider value={{ user, setUser, loading, error }}>
       {children}
     </UserContext.Provider>
   );
