@@ -1,9 +1,8 @@
 "use client";
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MessageSquare } from "lucide-react";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { Avatar, Card, Flex, Heading, Section, Text } from "@radix-ui/themes";
 
 const chatContacts = [
   {
@@ -26,22 +25,25 @@ export default function ChatsPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "chat-bg");
 
   return (
-    <div className="relative min-h-[calc(100vh-128px)] -mx-4 -my-8 flex flex-col justify-center">
+    <Section className="relative min-h-[calc(100vh-128px)]">
       {bgImage && (
         <Image
           src={bgImage.imageUrl}
           alt={bgImage.description}
-          layout="fill"
-          objectFit="cover"
           unoptimized
-          className="absolute z-0 opacity-20"
+          priority
+          className="absolute  -z-10 h-full w-full opacity-30 object-cover object-center"
           data-ai-hint={bgImage.imageHint}
+          width={1920}
+          height={1080}
         />
       )}
-      <div className="relative z-10 p-4">
-        <h1 className="text-4xl font-bold text-primary mb-8 text-center">
+
+      <div className="flex flex-col w-11/12 max-w-2xl gap-4 mx-auto">
+        <Heading className="text-4xl font-bold text-primary mb-8 text-center">
           Chats
-        </h1>
+        </Heading>
+
         {chatContacts.length > 0 ? (
           <div className="space-y-4">
             {chatContacts.map((contact, index) => (
@@ -49,38 +51,53 @@ export default function ChatsPage() {
                 key={index}
                 className="bg-card/80 hover:bg-card/90 cursor-pointer transition-colors"
               >
-                <CardContent className="p-4 flex items-center space-x-4">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={contact.avatar} alt={contact.name} />
-                    <AvatarFallback>{contact.name.charAt(0)}</AvatarFallback>
-                  </Avatar>
+                <Flex p="4" align="center" gap="4">
+                  <Avatar
+                    className="h-12 w-12"
+                    src={contact.avatar}
+                    alt={contact.name}
+                    fallback={contact.name.charAt(0)}
+                  />
+
                   <div className="flex-grow">
                     <div className="flex justify-between items-center">
-                      <h3 className="font-semibold text-lg">{contact.name}</h3>
-                      <p className="text-xs text-muted-foreground">
+                      <Heading as="h3" className="font-semibold text-lg">
+                        {contact.name}
+                      </Heading>
+
+                      <Text as="p" className="text-xs text-muted-foreground">
                         {contact.time}
-                      </p>
+                      </Text>
                     </div>
-                    <p className="text-sm text-muted-foreground truncate">
+
+                    <Text
+                      as="p"
+                      className="text-sm text-muted-foreground truncate"
+                    >
                       {contact.lastMessage}
-                    </p>
+                    </Text>
                   </div>
-                </CardContent>
+                </Flex>
               </Card>
             ))}
           </div>
         ) : (
           <div className="text-center py-20 text-white">
             <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground" />
-            <h2 className="mt-4 text-xl font-semibold text-foreground">
+
+            <Heading
+              as="h2"
+              className="mt-4 text-xl font-semibold text-foreground"
+            >
               No tienes chats
-            </h2>
-            <p className="mt-2 text-muted-foreground">
+            </Heading>
+
+            <Text as="p" className="mt-2 text-muted-foreground">
               Inicia una conversación para ver tus chats.
-            </p>
+            </Text>
           </div>
         )}
       </div>
-    </div>
+    </Section>
   );
 }

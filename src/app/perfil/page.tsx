@@ -8,10 +8,11 @@ import {
   Flex,
   Heading,
   Section,
+  Skeleton,
   Text,
 } from "@radix-ui/themes";
 import { logout } from "./handler";
-import { use, useEffect } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import FormUserInfo from "./form-user-info";
@@ -62,13 +63,17 @@ export default function PerfilPage() {
             fallback={user?.nombre?.charAt(0) || "U"}
           />
 
-          <Heading as="h2" className="text-2xl font-bold">
-            {user?.nombre} {user?.apellido}
-          </Heading>
+          <Skeleton loading={loading} width="180px" height="1.75rem">
+            <Heading as="h2" className="text-2xl font-bold">
+              {user?.nombre} {user?.apellido}
+            </Heading>
+          </Skeleton>
 
-          <Text as="p" className="text-muted-foreground">
-            {user?.email}
-          </Text>
+          <Skeleton loading={loading} width="260px" height="1.25rem">
+            <Text as="p" className="text-muted-foreground">
+              {user?.email}
+            </Text>
+          </Skeleton>
 
           <FormUserInfo user={user} />
           {error && <Text className="text-red-500">{error}</Text>}

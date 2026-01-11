@@ -1,98 +1,83 @@
-
-'use client';
-import Image from 'next/image';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+"use client";
+import Image from "next/image";
+import Link from "next/link";
+import PayPalPayment from "@/components/pay-pal";
 import { Crown, CheckCircle2 } from "lucide-react";
-import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-import Link from 'next/link';
-
+import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { Button, Card, Flex, Heading, Section } from "@radix-ui/themes";
 
 export default function SuscripcionPage() {
-    const subscriptionBg = PlaceHolderImages.find(p => p.id === 'subscription-bg');
-    const PAYPAL_PLAN_ID = 'P-72083711K7639872BNE52YSQ';
-    const PAYPAL_CLIENT_ID = 'ASWoUY2hASGLV457PLVjFP-GpQHdyFUQjfs07h7NnzvuAeMRUiz2GOa_347qPhsvKqAJk9U-ukrRXG_6';
+  const subscriptionBg = PlaceHolderImages.find(
+    (p) => p.id === "subscription-bg",
+  );
 
-    const benefits = [
-        "Perfiles ilimitados",
-        "Chatea sin restricciones",
-        "Fotos y videos exclusivos",
-        "Filtros de búsqueda avanzados",
-        "Modo incógnito",
-    ];
+  const benefits = [
+    "Perfiles ilimitados",
+    "Chatea sin restricciones",
+    "Fotos y videos exclusivos",
+    "Filtros de búsqueda avanzados",
+    "Modo incógnito",
+  ];
 
   return (
-    <div className="relative min-h-screen -m-8 -mb-24 flex items-center justify-center overflow-hidden">
-        {subscriptionBg && (
-             <Image
-                src={subscriptionBg.imageUrl}
-                alt="Suscripción Venga Mor"
-                layout="fill"
-                objectFit="cover"
-                unoptimized
-                className="absolute z-0"
-                data-ai-hint={subscriptionBg.imageHint}
-            />
-        )}
-        <div className="absolute inset-0 bg-black/60 z-10"></div>
-        <div className="relative z-20 flex flex-col items-center text-center text-white p-4 w-full">
-            <h1 className="text-5xl font-bold text-primary mb-4" style={{ fontFamily: "'Playball', cursive" }}>Suscripción Premium</h1>
-            
-            <Card className="w-full max-w-md bg-card/80 border-primary shadow-lg">
-                <CardHeader>
-                    <CardTitle className="flex items-center justify-center gap-2 text-2xl text-yellow-400">
-                        <Crown className="h-8 w-8" />
-                        <span>Membresía Premium</span>
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-2">
-                    <ul className="space-y-3 text-left mb-6">
-                        {benefits.map((benefit, index) => (
-                            <li key={index} className="flex items-center">
-                                <CheckCircle2 className="h-5 w-5 text-accent mr-3" />
-                                <span>{benefit}</span>
-                            </li>
-                        ))}
-                    </ul>
+    <Section className="relative min-h-screen min-w-full flex flex-col items-center justify-center px-4 text-center bg-primary/10 overflow-hidden">
+      {subscriptionBg && (
+        <Image
+          src={subscriptionBg.imageUrl}
+          alt="Suscripción Venga Mor"
+          unoptimized
+          priority
+          className="absolute -z-10 h-screen w-full opacity-30 object-cover object-center"
+          width={1920}
+          height={1080}
+        />
+      )}
 
-                    <div className="space-y-4">
-                        <PayPalScriptProvider
-                            options={{
-                                "clientId": PAYPAL_CLIENT_ID,
-                                "vault": true,
-                                "intent": "subscription",
-                            }}
-                        >
-                            <PayPalButtons
-                                style={{
-                                    shape: 'rect',
-                                    color: 'gold',
-                                    layout: 'vertical',
-                                    label: 'subscribe'
-                                }}
-                                createSubscription={(data, actions) => {
-                                    return actions.subscription.create({
-                                        plan_id: PAYPAL_PLAN_ID
-                                    });
-                                }}
-                                onApprove={(data, actions) => {
-                                    alert(`Subscription successful: ${data.subscriptionID}`);
-                                    return Promise.resolve();
-                                }}
-                            />
-                        </PayPalScriptProvider>
-                        
-                        <Link href="https://mpago.li/2Z9He9g" target="_blank" rel="noopener noreferrer" className='w-full'>
-                            <Button variant="outline" className="w-full bg-sky-500 hover:bg-sky-600 text-white text-lg py-6">
-                                Pagar con Mercado Pago
-                            </Button>
-                        </Link>
+      <Heading
+        className="text-5xl font-bold text-primary mb-4"
+        style={{ fontFamily: "'Playball', cursive" }}
+      >
+        Suscripción Premium
+      </Heading>
 
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
-    </div>
+      <Card className="w-full max-w-md bg-card/80 border-primary shadow-lg">
+        <Heading
+          as="h2"
+          className="flex items-center justify-center gap-2 text-2xl text-yellow-400"
+        >
+          <Crown className="h-8 w-8" />
+          <span>Membresía Premium</span>
+        </Heading>
+
+        <Flex direction="column" gap="2" p="4">
+          <ul className="space-y-3 text-left mb-6">
+            {benefits.map((benefit, index) => (
+              <li key={index} className="flex items-center">
+                <CheckCircle2 className="h-5 w-5 text-accent mr-3" />
+                <span>{benefit}</span>
+              </li>
+            ))}
+          </ul>
+
+          <Flex direction="column" gap="2">
+            <PayPalPayment />
+
+            <Link
+              href="https://mpago.li/2Z9He9g"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full"
+            >
+              <Button
+                variant="outline"
+                className="w-full bg-sky-500 hover:bg-sky-600 text-white py-3 md:py-6"
+              >
+                Pagar con Mercado Pago
+              </Button>
+            </Link>
+          </Flex>
+        </Flex>
+      </Card>
+    </Section>
   );
 }
