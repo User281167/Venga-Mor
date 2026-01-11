@@ -77,6 +77,17 @@ export async function POST(req: Request) {
 
 export async function PUT(req: Request) {
   try {
+    const token = cookies().get("token")?.value;
+
+    if (!token) {
+      return new Response(ApiResponse.failure("No autorizado").toJSON(), {
+        status: 401,
+      });
+    }
+
+    const decoded = await adminAuth.verifyIdToken(token);
+    const uid = decoded.uid; // Este es el uid "oficial" del usuario autenticado
+
     const body = await req.json();
     const parsed = UpdateUserInfoSchema.safeParse(body);
 
@@ -93,13 +104,12 @@ export async function PUT(req: Request) {
       });
     }
 
-    const { uid, name, apellido, foto } = parsed.data;
-    const userId = uid;
+    const { name, apellido, foto } = parsed.data;
 
     // Actualizar los datos en Firestore
     await adminDb
       .collection("usuarios")
-      .doc(userId)
+      .doc(uid)
       .update({
         name,
         apellido,
