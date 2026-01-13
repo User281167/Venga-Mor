@@ -44,7 +44,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         });
 
         const user = (await resUser.json()) as ApiResponse<UserDto>;
-        console.log(user);
 
         if (user.success) {
           setUser({
@@ -54,6 +53,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
             foto: user.data?.foto,
             nombre: user.data.nombre,
             apellido: user.data.apellido,
+            descripcion: user.data?.descripcion,
           });
 
           setError(null);

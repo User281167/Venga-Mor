@@ -17,7 +17,6 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(ApiResponse.success(token, "Token renovado"), {
-      headers: { "Set-Cookie": cookie },
       status: 200,
     });
   } catch (error: any) {

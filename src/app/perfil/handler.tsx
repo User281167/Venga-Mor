@@ -25,3 +25,19 @@ export async function updateUser(data: UpdateUserInfo): Promise<ApiResponse> {
     return ApiResponse.failure("Error inesperado al actulizar la inforamción.");
   }
 }
+
+export async function updateImage(file: File): Promise<ApiResponse<string>> {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("/api/usuarios/imagen", {
+      method: "POST",
+      body: formData,
+    });
+
+    return (await res.json()) as ApiResponse<string>;
+  } catch (error) {
+    return ApiResponse.failure("Error inesperado al actulizar la imagen.");
+  }
+}

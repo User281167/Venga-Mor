@@ -104,7 +104,7 @@ export async function PUT(req: Request) {
       });
     }
 
-    const { nombre, apellido, foto } = parsed.data;
+    const { nombre, apellido, foto, descripcion } = parsed.data;
 
     // Actualizar los datos en Firestore
     await adminDb
@@ -114,6 +114,7 @@ export async function PUT(req: Request) {
         nombre,
         apellido,
         foto: foto || null,
+        descripcion: descripcion || null,
       });
 
     return new Response(
@@ -124,7 +125,7 @@ export async function PUT(req: Request) {
     console.error("Error al actualizar usuario:", error);
     return new Response(
       ApiResponse.failure(
-        "Error inesperado al actualizar la información. 123",
+        "Error inesperado al actualizar la información.",
       ).toJSON(),
       { status: 500 },
     );

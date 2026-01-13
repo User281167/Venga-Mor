@@ -18,7 +18,7 @@ import { setInfoFormSchema } from "./schema";
 
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { updateUser } from "./handler";
+import { updateImage, updateUser } from "./handler";
 import { toast } from "sonner";
 import { useUser } from "@/context/user-context";
 
@@ -33,6 +33,7 @@ export default function FormUserInfo({ user }: { user: AppUser | null }) {
   });
 
   const [loading, setLoading] = useState(true);
+  const [file, setFile] = useState<File | null>(null);
   const { setUser } = useUser();
 
   useEffect(() => {
@@ -74,6 +75,41 @@ export default function FormUserInfo({ user }: { user: AppUser | null }) {
     setLoading(false);
   }
 
+  function handleFileChange(e) {
+    const file = e.target.files[0];
+    const maxSize = 2 * 1024 * 1024; // 2MB
+
+    if (file && file.size > maxSize) {
+      toast.error("Imagen demasiado grande. Máximo tamaño es 2MB.");
+      e.target.value = "";
+      setFile(null);
+      return;
+    }
+
+    setFile(file);
+  }
+
+  async function handleImageUpload() {
+    if (!file) return;
+
+    setLoading(true);
+    toast.message("Subiendo imagen...");
+    const res = await updateImage(file);
+
+    if (res.success) {
+      toast.success("Imagen actualizada correctamente.");
+
+      setUser({
+        ...user,
+        foto: res.data,
+      } as AppUser);
+    } else {
+      toast.error(res.message);
+    }
+
+    setLoading(false);
+  }
+
   return (
     <Dialog.Root>
       <Dialog.Trigger aschild="true">
@@ -98,10 +134,31 @@ export default function FormUserInfo({ user }: { user: AppUser | null }) {
             src={user?.foto || ""}
             fallback={user?.nombre?.charAt(0) || "U"}
           />
+          <Flex
+            wrap="wrap"
+            gap="2"
+            align="center"
+            justify="center"
+            className="w-full"
+          >
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="w-full md:w-fit"
+            />
+            <Button
+              disabled={loading || !file}
+              className="w-full md:w-fit"
+              onClick={handleImageUpload}
+            >
+              Actualizar Imagen
+            </Button>
+          </Flex>
 
           <Form.Root
             onSubmit={form.handleSubmit(onSubmit)}
-            className="w-full max-w-md p-6 rounded-lg shadow-md flex flex-col gap-4"
+            className="w-full max-w-md rounded-lg shadow-md flex flex-col gap-4"
             noValidate
           >
             <Form.Field name="nombre">
