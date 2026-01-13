@@ -4,6 +4,7 @@ import { ApiResponse } from "@/lib/api-response";
 import { AppUser } from "@/types/user";
 import { UpdateUserInfoSchema, UserDto } from "@/dtos/user.dto";
 import { cookies } from "next/headers";
+import { supabaseAdmin } from "@/lib/subase";
 
 export async function POST(req: Request) {
   try {
@@ -156,6 +157,20 @@ export async function GET() {
         ApiResponse.failure("Usuario no encontrado").toJSON(),
         { status: 404 },
       );
+    }
+
+    // buscar en supabase
+    if (user.foto === "bucket") {
+      const { data: signedUrl } = await supabaseAdmin.storage
+        .from("perfiles")
+        .createSignedUrl(uid, 60);
+
+      if (signedUrl) {
+        user.foto = signedUrl.signedUrl;
+      } else {
+        user.foto =
+          "https://pixabay.com/images/download/false-2061132_1920.png";
+      }
     }
 
     return new Response(
