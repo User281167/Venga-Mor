@@ -191,6 +191,10 @@ export default function SignInPage() {
               Regístrate aquí
             </Link>
           </p>
+
+          <Link href="/restablecer-cuenta" className="hover:underline">
+            Restablecer contraseña
+          </Link>
         </Form.Root>
       </Flex>
     </HeaderGif>
