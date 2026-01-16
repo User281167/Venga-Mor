@@ -16,6 +16,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import FormUserInfo from "./form-user-info";
+import NewCollaborator from "./new-collaborator";
 
 export default function PerfilPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "profile-bg");
@@ -86,6 +87,8 @@ export default function PerfilPage() {
           >
             Cerrar Sesión
           </Button>
+
+          <NewCollaborator loading={loading} />
         </Flex>
       </Card>
     </Section>
