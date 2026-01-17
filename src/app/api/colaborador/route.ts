@@ -1,10 +1,10 @@
-import { adminAuth, adminDb } from "@/lib/firebase-admin-connection";
+import { adminDb } from "@/lib/firebase-admin-connection";
 import { ApiResponse } from "@/lib/api-response";
-import { UpdateUserInfoSchema, UserDto } from "@/dtos/user.dto";
-import { cookies } from "next/headers";
-import { supabaseAdmin } from "@/lib/subase";
 import { getUserID, getZodErrors } from "../utils";
-import { collaboratorFormSchema } from "@/schema/collaborator";
+import {
+  collaboratorFormSchema,
+  CollaboratorInfo,
+} from "@/schema/collaborator";
 
 export async function POST(req: Request) {
   try {
@@ -52,52 +52,44 @@ export async function POST(req: Request) {
 
 export async function PUT(req: Request) {
   try {
-    const token = (await cookies()).get("token")?.value;
+    const uid = await getUserID();
 
-    if (!token) {
+    if (!uid) {
       return new Response(ApiResponse.failure("No autorizado").toJSON(), {
         status: 401,
       });
     }
 
-    const decoded = await adminAuth.verifyIdToken(token);
-    const uid = decoded.uid; // Este es el uid "oficial" del usuario autenticado
+    const { data } = await req.json();
+    const errors = getZodErrors(collaboratorFormSchema, data);
 
-    const body = await req.json();
-    const parsed = UpdateUserInfoSchema.safeParse(body);
-
-    if (!parsed.success) {
-      // Convertimos los errores por campo a string[]
-      const errors: string[] = Object.entries(
-        parsed.error.flatten().fieldErrors,
-      ).flatMap(
-        ([field, msgs]) => msgs?.map((msg) => `${field}: ${msg}`) ?? [],
+    if (!!errors) {
+      return new Response(
+        ApiResponse.failure(
+          "Datos incompletos o erroneos",
+          errors ?? [],
+        ).toJSON(),
+        {
+          status: 400,
+        },
       );
-
-      return Response.json(ApiResponse.failure("Validación fallida", errors), {
-        status: 400,
-      });
     }
 
-    const { nombre, apellido, foto, descripcion } = parsed.data;
+    const plainData = JSON.parse(JSON.stringify(data));
 
     // Actualizar los datos en Firestore
-    await adminDb
-      .collection("usuarios")
-      .doc(uid)
-      .update({
-        nombre,
-        apellido,
-        foto: foto || null,
-        descripcion: descripcion || null,
-      });
+    await adminDb.collection("colaboradores").doc(uid).update(plainData);
 
     return new Response(
-      ApiResponse.success("Usuario actualizado exitosamente.").toJSON(),
+      ApiResponse.success(
+        data,
+        "Información actualizada exitosamente.",
+      ).toJSON(),
       { status: 200 },
     );
   } catch (error) {
-    console.error("Error al actualizar usuario:", error);
+    console.error("Error al actualizar el colaborador:", error);
+
     return new Response(
       ApiResponse.failure(
         "Error inesperado al actualizar la información.",
@@ -109,49 +101,30 @@ export async function PUT(req: Request) {
 
 export async function GET() {
   try {
-    // Tomamos el token del usuario desde la cookie
-    const token = (await cookies()).get("token")?.value;
+    const uid = await getUserID();
 
-    if (!token)
+    if (!uid)
       return new Response(ApiResponse.failure("No autorizado").toJSON(), {
         status: 401,
       });
 
-    // Verificamos el token con Admin SDK
-    const decoded = await adminAuth.verifyIdToken(token);
-    const uid = decoded.uid;
-
-    // Obtenemos el documento de Firestore del usuario
-    const userDoc = await adminDb.collection("usuarios").doc(uid).get();
-
-    const user: UserDto = userDoc.data() as UserDto;
+    const userDoc = await adminDb.collection("colaboradores").doc(uid).get();
+    const user = userDoc.data() as CollaboratorInfo;
 
     if (!userDoc.exists) {
       return new Response(
-        ApiResponse.failure("Usuario no encontrado").toJSON(),
+        ApiResponse.failure("Colaborador no encontrado").toJSON(),
         { status: 404 },
       );
     }
 
-    // buscar en supabase
-    if (user.foto === "bucket") {
-      const { data: signedUrl } = await supabaseAdmin.storage
-        .from("perfiles")
-        .createSignedUrl(uid, 60);
-
-      if (signedUrl) {
-        user.foto = signedUrl.signedUrl;
-      } else {
-        user.foto =
-          "https://pixabay.com/images/download/false-2061132_1920.png";
-      }
-    }
-
     return new Response(
-      ApiResponse.success(user, "Usuario obtenido").toJSON(),
+      ApiResponse.success(user, "Colaborador obtenido").toJSON(),
       { status: 200 },
     );
   } catch (error: any) {
+    console.log("Error al obtener el colaborador:", error);
+
     return new Response(
       ApiResponse.failure(error.message || "Error inesperado").toJSON(),
       { status: 500 },

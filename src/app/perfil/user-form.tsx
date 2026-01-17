@@ -18,7 +18,7 @@ import { setInfoFormSchema } from "./schema";
 
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { updateImage, updateUser } from "./handler";
+import { updateImage, updateUser } from "./user-handler";
 import { toast } from "sonner";
 import { useUser } from "@/context/user-context";
 

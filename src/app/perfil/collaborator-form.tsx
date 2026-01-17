@@ -12,91 +12,85 @@ import { Form } from "radix-ui";
 import { toast } from "sonner";
 import { PlusIcon, XIcon } from "lucide-react";
 
-import { useMemo, useState } from "react";
-
 import {
   collaboratorFormSchema,
   CollaboratorInfo,
 } from "@/schema/collaborator";
-import { createCollaborator } from "./handler";
-import { capitalizeFirstLetter } from "@/lib/utils";
+import {
+  createCollaborator,
+  getCollaborator,
+  updateCollaborator,
+} from "./collaborator-handler";
+import { useCollaboratorForm } from "./form-collaborator.hook";
+import { useEffect, useState } from "react";
+import { ApiResponse } from "@/lib/api-response";
 
-export default function NewCollaborator({ loading }: { loading: boolean }) {
-  const [sending, setSending] = useState(false);
-  const [currentInterest, setCurrentInterest] = useState("");
+export default function CollaboratorForm({ loading }: { loading: boolean }) {
+  const {
+    data,
+    errors,
+    sending,
+    currentInterest,
+    setData,
+    setField,
+    setCurrentInterest,
+    addInterest,
+    removeInterest,
+    validate,
+    setSending,
+  } = useCollaboratorForm();
 
-  const [data, setData] = useState({
-    genero: "Femenino",
-    orientacion_sexual: "",
-    etnia: "Mestizo",
-    altura: 0,
-    edad: 18,
-    profesion: "",
-    intereses: [],
-    redes: [],
-  } as CollaboratorInfo);
+  const [updateData, setUpdateData] = useState(false);
 
-  const errors = useMemo(() => {
-    const r = collaboratorFormSchema.safeParse(data);
-    return r.success ? {} : r.error.flatten().fieldErrors;
-  }, [data]);
+  useEffect(() => {
+    async function load() {
+      setSending(true);
+      const res = await getCollaborator();
+      setSending(false);
 
-  function addInterest() {
-    const value = capitalizeFirstLetter(currentInterest.trim());
-
-    if (value.length < 3) {
-      return;
+      if (res.success && res.data) {
+        setData(res.data);
+        setUpdateData(true);
+      } else {
+        toast.error(res.message);
+      }
     }
 
-    if (data.intereses.includes(value)) return;
-    if (data.intereses.length >= 5) return;
+    load();
+  }, []);
 
-    setData((prev) => ({
-      ...prev,
-      intereses: [...prev.intereses, value],
-    }));
-
-    setCurrentInterest("");
-  }
-
-  function handleRemoveInterest(index: number) {
-    setData((prev) => ({
-      ...prev,
-      intereses: prev.intereses.filter((_, i) => i !== index),
-    }));
-  }
-
-  const onSubmit = async (e) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = collaboratorFormSchema.safeParse(data);
 
-    if (!result.success) {
-      toast.error("Por favor, complete todos los campos correctamente.");
+    if (!validate()) {
+      toast.error("Por favor revise los errores.");
       return;
     }
 
     setSending(true);
-    const res = await createCollaborator(data);
-    setSending(false);
+    let res: ApiResponse<CollaboratorInfo>;
 
-    if (res.success) {
-      toast.success("Perfil creado correctamente.");
+    if (updateData) {
+      res = await updateCollaborator(data);
     } else {
-      toast.error(res.message);
+      res = await createCollaborator(data);
     }
+
+    setSending(false);
+    res.success ? toast.success(res.message) : toast.error(res.message);
   };
 
   return (
     <Dialog.Root>
       <Dialog.Trigger aschild="true">
         <Button variant="outline" className="w-full" disabled={loading}>
-          Crear perfil como colaborador
+          Cuanta de colaborador
         </Button>
       </Dialog.Trigger>
 
       <Dialog.Content>
         <Dialog.Title>
-          <Text as="h2" className="text-xl font-semibold">
+          <Text as="p" className="text-xl font-semibold">
             Información del perfil
           </Text>
         </Dialog.Title>
@@ -117,10 +111,7 @@ export default function NewCollaborator({ loading }: { loading: boolean }) {
                 <Select.Root
                   defaultValue={data.genero}
                   onValueChange={(value) =>
-                    setData((d) => ({
-                      ...d,
-                      genero: value as CollaboratorInfo["genero"],
-                    }))
+                    setField("genero", value as CollaboratorInfo["genero"])
                   }
                 >
                   <Select.Trigger className="w-full" />
@@ -149,19 +140,17 @@ export default function NewCollaborator({ loading }: { loading: boolean }) {
                 <Form.Control asChild className="w-full">
                   <TextField.Root
                     disabled={sending}
+                    defaultValue={data.orientacion_sexual}
                     type="text"
                     onChange={(e) =>
-                      setData((d) => ({
-                        ...d,
-                        orientacion_sexual: e.target.value,
-                      }))
+                      setField("orientacion_sexual", e.target.value)
                     }
                   />
                 </Form.Control>
 
                 {errors.orientacion_sexual?.[0] && (
                   <Form.Message className="text-red-500 text-sm">
-                    {errors.orientacion_sexual?.[0]}
+                    {errors.orientacion_sexual[0]}
                   </Form.Message>
                 )}
               </Form.Field>
@@ -173,10 +162,7 @@ export default function NewCollaborator({ loading }: { loading: boolean }) {
                   disabled={sending}
                   defaultValue={data.etnia}
                   onValueChange={(value) =>
-                    setData((d) => ({
-                      ...d,
-                      etnia: value as CollaboratorInfo["etnia"],
-                    }))
+                    setField("etnia", value as CollaboratorInfo["etnia"])
                   }
                 >
                   <Select.Trigger className="w-full" />
@@ -207,7 +193,7 @@ export default function NewCollaborator({ loading }: { loading: boolean }) {
                     max="250"
                     defaultValue={data.altura}
                     onChange={(e) =>
-                      setData({ ...data, altura: parseFloat(e.target.value) })
+                      setField("altura", parseFloat(e.target.value))
                     }
                     className="bg-transparent px-2 py-1 border-2 rounded-sm border-gray-700"
                   />
@@ -215,7 +201,7 @@ export default function NewCollaborator({ loading }: { loading: boolean }) {
 
                 {errors.altura?.[0] && (
                   <Form.Message className="text-red-500 text-sm">
-                    {errors.altura?.[0]}
+                    {errors.altura[0]}
                   </Form.Message>
                 )}
               </Form.Field>
@@ -229,12 +215,12 @@ export default function NewCollaborator({ loading }: { loading: boolean }) {
                     type="number"
                     min="18"
                     max="100"
+                    defaultValue="18"
                     onChange={(e) =>
-                      setData({
-                        ...data,
-                        edad:
-                          e.target.value === "" ? 0 : Number(e.target.value),
-                      })
+                      setField(
+                        "edad",
+                        e.target.value === "" ? 0 : Number(e.target.value),
+                      )
                     }
                     className="bg-transparent px-2 py-1 border-2 rounded-sm border-gray-700"
                   />
@@ -242,7 +228,7 @@ export default function NewCollaborator({ loading }: { loading: boolean }) {
 
                 {errors.edad?.[0] && (
                   <Form.Message className="text-red-500 text-sm">
-                    {errors.edad?.[0]}
+                    {errors.edad[0]}
                   </Form.Message>
                 )}
               </Form.Field>
@@ -254,18 +240,14 @@ export default function NewCollaborator({ loading }: { loading: boolean }) {
                   <TextField.Root
                     type="text"
                     disabled={sending}
-                    onChange={(e) =>
-                      setData({
-                        ...data,
-                        profesion: e.target.value,
-                      })
-                    }
+                    defaultValue={data.profesion}
+                    onChange={(e) => setField("profesion", e.target.value)}
                   />
                 </Form.Control>
 
                 {errors.profesion?.[0] && (
                   <Form.Message className="text-red-500 text-sm">
-                    {errors.profesion?.[0]}
+                    {errors.profesion[0]}
                   </Form.Message>
                 )}
               </Form.Field>
@@ -299,18 +281,18 @@ export default function NewCollaborator({ loading }: { loading: boolean }) {
 
                 {errors.intereses?.[0] && (
                   <Form.Message className="text-red-500 text-sm">
-                    {errors.intereses?.[0]}
+                    {errors.intereses[0]}
                   </Form.Message>
                 )}
 
-                <Flex gap="2" wrap="wrap">
+                <Flex gap="2" wrap="wrap" mt="1">
                   {data.intereses.map((field, index) => (
                     <Badge size="3" id={field + index}>
                       {field}
 
                       <Button
                         type="button"
-                        onClick={() => handleRemoveInterest(index)}
+                        onClick={() => removeInterest(index)}
                         size="1"
                         className="p-0"
                       >
@@ -335,7 +317,7 @@ export default function NewCollaborator({ loading }: { loading: boolean }) {
                         onChange={(e) => {
                           const newRedes = [...data.redes];
                           newRedes[index] = e.target.value;
-                          setData({ ...data, redes: newRedes });
+                          setField("redes", newRedes);
                         }}
                       />
                     </Form.Control>
@@ -352,7 +334,7 @@ export default function NewCollaborator({ loading }: { loading: boolean }) {
             </Flex>
 
             <Button type="submit" disabled={sending}>
-              Crear cuenta
+              {updateData ? "Actualizar información" : "Crear colaborador"}
             </Button>
           </Form.Root>
         </Flex>

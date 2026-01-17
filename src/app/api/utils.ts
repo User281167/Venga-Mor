@@ -24,11 +24,6 @@ export function getZodErrors<T>(
   if (!parsed.success) {
     return parsed.error.errors.map((e) => e.message);
   }
-  // if (!parsed.success) {
-  //   return Object.entries(parsed.error.flatten().fieldErrors)
-  //     .flatMap(([field, msgs]) => msgs?.map((msg) => `${field}: ${msg}`) ?? [])
-  //     .join(", ");
-  // }
 
   return null;
 }
