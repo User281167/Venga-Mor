@@ -45,7 +45,7 @@ export async function onSubmitRegisterUser(
       nombre: nombre,
       apellido: apellido,
       foto: null,
-      userType: "client",
+      tipo: "client",
       creado: createdAtDate ? createdAtDate.getTime() : Date.now(),
     } as AppUser;
 
@@ -118,7 +118,7 @@ export async function onSubmitRegisterGmailUser(): Promise<
       nombre: res.user.displayName || "",
       apellido: "",
       foto: res.user.photoURL,
-      userType: "client",
+      tipo: "client",
       creado: createdAtDate ? createdAtDate.getTime() : Date.now(),
     };
 

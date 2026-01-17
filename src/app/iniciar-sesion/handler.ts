@@ -56,7 +56,7 @@ export async function onSubmitLoginUser(
       nombre: res.user.displayName || "",
       apellido: "",
       foto: null,
-      userType: "client",
+      tipo: "client",
       creado: createdAtDate ? createdAtDate.getTime() : null,
     } as AppUser;
 
@@ -108,7 +108,7 @@ export async function onSubmitLoginGmailUser(): Promise<ApiResponse<AppUser>> {
       nombre: res.user.displayName || "",
       apellido: "",
       foto: res.user.photoURL,
-      userType: "client",
+      tipo: "client",
       creado: createdAtDate ? createdAtDate.getTime() : Date.now(),
     };
 

@@ -32,7 +32,16 @@ export async function POST(req: Request) {
     }
 
     const plainData = JSON.parse(JSON.stringify(data)); // Elimina propiedades no serializables
-    await adminDb.collection("colaboradores").doc(uid).create(plainData);
+    const userRef = adminDb.collection("usuarios").doc(uid);
+
+    const task1 = adminDb
+      .collection("colaboradores")
+      .doc(uid)
+      .create(plainData);
+
+    const task2 = userRef.update({ tipo: "colaborador" });
+
+    await Promise.all([task1, task2]);
 
     return new Response(
       ApiResponse.success(data, "Cuenta de colaborador creada").toJSON(),

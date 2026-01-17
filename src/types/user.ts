@@ -4,7 +4,7 @@ export interface AppUser {
   nombre: string;
   apellido: string;
   foto?: string | null;
-  userType: "client";
+  tipo: "cliente" | "colaborador";
   creado: number; // timestamp en ms
   descripcion?: string;
 }

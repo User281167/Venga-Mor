@@ -22,8 +22,10 @@ import {
   updateCollaborator,
 } from "./collaborator-handler";
 import { useCollaboratorForm } from "./form-collaborator.hook";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ApiResponse } from "@/lib/api-response";
+import { useUser } from "@/context/user-context";
+import { AppUser } from "@/types/user";
 
 export default function CollaboratorForm({ loading }: { loading: boolean }) {
   const {
@@ -40,24 +42,25 @@ export default function CollaboratorForm({ loading }: { loading: boolean }) {
     setSending,
   } = useCollaboratorForm();
 
-  const [updateData, setUpdateData] = useState(false);
+  const { user, setUser } = useUser();
 
   useEffect(() => {
-    async function load() {
-      setSending(true);
-      const res = await getCollaborator();
-      setSending(false);
+    if (user && user.tipo == "colaborador") {
+      async function load() {
+        setSending(true);
+        const res = await getCollaborator();
+        setSending(false);
 
-      if (res.success && res.data) {
-        setData(res.data);
-        setUpdateData(true);
-      } else {
-        toast.error(res.message);
+        if (res.success && res.data) {
+          setData(res.data);
+        } else {
+          toast.error(res.message);
+        }
       }
-    }
 
-    load();
-  }, []);
+      load();
+    }
+  }, [user]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,21 +73,31 @@ export default function CollaboratorForm({ loading }: { loading: boolean }) {
     setSending(true);
     let res: ApiResponse<CollaboratorInfo>;
 
-    if (updateData) {
+    if (user?.tipo == "colaborador") {
       res = await updateCollaborator(data);
     } else {
       res = await createCollaborator(data);
     }
 
     setSending(false);
-    res.success ? toast.success(res.message) : toast.error(res.message);
+
+    if (res.success) {
+      if (user) {
+        setUser({ ...user, tipo: "colaborador" });
+      }
+
+      toast.success(res.message);
+    } else {
+      toast.error(res.message);
+    }
   };
 
   return (
     <Dialog.Root>
       <Dialog.Trigger aschild="true">
         <Button variant="outline" className="w-full" disabled={loading}>
-          Cuanta de colaborador
+          {user?.tipo == "colaborador" ? "Editar" : "Crear"} cuanta de
+          colaborador
         </Button>
       </Dialog.Trigger>
 
@@ -334,7 +347,9 @@ export default function CollaboratorForm({ loading }: { loading: boolean }) {
             </Flex>
 
             <Button type="submit" disabled={sending}>
-              {updateData ? "Actualizar información" : "Crear colaborador"}
+              {user?.tipo == "colaborador"
+                ? "Actualizar información"
+                : "Crear colaborador"}
             </Button>
           </Form.Root>
         </Flex>

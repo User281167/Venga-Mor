@@ -56,7 +56,7 @@ export async function POST(req: Request) {
       nombre,
       apellido,
       foto: user.foto ?? null,
-      userType: "client" as const,
+      tipo: "client" as const,
       creado: user.creado ?? new Date(),
       descripcion: "",
     } as AppUser;

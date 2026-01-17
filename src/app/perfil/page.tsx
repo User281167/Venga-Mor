@@ -76,6 +76,13 @@ export default function PerfilPage() {
             </Text>
           </Skeleton>
 
+          <Skeleton loading={loading} width="260px" height="1.25rem">
+            <Text as="p" className="text-muted-foreground">
+              Registrado el{" "}
+              {new Date(user?.creado ?? new Date()).toLocaleDateString()}
+            </Text>
+          </Skeleton>
+
           <FormUserInfo user={user} />
           {error && <Text className="text-red-500">{error}</Text>}
 

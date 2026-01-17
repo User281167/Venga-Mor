@@ -50,11 +50,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
             ...user.data,
             uid: firebaseUser.uid,
             email: firebaseUser.email!,
-            foto: user.data?.foto,
-            nombre: user.data.nombre,
-            apellido: user.data.apellido,
-            descripcion: user.data?.descripcion,
-          });
+          } as AppUser);
 
           setError(null);
         } else {
