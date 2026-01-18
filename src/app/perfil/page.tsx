@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import FormUserInfo from "./user-form";
 import CollaboratorForm from "./collaborator-form";
+import { toast } from "sonner";
 
 export default function PerfilPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "profile-bg");
@@ -27,6 +28,10 @@ export default function PerfilPage() {
   useEffect(() => {
     if (!user && !loading) {
       router.push("/iniciar-sesion");
+    }
+
+    if (loading && error) {
+      toast.error("Error al cargar el perfil");
     }
   }, [user, loading, router]);
 
@@ -84,7 +89,7 @@ export default function PerfilPage() {
           </Skeleton>
 
           <FormUserInfo user={user} />
-          {error && <Text className="text-red-500">{error}</Text>}
+          <CollaboratorForm loading={loading} />
 
           <Button
             variant="outline"
@@ -94,8 +99,6 @@ export default function PerfilPage() {
           >
             Cerrar Sesión
           </Button>
-
-          <CollaboratorForm loading={loading} />
         </Flex>
       </Card>
     </Section>
