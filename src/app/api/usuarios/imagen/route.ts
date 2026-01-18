@@ -1,6 +1,6 @@
 import { ApiResponse } from "@/lib/api-response";
 import { adminAuth, adminDb } from "@/lib/firebase-admin-connection";
-import { supabaseAdmin } from "@/lib/subase";
+import { supabaseAdmin } from "@/lib/supabase";
 import { cookies } from "next/headers";
 
 export async function POST(req: Request) {

@@ -4,7 +4,7 @@ import { ApiResponse } from "@/lib/api-response";
 import { AppUser } from "@/types/user";
 import { UpdateUserInfoSchema, UserDto } from "@/dtos/user.dto";
 import { cookies } from "next/headers";
-import { supabaseAdmin } from "@/lib/subase";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export async function POST(req: Request) {
   try {
@@ -56,7 +56,7 @@ export async function POST(req: Request) {
       nombre,
       apellido,
       foto: user.foto ?? null,
-      tipo: "client" as const,
+      tipo: "cliente" as const,
       creado: user.creado ?? new Date(),
       descripcion: "",
     } as AppUser;
