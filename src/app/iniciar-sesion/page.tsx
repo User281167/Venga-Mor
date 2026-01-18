@@ -128,17 +128,14 @@ export default function SignInPage() {
                   type={showPassword ? "text" : "password"}
                 >
                   <TextField.Slot side="right">
-                    <button>
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
                       {showPassword ? (
-                        <EyeClosedIcon
-                          onClick={() => setShowPassword(false)}
-                          className="h-6 w-6"
-                        />
+                        <EyeClosedIcon className="h-6 w-6" />
                       ) : (
-                        <EyeIcon
-                          onClick={() => setShowPassword(true)}
-                          className="h-6 w-6"
-                        />
+                        <EyeIcon className="h-6 w-6" />
                       )}
                     </button>
                   </TextField.Slot>
