@@ -10,13 +10,9 @@ export const registerFormSchema = z.object({
     .min(8, {
       message: "La contraseña debe tener al menos 8 caracteres.",
     })
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,}$/,
-      {
-        message:
-          "La contraseña debe tener al menos un numero, una letra mayúscula, una minúscula y un carácter especial.",
-      },
-    ),
+    .regex(/[A-Z]/, {
+      message: "La contraseña debe tener al menos una letra mayúscula.",
+    }),
   nombre: z.string().min(3, {
     message: "El nombre debe tener al menos 3 caracteres.",
   }),
