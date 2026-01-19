@@ -5,6 +5,7 @@ import {
   Dialog,
   Flex,
   Select,
+  Skeleton,
   Text,
   TextField,
 } from "@radix-ui/themes";
@@ -93,12 +94,14 @@ export default function CollaboratorForm({ loading }: { loading: boolean }) {
 
   return (
     <Dialog.Root>
-      <Dialog.Trigger aschild="true">
-        <Button variant="outline" className="w-full" disabled={loading}>
-          {user?.tipo == "colaborador" ? "Editar" : "Crear"} cuanta de
-          colaborador
-        </Button>
-      </Dialog.Trigger>
+      <Skeleton loading={loading} width="260px" height="32px">
+        <Dialog.Trigger aschild="true">
+          <Button variant="outline" className="w-full" disabled={loading}>
+            {user?.tipo == "colaborador" ? "Editar" : "Crear"} cuanta de
+            colaborador
+          </Button>
+        </Dialog.Trigger>
+      </Skeleton>
 
       <Dialog.Content>
         <Dialog.Close className="absolute top-4 right-4 border-gray-400/30 border-2 rounded-md">
