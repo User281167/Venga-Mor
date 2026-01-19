@@ -21,11 +21,10 @@ import {
   getCollaborator,
   updateCollaborator,
 } from "./collaborator-handler";
-import { useCollaboratorForm } from "./form-collaborator.hook";
+import { orientaciones, useCollaboratorForm } from "./form-collaborator.hook";
 import { useEffect } from "react";
 import { ApiResponse } from "@/lib/api-response";
 import { useUser } from "@/context/user-context";
-import { AppUser } from "@/types/user";
 
 export default function CollaboratorForm({ loading }: { loading: boolean }) {
   const {
@@ -102,6 +101,10 @@ export default function CollaboratorForm({ loading }: { loading: boolean }) {
       </Dialog.Trigger>
 
       <Dialog.Content>
+        <Dialog.Close className="absolute top-4 right-4 border-gray-400/30 border-2 rounded-md">
+          <XIcon size={32} />
+        </Dialog.Close>
+
         <Dialog.Title>
           <Text as="p" className="text-xl font-semibold">
             Información del perfil
@@ -151,15 +154,44 @@ export default function CollaboratorForm({ loading }: { loading: boolean }) {
                 <Form.Label>Orientación sexual</Form.Label>
 
                 <Form.Control asChild className="w-full">
-                  <TextField.Root
-                    disabled={sending}
-                    defaultValue={data.orientacion_sexual}
-                    type="text"
-                    onChange={(e) =>
-                      setField("orientacion_sexual", e.target.value)
+                  <Select.Root
+                    defaultValue={
+                      orientaciones.includes(data.orientacion_sexual)
+                        ? data.orientacion_sexual
+                        : "Otro"
                     }
-                  />
+                    onValueChange={(value) =>
+                      setField(
+                        "orientacion_sexual",
+                        value as CollaboratorInfo["orientacion_sexual"],
+                      )
+                    }
+                  >
+                    <Select.Trigger className="w-full" />
+
+                    <Select.Content>
+                      {orientaciones.map((option) => (
+                        <Select.Item key={option} value={option}>
+                          {option}
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select.Root>
                 </Form.Control>
+
+                {(!orientaciones.includes(data.orientacion_sexual) ||
+                  data.orientacion_sexual === "Otro") && (
+                  <Form.Control asChild className="w-full mt-4">
+                    <TextField.Root
+                      disabled={sending}
+                      defaultValue={data.orientacion_sexual}
+                      type="text"
+                      onChange={(e) =>
+                        setField("orientacion_sexual", e.target.value)
+                      }
+                    />
+                  </Form.Control>
+                )}
 
                 {errors.orientacion_sexual?.[0] && (
                   <Form.Message className="text-red-500 text-sm">

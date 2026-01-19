@@ -45,9 +45,9 @@ export default function RootLayout({
               <BottomNav />
             </main>
           </UserProvider>
-
-          <Toaster richColors />
         </Theme>
+
+        <Toaster richColors />
       </body>
     </html>
   );

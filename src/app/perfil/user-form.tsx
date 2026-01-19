@@ -10,6 +10,7 @@ import {
   TextField,
 } from "@radix-ui/themes";
 import { Form } from "radix-ui";
+import { XIcon } from "lucide-react";
 
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
@@ -119,6 +120,10 @@ export default function FormUserInfo({ user }: { user: AppUser | null }) {
       </Dialog.Trigger>
 
       <Dialog.Content>
+        <Dialog.Close className="absolute top-4 right-4 border-gray-400/30 border-2 rounded-md">
+          <XIcon size={32} />
+        </Dialog.Close>
+
         <Dialog.Title>
           <Text as="p" className="text-xl font-semibold">
             Tu información de tu perfil

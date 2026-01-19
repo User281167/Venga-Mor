@@ -5,9 +5,23 @@ import {
 } from "@/schema/collaborator";
 import { useMemo, useState } from "react";
 
+export const orientaciones = [
+  "Heterosexual",
+  "Homosexual",
+  "Gay",
+  "Lesbiana",
+  "Bisexual",
+  "Pansexual",
+  "Asexual",
+  "Demisexual",
+  "Queer",
+  "Questioning (en exploración)",
+  "Otro",
+];
+
 const initialData: CollaboratorInfo = {
   genero: "Femenino",
-  orientacion_sexual: "",
+  orientacion_sexual: orientaciones[0],
   etnia: "Mestizo",
   altura: 0,
   edad: 18,
