@@ -52,9 +52,9 @@ export async function POST(req: Request) {
     // Crear documento de usuario
     const userDoc = {
       uid: uid,
-      email,
-      nombre,
-      apellido,
+      email: email.trim(),
+      nombre: nombre.trim(),
+      apellido: apellido?.trim(),
       foto: user.foto ?? null,
       tipo: "cliente" as const,
       creado: user.creado ?? new Date(),
@@ -112,10 +112,10 @@ export async function PUT(req: Request) {
       .collection("usuarios")
       .doc(uid)
       .update({
-        nombre,
-        apellido,
+        nombre: nombre.trim(),
+        apellido: apellido?.trim(),
         foto: foto || null,
-        descripcion: descripcion || null,
+        descripcion: descripcion?.trim() || null,
       });
 
     return new Response(

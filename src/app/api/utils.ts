@@ -27,3 +27,15 @@ export function getZodErrors<T>(
 
   return null;
 }
+
+export function deepTrim(obj: any): any {
+  if (typeof obj === "string") return obj.trim();
+  if (Array.isArray(obj)) return obj.map(deepTrim);
+  if (obj && typeof obj === "object") {
+    return Object.keys(obj).reduce((acc, key) => {
+      acc[key] = deepTrim(obj[key]);
+      return acc;
+    }, {} as any);
+  }
+  return obj;
+}

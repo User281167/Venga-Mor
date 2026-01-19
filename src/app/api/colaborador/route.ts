@@ -1,6 +1,6 @@
 import { adminDb } from "@/lib/firebase-admin-connection";
 import { ApiResponse } from "@/lib/api-response";
-import { getUserID, getZodErrors } from "../utils";
+import { deepTrim, getUserID, getZodErrors } from "../utils";
 import {
   collaboratorFormSchema,
   CollaboratorInfo,
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const plainData = JSON.parse(JSON.stringify(data)); // Elimina propiedades no serializables
+    const plainData = JSON.parse(JSON.stringify(deepTrim(data))); // Elimina propiedades no serializables
     const userRef = adminDb.collection("usuarios").doc(uid);
 
     const task1 = adminDb
@@ -84,7 +84,7 @@ export async function PUT(req: Request) {
       );
     }
 
-    const plainData = JSON.parse(JSON.stringify(data));
+    const plainData = JSON.parse(JSON.stringify(deepTrim(data)));
 
     // Actualizar los datos en Firestore
     await adminDb.collection("colaboradores").doc(uid).update(plainData);
