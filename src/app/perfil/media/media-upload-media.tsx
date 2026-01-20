@@ -9,7 +9,7 @@ import {
   Spinner,
 } from "@radix-ui/themes";
 import { Form } from "radix-ui";
-import { Plus, Image, Video, UploadCloud } from "lucide-react";
+import { Plus, Image, Video, UploadCloud, LayoutList } from "lucide-react";
 import { toast } from "sonner";
 
 import ProgressBar from "@/components/ProgressBar";
@@ -18,6 +18,7 @@ import MediaGrid from "./media-grid";
 import { useUser } from "@/context/user-context";
 import { createMediaPost } from "./media-handler";
 import { useMediaUploadForm } from "./media.hook";
+import Link from "next/link";
 
 export default function MediaUploadPanel() {
   const {
@@ -53,6 +54,13 @@ export default function MediaUploadPanel() {
   const handleSubmit = async () => {
     if (!user) {
       toast.error("No se pudo subir el contenido, usuario no autenticado");
+      return;
+    }
+
+    if (images.length === 0 && videos.length === 0) {
+      toast.error(
+        "No se pudo subir el contenido, no hay archivos seleccionados",
+      );
       return;
     }
 
@@ -114,20 +122,33 @@ export default function MediaUploadPanel() {
               </Text>
             </Box>
 
-            <Button
-              disabled={isUploading}
-              loading={isUploading}
-              onClick={handleSubmit}
-              color="green"
-              variant="solid"
-              highContrast
-              radius="full"
-              size="3"
-              className="cursor-pointer transition-transform hover:scale-105"
-            >
-              <Plus size={18} strokeWidth={3} />
-              Nuevo Contenido
-            </Button>
+            <Flex gap="4" align="center">
+              <Link
+                color="blue"
+                href="/perfil/posts"
+                className="flex items-center gap-4 text-blue-300 border-2 border-blue-500/50 px-5 py-2 rounded-full hover:scale-105 transition-transform"
+              >
+                <LayoutList size={18} strokeWidth={3} />
+                Mi Contenido
+              </Link>
+
+              <Button
+                disabled={
+                  isUploading || (images.length === 0 && videos.length === 0)
+                }
+                loading={isUploading}
+                onClick={handleSubmit}
+                color="green"
+                variant="solid"
+                highContrast
+                radius="full"
+                size="3"
+                className="cursor-pointer transition-transform hover:scale-105"
+              >
+                <Plus size={18} strokeWidth={3} />
+                Nuevo Contenido
+              </Button>
+            </Flex>
           </Flex>
 
           <Grid columns="2" gap="3" className="w-full">

@@ -107,7 +107,7 @@ export default function PerfilPage() {
 
       <Skeleton
         loading={loading}
-        className="h-64 w-full max-w-screen-lg mx-auto"
+        className="h-64 w-full max-w-screen-lg mx-auto rounded-lg"
       >
         {user?.tipo === "colaborador" && <MediaUploadPanel />}
       </Skeleton>
