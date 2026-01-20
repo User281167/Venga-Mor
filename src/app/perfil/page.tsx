@@ -11,13 +11,16 @@ import {
   Skeleton,
   Text,
 } from "@radix-ui/themes";
+import Image from "next/image";
+import { toast } from "sonner";
+
+import FormUserInfo from "./user-form";
+import CollaboratorForm from "./collaborator/collaborator-form";
+import MediaUploadPanel from "./media/media-upload-media";
+
 import { logout } from "./user-handler";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import FormUserInfo from "./user-form";
-import CollaboratorForm from "./collaborator-form";
-import { toast } from "sonner";
 
 export default function PerfilPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "profile-bg");
@@ -40,14 +43,14 @@ export default function PerfilPage() {
   }
 
   return (
-    <Section className="relative min-h-screen min-w-full flex flex-col items-center justify-center px-4 text-center bg-primary/10 overflow-hidden">
+    <Section className="min-h-screen min-w-full flex flex-col gap-4 items-center justify-center px-4 text-center bg-primary/10 overflow-hidden">
       {bgImage && (
         <Image
           src={bgImage.imageUrl}
           alt="Introducción Venga Mor"
           unoptimized
           priority
-          className="absolute -z-10 h-screen w-full opacity-30 object-cover object-center"
+          className="fixed left-0 top-0 -z-10 h-screen w-full opacity-30 object-cover object-center"
           data-ai-hint={bgImage.imageHint}
           width={1920}
           height={1080}
@@ -101,6 +104,13 @@ export default function PerfilPage() {
           </Button>
         </Flex>
       </Card>
+
+      <Skeleton
+        loading={loading}
+        className="h-64 w-full max-w-screen-lg mx-auto"
+      >
+        {user?.tipo === "colaborador" && <MediaUploadPanel />}
+      </Skeleton>
     </Section>
   );
 }

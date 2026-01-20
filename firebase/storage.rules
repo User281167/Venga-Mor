@@ -1,0 +1,38 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/studio-7857394445-e1558.firebasestorage.app/o {
+
+    // Función centralizada para validar al colaborador
+    function esColaboradorAutenticado(userId) {
+      return request.auth != null
+             && request.auth.uid == userId
+             && request.auth.token.tipo == "colaborador";
+    }
+
+    // --- SECCIÓN DE IMÁGENES ---
+    // Estructura: images/{userId}/{postId}/{fileName}
+    match /images/{userId}/{postId}/{fileName} {
+      allow write: if esColaboradorAutenticado(userId)
+                   && request.resource.size < 5 * 1024 * 1024 // 5MB
+                   && request.resource.contentType.matches('image/.*'); // Solo imágenes
+
+      // Abierto a cualquier logueado
+      allow read: if request.auth != null;
+    }
+
+    // --- SECCIÓN DE VIDEOS ---
+    // Estructura: videos/{userId}/{postId}/{fileName}
+    match /videos/{userId}/{postId}/{fileName} {
+      allow write: if esColaboradorAutenticado(userId)
+                   && request.resource.size < 50 * 1024 * 1024 // 50MB
+                   && request.resource.contentType.matches('video/.*'); // Solo videos
+
+      allow read: if request.auth != null;
+    }
+
+    // Bloqueo de seguridad por defecto para cualquier otra ruta
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

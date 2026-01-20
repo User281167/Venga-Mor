@@ -1,5 +1,8 @@
-# Firebase Studio
+# Firebase
 
-This is a NextJS starter in Firebase Studio.
+## Subir reglas configuradas en firebase.json
 
-To get started, take a look at src/app/page.tsx.
+```bash
+npm install firebase-tools
+firebase deploy --only storage,firestore
+```

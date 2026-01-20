@@ -1,3 +1,4 @@
+import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebase-admin-connection";
 import { ApiResponse } from "@/lib/api-response";
 import { deepTrim, getUserID, getZodErrors } from "../utils";
@@ -40,8 +41,9 @@ export async function POST(req: Request) {
       .create(plainData);
 
     const task2 = userRef.update({ tipo: "colaborador" });
+    const task3 = admin.auth().setCustomUserClaims(uid, { role: "admin" });
 
-    await Promise.all([task1, task2]);
+    await Promise.all([task1, task2, task3]);
 
     return new Response(
       ApiResponse.success(data, "Cuenta de colaborador creada").toJSON(),

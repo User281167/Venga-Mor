@@ -5,6 +5,7 @@ import {
   browserLocalPersistence,
 } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 import { ENV } from "./env";
 
 const firebaseConfig = {
@@ -16,11 +17,10 @@ const firebaseConfig = {
   appId: ENV.FIREBASE_APP_ID,
 };
 
-// Initialize Firebase
-// Initialize Firebase Authentication and get a reference to the service
 export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const storage = getStorage(app);
 
 setPersistence(auth, browserLocalPersistence);
 auth.useDeviceLanguage();
