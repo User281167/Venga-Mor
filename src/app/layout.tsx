@@ -4,6 +4,7 @@ import { BottomNav } from "@/components/bottom-nav";
 import { Toaster } from "sonner";
 
 import "@radix-ui/themes/styles.css";
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 import "./globals.css";
 import { UserProvider } from "@/context/user-context";
 
@@ -39,7 +40,7 @@ export default function RootLayout({
       <body className="font-body antialiased bg-background">
         <Theme>
           <UserProvider>
-            <main className="flex flex-col min-h-screen">
+            <main className="flex flex-col min-h-screen pb-16">
               {children}
 
               <BottomNav />
