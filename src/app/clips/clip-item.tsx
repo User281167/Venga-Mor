@@ -9,6 +9,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import Link from "next/link";
 import { Skeleton } from "@radix-ui/themes/components/skeleton";
+import { cn } from "@/lib/utils";
 
 interface ClipItemProps {
     post: PostData;
@@ -17,6 +18,8 @@ interface ClipItemProps {
 export function ClipItem({ post }: ClipItemProps) {
     const [author, setAuthor] = useState<AppUser | null>(null);
     const [loadingAuthor, setLoadingAuthor] = useState(true);
+    const [isLiked, setIsLiked] = useState(false);
+    const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 1000) + 200); // Dummy number
 
     useEffect(() => {
         const fetchAuthor = async () => {
@@ -36,6 +39,11 @@ export function ClipItem({ post }: ClipItemProps) {
         };
         fetchAuthor();
     }, [post.autorId]);
+
+    const handleLike = () => {
+        setIsLiked(!isLiked);
+        setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
+    };
 
     const mediaItems = [...(post.media.images || []), post.media.video].filter(Boolean);
 
@@ -78,9 +86,9 @@ export function ClipItem({ post }: ClipItemProps) {
 
                     {/* Right side: Action Buttons */}
                     <Flex direction="column" gap="4" align="center" className="text-white">
-                        <Button variant="ghost" className="text-white p-0 h-auto flex flex-col items-center">
-                            <Heart size={28} />
-                            <Text size="1">1.2k</Text>
+                        <Button variant="ghost" className="text-white p-0 h-auto flex flex-col items-center" onClick={handleLike}>
+                            <Heart size={28} className={cn(isLiked ? 'fill-red-500 text-red-500' : 'text-white')} />
+                            <Text size="1">{likeCount > 999 ? `${(likeCount/1000).toFixed(1)}k` : likeCount}</Text>
                         </Button>
                         <Button variant="ghost" className="text-white p-0 h-auto flex flex-col items-center">
                             <MessageCircle size={28} />

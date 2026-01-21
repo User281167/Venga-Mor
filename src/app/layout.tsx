@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import "@radix-ui/themes/styles.css";
 import "./globals.css";
 import { UserProvider } from "@/context/user-context";
+import { FloatingClipsButton } from "@/components/floating-clips-button";
 
 export const metadata: Metadata = {
   title: "Venga Mor",
@@ -41,7 +42,7 @@ export default function RootLayout({
           <UserProvider>
             <main className="flex flex-col min-h-screen pb-16">
               {children}
-
+              <FloatingClipsButton />
               <BottomNav />
             </main>
           </UserProvider>

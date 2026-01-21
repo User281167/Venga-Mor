@@ -1,14 +1,12 @@
-
 "use client";
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Compass, Clapperboard, MessageSquare, User, Info } from 'lucide-react';
+import { Compass, MessageSquare, User, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/perfiles', label: 'Explorar', icon: Compass },
-  { href: '/clips', label: 'Clips', icon: Clapperboard },
   { href: '/chats', label: 'Chats', icon: MessageSquare },
   { href: '/perfil', label: 'Perfil', icon: User },
   { href: '/info', label: 'Info', icon: Info },
