@@ -4,7 +4,6 @@ import { BottomNav } from "@/components/bottom-nav";
 import { Toaster } from "sonner";
 
 import "@radix-ui/themes/styles.css";
-import "react-responsive-carousel/lib/styles/carousel.min.css";
 import "./globals.css";
 import { UserProvider } from "@/context/user-context";
 
