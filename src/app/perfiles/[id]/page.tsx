@@ -2,19 +2,43 @@
 
 import { escorts } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { notFound } from 'next/navigation';
-import { Card, Flex, Heading, Text, Button, Avatar, Section, TextArea } from '@radix-ui/themes';
+import { notFound, useRouter } from 'next/navigation';
+import { Card, Flex, Heading, Text, Button, Avatar, Section, TextArea, Dialog } from '@radix-ui/themes';
 import { Star, MessageCircle, Diamond, Heart } from 'lucide-react';
 import { Separator } from '@radix-ui/themes/components/separator';
+import { useState } from 'react';
+import PayPalPayment from '@/components/pay-pal';
+
+const initialComments = [
+    { user: 'Usuario123', time: 'Hace 2 días', text: 'Una experiencia increíble, muy recomendada. Profesional y amable.' },
+    { user: 'OtroUsuario', time: 'Hace 1 semana', text: 'Excelente compañía para eventos.' },
+];
 
 export default function ProfileDetailPage({ params }: { params: { id: string } }) {
   const escort = escorts.find(e => e.id === params.id);
+  const router = useRouter();
+
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [comments, setComments] = useState(initialComments);
+  const [newComment, setNewComment] = useState('');
+  const [rating, setRating] = useState(4);
+  const [hoverRating, setHoverRating] = useState(0);
 
   if (!escort) {
     notFound();
   }
 
   const profileImage = PlaceHolderImages.find(p => p.id === escort.imageId);
+
+  const handlePostComment = () => {
+    if (newComment.trim()) {
+      setComments([
+        ...comments,
+        { user: 'Tú', time: 'Ahora mismo', text: newComment }
+      ]);
+      setNewComment('');
+    }
+  };
 
   return (
     <Section className="py-8 px-4">
@@ -38,15 +62,33 @@ export default function ProfileDetailPage({ params }: { params: { id: string } }
 
           {/* Action Buttons */}
           <Flex gap="3">
-            <Button className="flex-1 bg-primary">
+            <Button className="flex-1 bg-primary" onClick={() => router.push(`/chats/${escort.id}`)}>
               <MessageCircle className="mr-2 h-4 w-4" /> Enviar Mensaje
             </Button>
-            <Button variant="soft" className="flex-1">
-              <Heart className="mr-2 h-4 w-4" /> Seguir
+            <Button variant={isFollowing ? 'solid' : 'soft'} className="flex-1" onClick={() => setIsFollowing(!isFollowing)}>
+              <Heart className={`mr-2 h-4 w-4 ${isFollowing ? 'fill-current' : ''}`} /> {isFollowing ? 'Siguiendo' : 'Seguir'}
             </Button>
-            <Button variant="soft" className="flex-1">
-              <Diamond className="mr-2 h-4 w-4" /> Enviar Joyas
-            </Button>
+            
+            <Dialog.Root>
+                <Dialog.Trigger>
+                    <Button variant="soft" className="flex-1">
+                        <Diamond className="mr-2 h-4 w-4" /> Enviar Joyas
+                    </Button>
+                </Dialog.Trigger>
+                <Dialog.Content style={{ maxWidth: 450 }}>
+                  <Dialog.Title>Comprar Joyas</Dialog.Title>
+                  <Dialog.Description size="2" mb="4">
+                    Apoya a {escort.name} enviándole joyas.
+                  </Dialog.Description>
+                  <PayPalPayment />
+                  <Flex mt="4" justify="end">
+                    <Dialog.Close>
+                      <Button variant="soft">Cerrar</Button>
+                    </Dialog.Close>
+                  </Flex>
+                </Dialog.Content>
+            </Dialog.Root>
+
           </Flex>
 
           <Separator my="3" size="4" />
@@ -69,12 +111,20 @@ export default function ProfileDetailPage({ params }: { params: { id: string } }
           <Flex direction="column" gap="2">
             <Heading as="h2" size="4">Calificación</Heading>
             <Flex align="center" gap="2">
-              <Star className="h-6 w-6 text-yellow-400 fill-yellow-400" />
-              <Star className="h-6 w-6 text-yellow-400 fill-yellow-400" />
-              <Star className="h-6 w-6 text-yellow-400 fill-yellow-400" />
-              <Star className="h-6 w-6 text-yellow-400 fill-yellow-400" />
-              <Star className="h-6 w-6 text-gray-500" />
-              <Text weight="bold">(4.0 de 5)</Text>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                  key={star}
+                  className={`h-6 w-6 cursor-pointer ${
+                    (hoverRating || rating) >= star
+                      ? 'text-yellow-400 fill-yellow-400'
+                      : 'text-gray-500'
+                  }`}
+                  onClick={() => setRating(star)}
+                  onMouseEnter={() => setHoverRating(star)}
+                  onMouseLeave={() => setHoverRating(0)}
+                />
+              ))}
+              <Text weight="bold">({rating.toFixed(1)} de 5)</Text>
             </Flex>
             <Text as="p" size="2" className="text-muted-foreground">Deja tu calificación para ayudar a otros.</Text>
           </Flex>
@@ -85,26 +135,24 @@ export default function ProfileDetailPage({ params }: { params: { id: string } }
           <Flex direction="column" gap="3">
             <Heading as="h2" size="4">Comentarios Públicos</Heading>
             <Flex direction="column" gap="3">
-                {/* Example Comment */}
-                <Card>
-                    <Flex direction="column" gap="1">
-                        <Text weight="bold">Usuario123</Text>
-                        <Text size="2" className="text-muted-foreground">Hace 2 días</Text>
-                        <Text as="p" mt="2">Una experiencia increíble, muy recomendada. Profesional y amable.</Text>
-                    </Flex>
-                </Card>
-                <Card>
-                    <Flex direction="column" gap="1">
-                        <Text weight="bold">OtroUsuario</Text>
-                        <Text size="2" className="text-muted-foreground">Hace 1 semana</Text>
-                        <Text as="p" mt="2">Excelente compañía para eventos.</Text>
-                    </Flex>
-                </Card>
+                {comments.map((comment, index) => (
+                    <Card key={index}>
+                        <Flex direction="column" gap="1">
+                            <Text weight="bold">{comment.user}</Text>
+                            <Text size="2" className="text-muted-foreground">{comment.time}</Text>
+                            <Text as="p" mt="2">{comment.text}</Text>
+                        </Flex>
+                    </Card>
+                ))}
             </Flex>
 
             <Flex direction="column" gap="2" mt="4">
-              <TextArea placeholder="Escribe tu comentario público aquí..." />
-              <Button className="self-end">Publicar Comentario</Button>
+              <TextArea 
+                placeholder="Escribe tu comentario público aquí..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+              />
+              <Button className="self-end" onClick={handlePostComment}>Publicar Comentario</Button>
             </Flex>
           </Flex>
         </Flex>

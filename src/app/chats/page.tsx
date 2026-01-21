@@ -3,26 +3,23 @@ import { MessageSquare } from "lucide-react";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Avatar, Card, Flex, Heading, Section, Text } from "@radix-ui/themes";
-
-const chatContacts = [
-  {
-    name: "Sofia",
-    lastMessage: "Hola! ¿Cómo estás?",
-    time: "10:42 AM",
-    avatar:
-      "https://images.unsplash.com/photo-1610462679576-e591f04e6e1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx3b21hbiUyMHByb2ZpbGV8ZW58MHx8fHwxNzY1NDc2OTEzfDA&ixlib=rb-4.1.0&q=80&w=1080",
-  },
-  {
-    name: "Camila",
-    lastMessage: "Nos vemos esta noche.",
-    time: "Ayer",
-    avatar:
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx3b21hbiUyMHByb2ZpbGV8ZW58MHx8fHwxNzY1NDc2OTEzfDA&ixlib=rb-4.1.0&q=80&w=1080",
-  },
-];
+import Link from "next/link";
+import { escorts } from "@/lib/data";
 
 export default function ChatsPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "chat-bg");
+
+  // Use escorts data for a more dynamic feel
+  const chatContacts = escorts.slice(0, 4).map(escort => {
+    const profileImage = PlaceHolderImages.find(p => p.id === escort.imageId);
+    return {
+        id: escort.id,
+        name: escort.name,
+        lastMessage: "Toca para iniciar una conversación...",
+        time: "Ahora",
+        avatar: profileImage?.imageUrl || '',
+    }
+  });
 
   return (
     <Section className="relative min-h-[calc(100vh-128px)]">
@@ -46,39 +43,40 @@ export default function ChatsPage() {
 
         {chatContacts.length > 0 ? (
           <div className="space-y-4">
-            {chatContacts.map((contact, index) => (
-              <Card
-                key={index}
-                className="bg-card/80 hover:bg-card/90 cursor-pointer transition-colors"
-              >
-                <Flex p="4" align="center" gap="4">
-                  <Avatar
-                    className="h-12 w-12"
-                    src={contact.avatar}
-                    alt={contact.name}
-                    fallback={contact.name.charAt(0)}
-                  />
+            {chatContacts.map((contact) => (
+              <Link href={`/chats/${contact.id}`} key={contact.id}>
+                <Card
+                  className="bg-card/80 hover:bg-card/90 cursor-pointer transition-colors"
+                >
+                  <Flex p="4" align="center" gap="4">
+                    <Avatar
+                      className="h-12 w-12"
+                      src={contact.avatar}
+                      alt={contact.name}
+                      fallback={contact.name.charAt(0)}
+                    />
 
-                  <div className="flex-grow">
-                    <div className="flex justify-between items-center">
-                      <Heading as="h3" className="font-semibold text-lg">
-                        {contact.name}
-                      </Heading>
+                    <div className="flex-grow">
+                      <div className="flex justify-between items-center">
+                        <Heading as="h3" className="font-semibold text-lg">
+                          {contact.name}
+                        </Heading>
 
-                      <Text as="p" className="text-xs text-muted-foreground">
-                        {contact.time}
+                        <Text as="p" className="text-xs text-muted-foreground">
+                          {contact.time}
+                        </Text>
+                      </div>
+
+                      <Text
+                        as="p"
+                        className="text-sm text-muted-foreground truncate"
+                      >
+                        {contact.lastMessage}
                       </Text>
                     </div>
-
-                    <Text
-                      as="p"
-                      className="text-sm text-muted-foreground truncate"
-                    >
-                      {contact.lastMessage}
-                    </Text>
-                  </div>
-                </Flex>
-              </Card>
+                  </Flex>
+                </Card>
+              </Link>
             ))}
           </div>
         ) : (

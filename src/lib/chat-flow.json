@@ -1,0 +1,77 @@
+{
+  "nodos": {
+    "inicio": {
+      "texto": "Hola... un gusto saludarte. Me gusta empezar con respeto y discreción. ¿Con quién tengo el gusto de hablar?",
+      "tipo": "pregunta_abierta",
+      "siguiente_automatico": "bienvenida_personalizada"
+    },
+    "bienvenida_personalizada": {
+      "texto": "Encantada. Me tomo mi tiempo y seguridad muy en serio, por eso prefiero charlar un poco antes de pasar a lo formal. ¿Buscas algo para ahora mismo o estás planeando con antelación?",
+      "opciones": [
+        { "label": "Busco algo para hoy", "next": "intro_servicios" },
+        { "label": "Estoy planeando para después", "next": "intro_servicios" },
+        { "label": "Solo quería conocerte", "next": "charla_casual" }
+      ]
+    },
+    "charla_casual": {
+      "texto": "Qué detallista. Soy una persona independiente, me gusta la buena compañía y la caballerosidad. ¿Qué es lo que más te llama la atención de mi perfil?",
+      "opciones": [
+        { "label": "Tu elegancia", "next": "intro_servicios" },
+        { "label": "Tu sinceridad", "next": "intro_servicios" }
+      ]
+    },
+    "intro_servicios": {
+      "texto": "Me gusta que seas directo. Mis encuentros se basan en la conexión y pasar un momento inolvidable. Ofrezco un trato de novia (GFE), masajes relajantes y total discreción. ¿Te gustaría conocer mis honorarios y condiciones?",
+      "opciones": [
+        { "label": "Sí, dime los precios", "next": "tarifas" },
+        { "label": "Cuéntame tus condiciones primero", "next": "seguridad_protocolo" }
+      ]
+    },
+    "tarifas": {
+      "texto": "Mi tiempo es valioso, al igual que el tuyo. Mis honorarios son:\n- 1 hora: $XXX\n- Tiempo completo (noche): $XXX\nEsto incluye mi desplazamiento y total dedicación a ti. ¿Te parece bien?",
+      "opciones": [
+        { "label": "Me parece justo", "next": "seguridad_protocolo" },
+        { "label": "Es un poco alto para mí", "next": "negociacion_cierre" }
+      ]
+    },
+    "seguridad_protocolo": {
+      "texto": "Antes de agendar, por seguridad mutua, manejo un protocolo: solicito ubicación en tiempo real al momento del encuentro y el apoyo se entrega al inicio. No acepto faltas de respeto ni comportamientos inadecuados. ¿Estamos en la misma sintonía?",
+      "opciones": [
+        { "label": "Totalmente de acuerdo", "next": "logistica_final" },
+        { "label": "No estoy acostumbrado a eso", "next": "explicacion_seguridad" }
+      ]
+    },
+    "explicacion_seguridad": {
+      "texto": "Entiendo, pero como independiente mi integridad es lo primero. Si buscas una experiencia premium, la confianza debe ser mutua. ¿Podemos proceder con respeto?",
+      "opciones": [
+        { "label": "Está bien, sigamos", "next": "logistica_final" },
+        { "label": "Prefiero no seguir", "next": "despedida_educada" }
+      ]
+    },
+    "logistica_final": {
+      "texto": "Perfecto. ¿Dónde prefieres que nos veamos? Puedo ir a tu hotel/domicilio o podemos coordinar en mi lugar privado.",
+      "opciones": [
+        { "label": "Ven a mi ubicación", "next": "solicitar_detalles" },
+        { "label": "Prefiero ir a tu lugar", "next": "solicitar_detalles" }
+      ]
+    },
+    "solicitar_detalles": {
+      "texto": "Excelente elección. Para finalizar la reserva, por favor confírmame tu nombre real y un número de contacto. En un momento te contactaré personalmente para los detalles finales. 💋",
+      "opciones": [
+        { "label": "Enviar datos y finalizar", "next": "final_confirmado" }
+      ]
+    },
+    "final_confirmado": {
+      "texto": "Datos recibidos. Ya he bloqueado mi agenda para ti. En breve te escribo. ¡Ten un lindo día!",
+      "opciones": []
+    },
+    "despedida_educada": {
+        "texto": "Entiendo perfectamente. Agradezco tu honestidad. Si cambias de opinión, aquí estaré. ¡Que tengas un buen día!",
+        "opciones": []
+    },
+    "negociacion_cierre": {
+        "texto": "Comprendo. Mis tarifas reflejan la calidad y exclusividad de la experiencia. Quizás en otro momento sea más oportuno para ti. Agradezco tu interés.",
+        "opciones": []
+    }
+  }
+}
