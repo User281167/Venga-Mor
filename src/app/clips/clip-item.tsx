@@ -1,5 +1,4 @@
 'use client';
-import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { PostData } from "@/types/post";
 import { AppUser } from "@/types/user";
 import { Avatar, Box, Button, Flex, Text } from "@radix-ui/themes";
