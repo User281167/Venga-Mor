@@ -3,6 +3,7 @@ import type { Escort } from "@/lib/data";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Star, MapPin, Diamond } from "lucide-react";
 import { Badge, Button, Card, Flex } from "@radix-ui/themes";
+import Link from "next/link";
 
 interface EscortProfileCardProps {
   escort: Escort;
@@ -56,9 +57,11 @@ export function EscortProfileCard({ escort }: EscortProfileCardProps) {
         </div>
 
         <div className="flex justify-between mt-4 space-x-2">
-          <Button variant="outline" className="w-full">
-            Visitar Perfil
-          </Button>
+          <Link href={`/perfiles/${escort.id}`} className="w-full">
+            <Button variant="outline" className="w-full">
+              Visitar Perfil
+            </Button>
+          </Link>
 
           <Button className="w-full bg-primary text-primary-foreground">
             <Diamond className="mr-2 h-4 w-4" />
