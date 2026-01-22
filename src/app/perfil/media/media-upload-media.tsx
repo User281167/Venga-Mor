@@ -111,7 +111,7 @@ export default function MediaUploadPanel() {
         />
 
         <Card size="3" variant="surface">
-          <Flex justify="between" align="center" mb="4">
+          <Flex justify="between" align="center" mb="4" wrap="wrap">
             <Box>
               <Text as="p" size="4" weight="bold">
                 Biblioteca de Medios
@@ -122,11 +122,11 @@ export default function MediaUploadPanel() {
               </Text>
             </Box>
 
-            <Flex gap="4" align="center">
+            <Flex gap="2" align="center" wrap="wrap" mt="3">
               <Link
                 color="blue"
                 href="/perfil/posts"
-                className="flex items-center gap-4 text-blue-300 border-2 border-blue-500/50 px-5 py-2 rounded-full hover:scale-105 transition-transform"
+                className="flex justify-center items-center gap-4 text-blue-300 border-2 border-blue-500/50 px-5 py-2 rounded-full hover:scale-105 transition-transform w-full md:w-fit"
               >
                 <LayoutList size={18} strokeWidth={3} />
                 Mi Contenido
@@ -143,7 +143,7 @@ export default function MediaUploadPanel() {
                 highContrast
                 radius="full"
                 size="3"
-                className="cursor-pointer transition-transform hover:scale-105"
+                className="cursor-pointer transition-transform hover:scale-105 w-full md:w-fit"
               >
                 <Plus size={18} strokeWidth={3} />
                 Nuevo Contenido
@@ -151,7 +151,7 @@ export default function MediaUploadPanel() {
             </Flex>
           </Flex>
 
-          <Grid columns="2" gap="3" className="w-full">
+          <Grid columns="2" gap="3" mt="5">
             {/* Tarjeta de Imagen */}
             <Card
               variant="ghost"
@@ -208,7 +208,7 @@ export default function MediaUploadPanel() {
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             hidden={isUploading}
-            mt="6"
+            mt="5"
             onClick={() => imageInputRef.current?.click()}
             className="cursor-pointer"
           >
@@ -220,11 +220,11 @@ export default function MediaUploadPanel() {
             >
               <UploadCloud size={32} className="text-gray-400 mb-2" />
 
-              <p>
+              <Text as="p" align="center">
                 {isDragging
                   ? "Suelta los archivos aquí"
                   : "Arrastra y suelta archivos aquí"}
-              </p>
+              </Text>
             </Flex>
           </Box>
 

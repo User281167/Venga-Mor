@@ -4,7 +4,7 @@ import { ApiResponse } from "@/lib/api-response";
 export const fetchPosts = async (
   lastId?: string | null,
 ): Promise<ApiResponse<PostListDto>> => {
-  const url = new URL("/api/posts", window.location.origin);
+  const url = new URL("/api/usuarios/posts", window.location.origin);
 
   if (lastId) {
     url.searchParams.append("lastId", lastId);

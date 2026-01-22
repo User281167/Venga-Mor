@@ -124,16 +124,13 @@ export default function FormUserInfo({ user }: { user: AppUser | null }) {
           <XIcon size={32} />
         </Dialog.Close>
 
-        <Dialog.Title>
-          <Text as="p" className="text-xl font-semibold">
+        <Dialog.Title mt="6">
+          <Text as="p" size="4" className=" font-semibold">
             Tu información de tu perfil
           </Text>
         </Dialog.Title>
 
-        <Flex
-          className="pt-6 flex flex-col items-center max-w-xl mx-auto"
-          gap="4"
-        >
+        <Flex className="flex flex-col items-center max-w-xl mx-auto" gap="4">
           <Avatar
             className="h-24 w-24 border-2 border-primary"
             src={user?.foto || ""}

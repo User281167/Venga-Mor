@@ -1,9 +1,9 @@
 import { ApiResponse } from "@/lib/api-response";
-import { getUserID, getZodErrors } from "../utils";
 import { postDataSchema } from "@/schema/post";
 import { PostData } from "@/types/post";
 import { adminDb } from "@/lib/firebase-admin-connection";
 import { PostListDto } from "@/dtos/post.dto";
+import { getUserID, getZodErrors } from "../../utils";
 
 export async function POST(req: Request) {
   try {
@@ -55,12 +55,21 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   try {
+    const uid = await getUserID();
+
+    if (!uid) {
+      return new Response(ApiResponse.failure("No autorizado").toJSON(), {
+        status: 401,
+      });
+    }
+
     const { searchParams } = new URL(req.url);
     const lastId = searchParams.get("lastId"); // El ID del último post cargado
     const limitNum = 10;
 
     let query = adminDb
       .collection("posts")
+      .where("autorId", "==", uid)
       .orderBy("creado", "desc") // Siempre ordena por fecha
       .limit(limitNum);
 
