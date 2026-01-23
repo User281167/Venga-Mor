@@ -89,7 +89,7 @@ export async function createMediaPost(
       actualizado: Date.now(),
     };
 
-    const response = await fetch("/api/usuarios/posts/", {
+    const response = await fetch("/api/colaborador/posts/", {
       method: "POST",
       body: JSON.stringify({ data: postData }),
       headers: { "Content-Type": "application/json" },
