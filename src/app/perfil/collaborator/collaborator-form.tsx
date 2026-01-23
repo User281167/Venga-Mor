@@ -292,6 +292,72 @@ export default function CollaboratorForm({ loading }: { loading: boolean }) {
                 )}
               </Form.Field>
 
+              <Form.Field name="pais" className="w-full">
+                <Form.Label>País</Form.Label>
+
+                <Form.Control asChild className="w-full">
+                  <TextField.Root
+                    disabled={sending}
+                    type="text"
+                    value={data.direccion?.pais || ""}
+                    onChange={(e) =>
+                      setData({
+                        ...data,
+                        direccion: { ...data.direccion, pais: e.target.value },
+                      })
+                    }
+                  />
+                </Form.Control>
+
+                {errors.direccion?.[0] && (
+                  <Form.Message className="text-red-500 text-sm">
+                    {errors.direccion[0]}
+                  </Form.Message>
+                )}
+              </Form.Field>
+
+              <Form.Field name="estado_region" className="w-full">
+                <Form.Label>Estado / Región</Form.Label>
+
+                <Form.Control asChild className="w-full">
+                  <TextField.Root
+                    disabled={sending}
+                    type="text"
+                    value={data.direccion?.estado_region || ""}
+                    onChange={(e) =>
+                      setData({
+                        ...data,
+                        direccion: {
+                          ...data.direccion,
+                          estado_region: e.target.value,
+                        },
+                      })
+                    }
+                  />
+                </Form.Control>
+              </Form.Field>
+
+              <Form.Field name="ciudad_localidad" className="w-full">
+                <Form.Label>Ciudad / Localidad</Form.Label>
+
+                <Form.Control asChild className="w-full">
+                  <TextField.Root
+                    disabled={sending}
+                    type="text"
+                    value={data.direccion?.ciudad_localidad || ""}
+                    onChange={(e) =>
+                      setData({
+                        ...data,
+                        direccion: {
+                          ...data.direccion,
+                          ciudad_localidad: e.target.value,
+                        },
+                      })
+                    }
+                  />
+                </Form.Control>
+              </Form.Field>
+
               <Form.Field name="profesion" className="w-full">
                 <Form.Label>Profesion</Form.Label>
 

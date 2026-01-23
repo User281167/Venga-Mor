@@ -38,6 +38,11 @@ const initialData: CollaboratorInfo = {
   etnia: "Mestizo",
   altura: 0,
   edad: 18,
+  direccion: {
+    pais: "",
+    estado_region: "",
+    ciudad_localidad: "",
+  },
   profesion: "",
   intereses: [],
   categorias: [],

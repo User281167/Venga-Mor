@@ -25,6 +25,22 @@ export const collaboratorFormSchema = z.object({
     .min(18, "La edad debe ser mayor o igual a 18 años")
     .max(100, "La edad debe ser menor o igual a 100 años")
     .default(18),
+  direccion: z
+    .object({
+      pais: z
+        .string()
+        .max(50, "El país debe tener como máximo 50 caracteres")
+        .optional(),
+      estado_region: z
+        .string()
+        .max(50, "El estado o región debe tener como máximo 50 caracteres")
+        .optional(),
+      ciudad_localidad: z
+        .string()
+        .max(50, "La ciudad o localidad debe tener como máximo 50 caracteres")
+        .optional(),
+    })
+    .optional(),
   profesion: z
     .string()
     .nonempty("Por favor indique su profesión")
