@@ -17,7 +17,8 @@ export const collaboratorFormSchema = z.object({
   altura: z.coerce
     .number()
     .min(0, "La altura debe ser mayor o igual a 0")
-    .max(2.5, "La altura debe ser menor o igual a 2.5 metros"),
+    .max(2.5, "La altura debe ser menor o igual a 2.5 metros")
+    .transform((v) => v || 0),
   edad: z.coerce
     .number()
     .int("Solo números enteros")
@@ -29,6 +30,7 @@ export const collaboratorFormSchema = z.object({
     .nonempty("Por favor indique su profesión")
     .max(50, "La profesión debe tener como máximo 50 caracteres"),
   intereses: z.array(z.string().min(3).max(50)).max(5).default([]),
+  categorias: z.array(z.string().min(3).max(50)).max(3).default([]).optional(),
   redes: z
     .array(
       z

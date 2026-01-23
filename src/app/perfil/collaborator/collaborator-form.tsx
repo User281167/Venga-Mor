@@ -4,6 +4,7 @@ import {
   Button,
   Dialog,
   Flex,
+  Grid,
   Select,
   Skeleton,
   Text,
@@ -22,7 +23,11 @@ import {
   getCollaborator,
   updateCollaborator,
 } from "./collaborator-handler";
-import { orientaciones, useCollaboratorForm } from "./form-collaborator.hook";
+import {
+  categorias,
+  orientaciones,
+  useCollaboratorForm,
+} from "./form-collaborator.hook";
 import { useEffect } from "react";
 import { ApiResponse } from "@/lib/api-response";
 import { useUser } from "@/context/user-context";
@@ -40,6 +45,9 @@ export default function CollaboratorForm({ loading }: { loading: boolean }) {
     removeInterest,
     validate,
     setSending,
+    setCurrentCategoria,
+    addCategoria,
+    removeCategoria,
   } = useCollaboratorForm();
 
   const { user, setUser } = useUser();
@@ -239,9 +247,12 @@ export default function CollaboratorForm({ loading }: { loading: boolean }) {
                     placeholder="Ej. 1.20"
                     min="0"
                     max="250"
-                    defaultValue={data.altura}
+                    defaultValue={data.altura || ""}
                     onChange={(e) =>
-                      setField("altura", parseFloat(e.target.value))
+                      setField(
+                        "altura",
+                        e.target.value === "" ? 0 : parseFloat(e.target.value),
+                      )
                     }
                     className="bg-transparent px-2 py-1 border-2 rounded-sm border-gray-700"
                   />
@@ -300,6 +311,67 @@ export default function CollaboratorForm({ loading }: { loading: boolean }) {
                 )}
               </Form.Field>
 
+              <Form.Field name="categorias" className="w-full">
+                <Form.Label>Categorias</Form.Label>
+
+                <Grid columns="5">
+                  <Select.Root
+                    disabled={
+                      sending ||
+                      (data.categorias && data.categorias.length >= 3)
+                    }
+                    onValueChange={(value) => setCurrentCategoria(value)}
+                  >
+                    <Select.Trigger className="col-span-4" />
+
+                    <Select.Content>
+                      <Select.Group>
+                        {categorias.map((option) => (
+                          <Select.Item key={option} value={option}>
+                            {option}
+                          </Select.Item>
+                        ))}
+                      </Select.Group>
+                    </Select.Content>
+                  </Select.Root>
+
+                  <Button
+                    disabled={
+                      sending ||
+                      (data.categorias && data.categorias.length >= 3)
+                    }
+                    type="button"
+                    className="p-0 bg-transparent"
+                    onClick={addCategoria}
+                  >
+                    <PlusIcon />
+                  </Button>
+                </Grid>
+
+                {errors.categorias?.[0] && (
+                  <Form.Message className="text-red-500 text-sm">
+                    {errors.categorias[0]}
+                  </Form.Message>
+                )}
+
+                <Flex gap="2" wrap="wrap" mt="1">
+                  {data.categorias?.map((field, index) => (
+                    <Badge size="3" key={field + index}>
+                      {field}
+
+                      <Button
+                        type="button"
+                        onClick={() => removeCategoria(index)}
+                        size="1"
+                        className="p-0"
+                      >
+                        <XIcon />
+                      </Button>
+                    </Badge>
+                  ))}
+                </Flex>
+              </Form.Field>
+
               <Form.Field name="intereses" className="w-full">
                 <Form.Label>Intereses</Form.Label>
 
@@ -335,7 +407,7 @@ export default function CollaboratorForm({ loading }: { loading: boolean }) {
 
                 <Flex gap="2" wrap="wrap" mt="1">
                   {data.intereses.map((field, index) => (
-                    <Badge size="3" id={field + index}>
+                    <Badge size="3" key={field + index}>
                       {field}
 
                       <Button

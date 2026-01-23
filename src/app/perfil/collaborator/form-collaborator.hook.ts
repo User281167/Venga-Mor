@@ -19,6 +19,19 @@ export const orientaciones = [
   "Otro",
 ];
 
+export const categorias = [
+  "Milf",
+  "Mamá soltera",
+  "Trans",
+  "Voluptuoso",
+  "Negra",
+  "Blanca",
+  "Indígena",
+  "Asiática",
+  "Latina",
+  "Otra",
+];
+
 const initialData: CollaboratorInfo = {
   genero: "Femenino",
   orientacion_sexual: orientaciones[0],
@@ -27,6 +40,7 @@ const initialData: CollaboratorInfo = {
   edad: 18,
   profesion: "",
   intereses: [],
+  categorias: [],
   redes: [],
 };
 
@@ -34,6 +48,7 @@ export function useCollaboratorForm() {
   const [data, setData] = useState<CollaboratorInfo>(initialData);
   const [sending, setSending] = useState(false);
   const [currentInterest, setCurrentInterest] = useState("");
+  const [currentCategoria, setCurrentCategoria] = useState("");
 
   const errors = useMemo(() => {
     const r = collaboratorFormSchema.safeParse(data);
@@ -69,6 +84,27 @@ export function useCollaboratorForm() {
     }));
   }
 
+  function addCategoria() {
+    const value = capitalizeFirstLetter(currentCategoria.trim());
+
+    if (data.categorias?.includes(value) || !categorias.includes(value)) return;
+    if (data.categorias && data.categorias.length >= 3) return;
+
+    setData((prev) => ({
+      ...prev,
+      categorias: [...(prev.categorias ?? []), value],
+    }));
+
+    setCurrentCategoria("");
+  }
+
+  function removeCategoria(index: number) {
+    setData((prev) => ({
+      ...prev,
+      categorias: prev.categorias?.filter((_, i) => i !== index),
+    }));
+  }
+
   function validate() {
     return collaboratorFormSchema.safeParse(data).success;
   }
@@ -84,16 +120,20 @@ export function useCollaboratorForm() {
     errors,
     sending,
     currentInterest,
+    currentCategoria,
 
     // setters
     setField,
     setData,
     setSending,
     setCurrentInterest,
+    setCurrentCategoria,
 
     // helpers
     addInterest,
     removeInterest,
+    addCategoria,
+    removeCategoria,
     validate,
     reset,
   };
