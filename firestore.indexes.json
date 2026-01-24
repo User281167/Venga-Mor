@@ -7,6 +7,15 @@
         { "fieldPath": "autorId", "order": "ASCENDING" },
         { "fieldPath": "creado", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "colaboradores",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "direccion.pais", "order": "ASCENDING" },
+        { "fieldPath": "edad", "order": "ASCENDING" },
+        { "fieldPath": "__name__", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
