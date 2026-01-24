@@ -6,6 +6,8 @@ import {
   collaboratorFormSchema,
   CollaboratorInfo,
 } from "@/schema/collaborator";
+import { Collaborator } from "@/types/collaborator";
+import { AppUser } from "@/types/user";
 
 export async function POST(req: Request) {
   try {
@@ -32,9 +34,23 @@ export async function POST(req: Request) {
       );
     }
 
-    const plainData = JSON.parse(JSON.stringify(deepTrim(data))); // Elimina propiedades no serializables
     const userRef = adminDb.collection("usuarios").doc(uid);
+    const user = (await userRef.get()).data() as AppUser;
 
+    // Elimina propiedades no serializables
+    const plainData = JSON.parse(
+      JSON.stringify(
+        deepTrim({
+          ...data,
+          estrellas: 0,
+          uid: user.uid,
+          nombre: user.nombre,
+          apellido: user.apellido,
+          descripcion: user.descripcion,
+          foto: user.foto,
+        } as Collaborator),
+      ),
+    );
     const task1 = adminDb
       .collection("colaboradores")
       .doc(uid)

@@ -1,7 +1,7 @@
 import { ApiResponse } from "@/lib/api-response";
-import { adminAuth, adminDb } from "@/lib/firebase-admin-connection";
+import { adminDb } from "@/lib/firebase-admin-connection";
 import { supabaseAdmin } from "@/lib/supabase";
-import { cookies } from "next/headers";
+import { getUserID, isCollaborator } from "../../utils";
 
 export async function POST(req: Request) {
   try {
@@ -14,17 +14,13 @@ export async function POST(req: Request) {
       });
     }
 
-    const token = (await cookies()).get("token")?.value;
+    const uid = await getUserID();
 
-    if (!token) {
+    if (!uid) {
       return new Response(ApiResponse.failure("No autorizado").toJSON(), {
         status: 401,
       });
     }
-
-    // Verificar token Firebase
-    const decoded = await adminAuth.verifyIdToken(token);
-    const uid = decoded.uid;
 
     const { data, error } = await supabaseAdmin.storage
       .from("perfiles")
@@ -38,24 +34,35 @@ export async function POST(req: Request) {
         status: 500,
       });
 
-    // firebase agregar a fotos
-    const fb = await adminDb
-      .collection("usuarios")
-      .doc(uid)
-      .update({ foto: "bucket" });
-
-    const { data: signedUrl, error: urlError } = await supabaseAdmin.storage
+    const { data: signedUrl } = supabaseAdmin.storage
       .from("perfiles")
-      .createSignedUrl(uid, 60);
+      .getPublicUrl(uid);
 
-    if (urlError)
-      return new Response(ApiResponse.failure(urlError.message).toJSON(), {
-        status: 500,
-      });
+    // --- SINCRONIZACIÓN CON BATCH ---
+    const batch = adminDb.batch();
 
-    console.log("Imagen actualzada", signedUrl.signedUrl);
+    const userRef = adminDb.collection("usuarios").doc(uid);
+    batch.update(userRef, { foto: signedUrl.publicUrl });
 
-    return new Response(ApiResponse.success(signedUrl.signedUrl).toJSON());
+    if (await isCollaborator()) {
+      console.log("Colaborador");
+      const colabRef = adminDb.collection("colaboradores").doc(uid);
+
+      batch.set(
+        colabRef,
+        {
+          foto: signedUrl.publicUrl,
+        },
+        { merge: true },
+      );
+    }
+
+    await batch.commit();
+    console.log("Imagen actualzada", signedUrl.publicUrl);
+
+    const imageUrl = `${signedUrl.publicUrl}?v=${Date.now()}`;
+
+    return new Response(ApiResponse.success(imageUrl).toJSON());
   } catch (error) {
     console.error(error);
     return new Response(ApiResponse.failure("Error interno").toJSON(), {
