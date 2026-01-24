@@ -15,6 +15,28 @@ export async function getUserID(): Promise<string | null> {
   return uid;
 }
 
+export async function isCollaborator(): Promise<boolean> {
+  const token = (await cookies()).get("token")?.value;
+
+  if (!token) {
+    return false;
+  }
+
+  const decoded = await adminAuth.verifyIdToken(token);
+  return decoded.tipo === "colaborador";
+}
+
+export async function isVerified(): Promise<boolean> {
+  const token = (await cookies()).get("token")?.value;
+
+  if (!token) {
+    return false;
+  }
+
+  const decoded = await adminAuth.verifyIdToken(token);
+  return decoded.verificado;
+}
+
 export function getZodErrors<T>(
   schema: z.ZodSchema<T>,
   data: unknown,

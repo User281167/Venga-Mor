@@ -5,6 +5,7 @@ import { AppUser } from "@/types/user";
 import { UpdateUserInfoSchema, UserDto } from "@/dtos/user.dto";
 import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase";
+import { getZodErrors } from "../utils";
 
 export async function POST(req: Request) {
   try {
@@ -80,59 +81,69 @@ export async function PUT(req: Request) {
   try {
     const token = (await cookies()).get("token")?.value;
 
-    if (!token) {
-      return new Response(ApiResponse.failure("No autorizado").toJSON(), {
+    if (!token)
+      return Response.json(ApiResponse.failure("No autorizado"), {
         status: 401,
       });
-    }
 
     const decoded = await adminAuth.verifyIdToken(token);
-    const uid = decoded.uid; // Este es el uid "oficial" del usuario autenticado
+    const uid = decoded.uid;
+    const esColab = decoded.tipo === "colaborador"; // Verificamos el Claim
 
     const body = await req.json();
-    const parsed = UpdateUserInfoSchema.safeParse(body);
+    const errors = getZodErrors(UpdateUserInfoSchema, body);
 
-    if (!parsed.success) {
-      // Convertimos los errores por campo a string[]
-      const errors: string[] = Object.entries(
-        parsed.error.flatten().fieldErrors,
-      ).flatMap(
-        ([field, msgs]) => msgs?.map((msg) => `${field}: ${msg}`) ?? [],
-      );
-
+    if (!!errors) {
       return Response.json(ApiResponse.failure("Validación fallida", errors), {
         status: 400,
       });
     }
 
-    const { nombre, apellido, foto, descripcion } = parsed.data;
+    const { nombre, apellido, foto, descripcion } = body;
 
-    // Actualizar los datos en Firestore
-    await adminDb
-      .collection("usuarios")
-      .doc(uid)
-      .update({
-        nombre: nombre.trim(),
-        apellido: apellido?.trim(),
-        foto: foto || null,
-        descripcion: descripcion?.trim() || null,
-      });
+    const updateData = {
+      nombre: nombre.trim(),
+      apellido: apellido?.trim() || "",
+      foto: foto || null,
+      descripcion: descripcion?.trim() || null,
+    };
 
-    return new Response(
-      ApiResponse.success("Usuario actualizado exitosamente.").toJSON(),
-      { status: 200 },
+    // --- SINCRONIZACIÓN CON BATCH ---
+    const batch = adminDb.batch();
+
+    // Ref en Usuarios
+    const userRef = adminDb.collection("usuarios").doc(uid);
+    batch.update(userRef, updateData);
+
+    // Si es colaborador, actualizamos su "perfil público"
+    if (esColab) {
+      const colabRef = adminDb.collection("colaboradores").doc(uid);
+
+      // Usamos set con merge: true por si el doc de colaborador aún no existe
+      batch.set(
+        colabRef,
+        {
+          nombre: updateData.nombre,
+          apellido: updateData.apellido,
+          foto: updateData.foto,
+          descripcion: updateData.descripcion,
+        },
+        { merge: true },
+      );
+    }
+
+    await batch.commit();
+
+    return Response.json(
+      ApiResponse.success(undefined, "Información sincronizada correctamente."),
     );
   } catch (error) {
-    console.error("Error al actualizar usuario:", error);
-    return new Response(
-      ApiResponse.failure(
-        "Error inesperado al actualizar la información.",
-      ).toJSON(),
-      { status: 500 },
-    );
+    console.error("Error sincronizando:", error);
+    return Response.json(ApiResponse.failure("Error de servidor"), {
+      status: 500,
+    });
   }
 }
-
 export async function GET() {
   try {
     // Tomamos el token del usuario desde la cookie
