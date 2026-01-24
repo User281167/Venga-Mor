@@ -104,6 +104,8 @@ export default function FormUserInfo({ user }: { user: AppUser | null }) {
         ...user,
         foto: res.data,
       } as AppUser);
+
+      setFile(null);
     } else {
       toast.error(res.message);
     }

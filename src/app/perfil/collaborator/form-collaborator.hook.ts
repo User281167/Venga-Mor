@@ -3,6 +3,7 @@ import {
   collaboratorFormSchema,
   CollaboratorInfo,
 } from "@/schema/collaborator";
+import { categorias } from "@/types/categorias";
 import { useMemo, useState } from "react";
 
 export const orientaciones = [
@@ -17,19 +18,6 @@ export const orientaciones = [
   "Queer",
   "Questioning (en exploración)",
   "Otro",
-];
-
-export const categorias = [
-  "Milf",
-  "Mamá soltera",
-  "Trans",
-  "Voluptuoso",
-  "Negra",
-  "Blanca",
-  "Indígena",
-  "Asiática",
-  "Latina",
-  "Otra",
 ];
 
 const initialData: CollaboratorInfo = {

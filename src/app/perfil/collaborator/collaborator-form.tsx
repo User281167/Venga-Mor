@@ -23,14 +23,11 @@ import {
   getCollaborator,
   updateCollaborator,
 } from "./collaborator-handler";
-import {
-  categorias,
-  orientaciones,
-  useCollaboratorForm,
-} from "./form-collaborator.hook";
+import { orientaciones, useCollaboratorForm } from "./form-collaborator.hook";
 import { useEffect } from "react";
 import { ApiResponse } from "@/lib/api-response";
 import { useUser } from "@/context/user-context";
+import { categorias } from "@/types/categorias";
 
 export default function CollaboratorForm({ loading }: { loading: boolean }) {
   const {
