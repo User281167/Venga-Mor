@@ -4,6 +4,14 @@ import { adminDb } from "@/lib/firebase-admin-connection";
 import { Collaborator } from "@/types/collaborator";
 import admin from "firebase-admin";
 
+const normalize = (str: string): string => {
+  return str
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+};
+
 // Función auxiliar para limpiar strings
 const clean = (val: string | null): string | null => {
   const v = val?.trim();
@@ -20,21 +28,17 @@ export async function GET(req: Request) {
     const categories =
       searchParams.get("categories")?.split(",").filter(Boolean) || [];
 
-    const [pais, estado, ciudad] =
+    const [country, state, city] =
       searchParams
         .get("location")
         ?.split(",")
         .map((v) => clean(v)) ?? [];
 
     const lastId = searchParams.get("lastId");
-    const limitNum = 20;
+    const limitNum = country && state ? 100 : 20;
 
     let query: admin.firestore.Query = adminDb.collection("colaboradores");
     query = query.where("edad", ">=", minAge).where("edad", "<=", maxAge);
-
-    if (pais) {
-      query = query.where("direccion.pais", "==", pais);
-    }
 
     // Ordenamiento obligatorio para que funcione el cursor y la edad
     query = query.orderBy("edad", "asc").orderBy("__name__", "asc");
@@ -57,16 +61,34 @@ export async function GET(req: Request) {
       ...doc.data(),
     })) as Collaborator[];
 
-    console.log(profiles);
+    if (country) {
+      const normalizedCountry = normalize(country);
 
-    if (estado) {
-      profiles = profiles.filter((p) => p.direccion?.estado_region === estado);
-    }
-    if (ciudad) {
       profiles = profiles.filter(
-        (p) => p.direccion?.ciudad_localidad === ciudad,
+        (p) =>
+          p.direccion?.pais &&
+          normalize(p.direccion.pais) === normalizedCountry,
       );
     }
+    if (state) {
+      const normalizedState = normalize(state);
+
+      profiles = profiles.filter(
+        (p) =>
+          p.direccion?.estado_region &&
+          normalize(p.direccion.estado_region) === normalizedState,
+      );
+    }
+    if (city) {
+      const normalizedCity = normalize(city);
+
+      profiles = profiles.filter(
+        (p) =>
+          p.direccion?.ciudad_localidad &&
+          normalize(p.direccion.ciudad_localidad) === normalizedCity,
+      );
+    }
+
     if (categories.length > 0) {
       profiles = profiles.filter((p) =>
         p.categorias?.some((cat: string) => categories.includes(cat)),
