@@ -12,31 +12,16 @@ import {
   Text,
 } from "@radix-ui/themes";
 import Image from "next/image";
-import { toast } from "sonner";
 
 import FormUserInfo from "./user-form";
 import CollaboratorForm from "./collaborator/collaborator-form";
 import MediaUploadPanel from "./media/media-upload-media";
 
 import { logout } from "./user-handler";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 export default function PerfilPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "profile-bg");
-
   const { user, loading, setUser, error } = useUser();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!user && !loading) {
-      router.push("/iniciar-sesion");
-    }
-
-    if (loading && error) {
-      toast.error("Error al cargar el perfil");
-    }
-  }, [user, loading, router]);
 
   function logoutHandler() {
     logout(setUser);
