@@ -1,4 +1,4 @@
-import { CollaboratorDto, CollaboratorResDto } from "@/dtos/collaborator";
+import { CollaboratorResDto } from "@/dtos/collaborator";
 import { ApiResponse } from "@/lib/api-response";
 import { LocationData } from "@/types/location-data";
 

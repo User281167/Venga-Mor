@@ -1,11 +1,8 @@
 "use client";
-import { useUser } from "@/context/user-context";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Button, Grid, Heading, Section } from "@radix-ui/themes";
 import Image from "next/image";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { usePostsFeed } from "./post.hook";
 import { PostItem } from "./post-item";
 
@@ -13,14 +10,6 @@ export default function PerfilPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "profile-bg");
 
   const { posts, isLoading, hasMore, loadMore, error } = usePostsFeed();
-  const { user, loading } = useUser();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!user && !loading) {
-      router.push("/iniciar-sesion");
-    }
-  }, [user, loading, router]);
 
   return (
     <Section className="min-h-screen min-w-full flex flex-col gap-4 items-center justify-center px-4 text-center bg-primary/10 overflow-hidden">

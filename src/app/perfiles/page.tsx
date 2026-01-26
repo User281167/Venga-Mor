@@ -25,13 +25,15 @@ import {
 } from "@radix-ui/themes";
 import { Label } from "radix-ui";
 import Link from "next/link";
+
 import { WhatsappIcon } from "@/components/icons";
 import PayPalPayment from "@/components/pay-pal";
+import SectionImg from "@/components/section-img";
 
 import { categorias } from "@/types/categorias";
-import { useProfilesFilter } from "./profiles.hook";
+
+import { useProfiles } from "@/context/profiles-context";
 import { CollaboratorCard } from "./profile-card";
-import SectionImg from "@/components/section-img";
 
 export default function ProfilesPage() {
   const {
@@ -41,12 +43,12 @@ export default function ProfilesPage() {
     setSelectedStar,
     locationData,
     setLocationData,
-    handleCategoryChange,
+    toggleCategory,
     profiles,
     hasMore,
     loading,
-    loadMoreHandle,
-  } = useProfilesFilter();
+    loadMore,
+  } = useProfiles();
 
   return (
     <SectionImg imageUrl="https://i.ibb.co/VYVzBLXq/lamiendo-labios-letrero-neon-1262-21356.jpg">
@@ -185,7 +187,7 @@ export default function ProfilesPage() {
                 <div key={category} className="flex items-center space-x-2">
                   <Checkbox
                     onClick={(e) => {
-                      handleCategoryChange(category);
+                      toggleCategory(category);
                     }}
                     id={category}
                     className="border-primary data-[state=checked]:bg-primary"
@@ -314,7 +316,7 @@ export default function ProfilesPage() {
           hidden={!hasMore}
           disabled={loading}
           loading={loading}
-          onClick={loadMoreHandle}
+          onClick={loadMore}
         >
           Cargar más
         </Button>
