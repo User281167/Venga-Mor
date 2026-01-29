@@ -8,11 +8,13 @@ import "swiper/css/pagination";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { MediaFile } from "@/types/post";
 import { usePublicPostsFeed } from "./post.hook";
 import { toast } from "sonner";
+import { PostSlide } from "./post-slide";
+import { ModalPostSlide } from "./modal-post-slide";
 
 export default function PostCarousel({ id }: { id: string }) {
   const { posts, isLoading, hasMore, loadMore, error } = usePublicPostsFeed(id);
@@ -41,6 +43,11 @@ export default function PostCarousel({ id }: { id: string }) {
     }
   };
 
+  const handleOpen = useCallback((index: number) => {
+    setActiveIndex(index);
+    setIsOpen(true);
+  }, []);
+
   return (
     <>
       <Swiper
@@ -56,33 +63,10 @@ export default function PostCarousel({ id }: { id: string }) {
         className="w-full h-96"
         onSlideChange={handleSlideChange}
         onReachEnd={handleReachEnd}
-        onLoad={handleSlideChange}
       >
-        {posts.map((item, i) => (
-          <SwiperSlide key={item.id + i}>
-            <div
-              className="h-96 bg-black flex items-center justify-center rounded-lg overflow-hidden"
-              onClick={() => {
-                setActiveIndex(i);
-                setIsOpen(true);
-              }}
-            >
-              {item?.media?.video?.url ? (
-                <video
-                  src={item.media.video.url}
-                  controls
-                  className="h-full w-full object-contain"
-                />
-              ) : (
-                item.media.images.map((image: MediaFile, j: number) => (
-                  <img
-                    key={image.name + j}
-                    src={image.url}
-                    className="h-full w-full object-contain"
-                  />
-                ))
-              )}
-            </div>
+        {posts.map((post, i) => (
+          <SwiperSlide key={post.id}>
+            <PostSlide post={post} onClick={() => handleOpen(i)} />
           </SwiperSlide>
         ))}
 
@@ -125,28 +109,10 @@ export default function PostCarousel({ id }: { id: string }) {
             }}
             onSlideChange={handleSlideChange}
             onReachEnd={handleReachEnd}
-            onLoad={handleSlideChange}
           >
             {posts.map((item, i) => (
-              <SwiperSlide key={item.id + i}>
-                <div className="w-full h-full flex items-center justify-center">
-                  {item?.media?.video?.url ? (
-                    <video
-                      src={item.media.video.url}
-                      controls
-                      autoPlay
-                      className="max-h-full max-w-full object-contain"
-                    />
-                  ) : (
-                    item.media.images.map((image: MediaFile, j: number) => (
-                      <img
-                        key={image.name + j}
-                        src={image.url}
-                        className="h-full w-full object-contain"
-                      />
-                    ))
-                  )}
-                </div>
+              <SwiperSlide key={item.id}>
+                <ModalPostSlide post={item} />
               </SwiperSlide>
             ))}
 
