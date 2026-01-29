@@ -21,7 +21,6 @@ import SectionImg from "@/components/section-img";
 
 import { Collaborator } from "@/types/collaborator";
 import PostCarousel from "./posts/post-carousel";
-import { PostData } from "@/types/post";
 
 const initialComments = [
   {

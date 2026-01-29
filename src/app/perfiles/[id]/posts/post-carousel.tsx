@@ -10,35 +10,32 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Virtual } from "swiper/modules";
 import { useCallback, useEffect, useState } from "react";
 
-import { usePublicPostsFeed } from "./post.hook";
-import { toast } from "sonner";
+import { usePublicPosts } from "./post.hook";
 import { PostSlide } from "./post-slide";
 import { ModalPostSlide } from "./modal-post-slide";
 
 export default function PostCarousel({ id }: { id: string }) {
-  const { posts, isLoading, hasMore, loadMore, error } = usePublicPostsFeed(id);
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    usePublicPosts(id);
+
+  const posts = data?.pages.flatMap((page) => page.data?.data ?? []) ?? [];
+
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-
-  useEffect(() => {
-    if (error) {
-      toast.error(error);
-    }
-  }, [error]);
 
   const handleSlideChange = (swiper) => {
     const remaining = swiper.slides.length - swiper.activeIndex;
 
-    if (remaining <= 3 && hasMore && !isLoading) {
-      loadMore();
+    if (remaining <= 3 && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
     }
 
     document.querySelectorAll("video").forEach((v) => v.pause());
   };
 
   const handleReachEnd = () => {
-    if (!isLoading && hasMore) {
-      loadMore();
+    if (!isFetchingNextPage && hasNextPage) {
+      fetchNextPage();
     }
   };
 
@@ -69,7 +66,7 @@ export default function PostCarousel({ id }: { id: string }) {
           </SwiperSlide>
         ))}
 
-        {isLoading && (
+        {isFetchingNextPage && (
           <SwiperSlide>
             <div className="h-96 flex items-center justify-center">
               <Spinner className="m-auto" />
@@ -115,7 +112,7 @@ export default function PostCarousel({ id }: { id: string }) {
               </SwiperSlide>
             ))}
 
-            {isLoading && (
+            {isFetchingNextPage && (
               <SwiperSlide>
                 <div className="h-96 flex items-center justify-center">
                   <Spinner className="m-auto" />

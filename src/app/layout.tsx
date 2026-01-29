@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import { Theme } from "@radix-ui/themes";
-import { BottomNav } from "@/components/bottom-nav";
 import { Toaster } from "sonner";
 
 import "@radix-ui/themes/styles.css";
 import "./globals.css";
-import { UserProvider } from "@/context/user-context";
+import { Providers } from "./providers";
 import { FloatingClipsButton } from "@/components/floating-clips-button";
+import { BottomNav } from "@/components/bottom-nav";
 
 export const metadata: Metadata = {
   title: "Venga Mor",
@@ -38,16 +37,15 @@ export default function RootLayout({
       </head>
 
       <body className="font-body antialiased bg-background">
-        <Theme>
-          <UserProvider>
-            <main className="flex flex-col min-h-screen pb-16">
+        <main className="flex flex-col min-h-screen pb-16">
+          <Providers>
+            <>
               {children}
               <FloatingClipsButton />
               <BottomNav />
-            </main>
-          </UserProvider>
-        </Theme>
-
+            </>
+          </Providers>
+        </main>
         <Toaster richColors />
       </body>
     </html>

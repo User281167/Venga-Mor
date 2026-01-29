@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams, notFound } from "next/navigation";
 import { Collaborator } from "@/types/collaborator";
 import { useProfiles } from "@/context/profiles-context";
-import { Spinner } from "@radix-ui/themes";
 import ProfileDetail from "./profile-details";
+import { ProfileSkeleton } from "./profile-skeleton";
 
 export default function ProfileDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -37,8 +37,7 @@ export default function ProfileDetailPage() {
   }, [id, getProfileById]);
 
   if (loading) {
-    // return <ProfileSkeleton />;
-    return <Spinner />;
+    return <ProfileSkeleton />;
   }
 
   if (!collaborator) {

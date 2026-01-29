@@ -19,7 +19,7 @@ function PostSlideComponent({ post, onClick }: Props) {
           className="h-full w-full object-contain"
         />
       ) : (
-        post.media.images.map((image: MediaFile, j: number) => (
+        post.media?.images?.map((image: MediaFile, j: number) => (
           <img
             key={image.name + j}
             src={image.url}
