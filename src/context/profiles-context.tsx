@@ -89,7 +89,6 @@ export function ProfilesProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    console.log("useEffect");
     fetchProfiles(true);
   }, [ageRange, selectedCategories, selectedStar, locationData]);
 

@@ -21,8 +21,6 @@ export const fetchPublicPosts = async (
     );
 
     const json = await response.json();
-    console.log("Fetched posts:", json as ApiResponse<PostListDto>);
-
     return json as ApiResponse<PostListDto>;
   } catch {
     return ApiResponse.failure("Error al cargar posts");

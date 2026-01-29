@@ -7,10 +7,9 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
+import { Navigation, Virtual } from "swiper/modules";
 import { useCallback, useEffect, useState } from "react";
 
-import { MediaFile } from "@/types/post";
 import { usePublicPostsFeed } from "./post.hook";
 import { toast } from "sonner";
 import { PostSlide } from "./post-slide";
@@ -21,6 +20,12 @@ export default function PostCarousel({ id }: { id: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
 
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
+
   const handleSlideChange = (swiper) => {
     const remaining = swiper.slides.length - swiper.activeIndex;
 
@@ -30,12 +35,6 @@ export default function PostCarousel({ id }: { id: string }) {
 
     document.querySelectorAll("video").forEach((v) => v.pause());
   };
-
-  useEffect(() => {
-    if (error) {
-      toast.error(error);
-    }
-  }, [error]);
 
   const handleReachEnd = () => {
     if (!isLoading && hasMore) {
@@ -99,7 +98,7 @@ export default function PostCarousel({ id }: { id: string }) {
           </Dialog.Close>
 
           <Swiper
-            modules={[Navigation]}
+            modules={[Navigation, Virtual]}
             initialSlide={activeIndex}
             slidesPerView={1}
             navigation
@@ -111,7 +110,7 @@ export default function PostCarousel({ id }: { id: string }) {
             onReachEnd={handleReachEnd}
           >
             {posts.map((item, i) => (
-              <SwiperSlide key={item.id}>
+              <SwiperSlide key={item.id} virtualIndex={i}>
                 <ModalPostSlide post={item} />
               </SwiperSlide>
             ))}

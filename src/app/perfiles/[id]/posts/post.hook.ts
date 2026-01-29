@@ -19,8 +19,6 @@ export const usePublicPostsFeed = (collaboratorId: string) => {
       setError(null);
 
       const currentLastId = isFirstLoad ? null : lastId;
-      console.log("LLAMADO");
-
       const result = await fetchPublicPosts(collaboratorId, currentLastId);
 
       if (result.success && result.data) {
