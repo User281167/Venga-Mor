@@ -10,8 +10,8 @@ import ProfileDetail from "./profile-details";
 export default function ProfileDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { getProfileById } = useProfiles();
-
   const [collaborator, setCollaborator] = useState<Collaborator | null>(null);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -45,6 +45,5 @@ export default function ProfileDetailPage() {
     notFound();
   }
 
-  // Render normal
   return <ProfileDetail collaborator={collaborator} />;
 }

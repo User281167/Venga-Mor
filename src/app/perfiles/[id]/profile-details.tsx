@@ -12,12 +12,16 @@ import {
   TextArea,
   Dialog,
 } from "@radix-ui/themes";
-import { Star, MessageCircle, Diamond, Heart } from "lucide-react";
 import { Separator } from "@radix-ui/themes/components/separator";
+import { Star, MessageCircle, Diamond, Heart } from "lucide-react";
 import { useState } from "react";
+
 import PayPalPayment from "@/components/pay-pal";
-import { Collaborator } from "@/types/collaborator";
 import SectionImg from "@/components/section-img";
+
+import { Collaborator } from "@/types/collaborator";
+import PostCarousel from "./posts/post-carousel";
+import { PostData } from "@/types/post";
 
 const initialComments = [
   {
@@ -58,8 +62,11 @@ export default function ProfileDetail({
   };
 
   return (
-    <SectionImg imageUrl={collaborator.foto}>
-      <Card className="max-w-7xl mx-auto bg-card/80">
+    <SectionImg>
+      <Card
+        className="container max-w-7xl bg-card/30 mx-auto flex flex-col gap-4"
+        size="3"
+      >
         {/* Header */}
         <Flex gap="5" align="center">
           <Avatar
@@ -80,131 +87,138 @@ export default function ProfileDetail({
           </Flex>
         </Flex>
 
-        <Flex direction="column" gap="5">
-          {/* Action Buttons */}
-          <Flex gap="3">
-            <Button
-              className="flex-1 bg-primary"
-              onClick={() => router.push(`/chats/${escort?.id}`)}
-            >
-              <MessageCircle className="mr-2 h-4 w-4" /> Enviar Mensaje
-            </Button>
-            <Button
-              variant={isFollowing ? "solid" : "soft"}
-              className="flex-1"
-              onClick={() => setIsFollowing(!isFollowing)}
-            >
-              <Heart
-                className={`mr-2 h-4 w-4 ${isFollowing ? "fill-current" : ""}`}
-              />{" "}
-              {isFollowing ? "Siguiendo" : "Seguir"}
-            </Button>
+        {/* Action Buttons */}
+        <Flex gap="3">
+          <Button
+            className="flex-1 bg-primary"
+            onClick={() => router.push(`/chats/${escort?.id}`)}
+          >
+            <MessageCircle className="mr-2 h-4 w-4" /> Enviar Mensaje
+          </Button>
 
-            <Dialog.Root>
-              <Dialog.Trigger>
-                <Button variant="soft" className="flex-1">
-                  <Diamond className="mr-2 h-4 w-4" /> Enviar Joyas
-                </Button>
-              </Dialog.Trigger>
-              <Dialog.Content style={{ maxWidth: 450 }}>
-                <Dialog.Title>Comprar Joyas</Dialog.Title>
-                <Dialog.Description size="2" mb="4">
-                  Apoya a {escort?.name} enviándole joyas.
-                </Dialog.Description>
-                <PayPalPayment />
-                <Flex mt="4" justify="end">
-                  <Dialog.Close>
-                    <Button variant="soft">Cerrar</Button>
-                  </Dialog.Close>
-                </Flex>
-              </Dialog.Content>
-            </Dialog.Root>
-          </Flex>
+          <Button
+            variant={isFollowing ? "solid" : "soft"}
+            className="flex-1"
+            onClick={() => setIsFollowing(!isFollowing)}
+          >
+            <Heart
+              className={`mr-2 h-4 w-4 ${isFollowing ? "fill-current" : ""}`}
+            />{" "}
+            {isFollowing ? "Siguiendo" : "Seguir"}
+          </Button>
 
-          <Separator my="3" size="4" />
+          <Dialog.Root>
+            <Dialog.Trigger>
+              <Button variant="soft" className="flex-1">
+                <Diamond className="mr-2 h-4 w-4" /> Enviar Joyas
+              </Button>
+            </Dialog.Trigger>
 
-          {/* About Section */}
-          <Flex direction="column" gap="2">
-            <Heading as="h2" size="4">
-              Sobre {collaborator.nombre}
-            </Heading>
+            <Dialog.Content style={{ maxWidth: 450 }}>
+              <Dialog.Title>Comprar Joyas</Dialog.Title>
 
-            <Text as="p">{collaborator.descripcion}</Text>
+              <Dialog.Description size="2" mb="4">
+                Apoya a {escort?.name} enviándole joyas.
+              </Dialog.Description>
 
-            <Flex gap="4" mt="2">
-              <Text>
-                <strong>Edad:</strong> {collaborator.edad}
-              </Text>
+              <PayPalPayment />
 
-              <Text>
-                <strong>Ubicación:</strong> {collaborator.direccion?.pais}{" "}
-                {collaborator.direccion?.estado_region}{" "}
-                {collaborator.direccion?.ciudad_localidad}
-              </Text>
-            </Flex>
-          </Flex>
+              <Flex mt="4" justify="end">
+                <Dialog.Close>
+                  <Button variant="soft">Cerrar</Button>
+                </Dialog.Close>
+              </Flex>
+            </Dialog.Content>
+          </Dialog.Root>
+        </Flex>
 
-          <Separator my="3" size="4" />
+        <Separator size="4" />
 
-          {/* Rating Section */}
-          <Flex direction="column" gap="2">
-            <Heading as="h2" size="4">
-              Calificación
-            </Heading>
-            <Flex align="center" gap="2">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star
-                  key={star}
-                  className={`h-6 w-6 cursor-pointer ${
-                    (hoverRating || rating) >= star
-                      ? "text-yellow-400 fill-yellow-400"
-                      : "text-gray-500"
-                  }`}
-                  onClick={() => setRating(star)}
-                  onMouseEnter={() => setHoverRating(star)}
-                  onMouseLeave={() => setHoverRating(0)}
-                />
-              ))}
-              <Text weight="bold">({rating.toFixed(1)} de 5)</Text>
-            </Flex>
-            <Text as="p" size="2" className="text-muted-foreground">
-              Deja tu calificación para ayudar a otros.
+        {/* About Section */}
+        <Flex direction="column" gap="2">
+          <Heading as="h2" size="4">
+            Sobre {collaborator.nombre}
+          </Heading>
+
+          <Text as="p">{collaborator.descripcion}</Text>
+
+          <Flex gap="4" mt="2">
+            <Text>
+              <strong>Edad:</strong> {collaborator.edad}
+            </Text>
+
+            <Text>
+              <strong>Ubicación:</strong> {collaborator.direccion?.pais}{" "}
+              {collaborator.direccion?.estado_region}{" "}
+              {collaborator.direccion?.ciudad_localidad}
             </Text>
           </Flex>
+        </Flex>
 
-          <Separator my="3" size="4" />
+        <Separator size="4" />
 
-          {/* Comments Section */}
-          <Flex direction="column" gap="3">
-            <Heading as="h2" size="4">
-              Comentarios Públicos
-            </Heading>
-            <Flex direction="column" gap="3">
-              {comments.map((comment, index) => (
-                <Card key={index}>
-                  <Flex direction="column" gap="1">
-                    <Text weight="bold">{comment.user}</Text>
-                    <Text size="2" className="text-muted-foreground">
-                      {comment.time}
-                    </Text>
-                    <Text as="p" mt="2">
-                      {comment.text}
-                    </Text>
-                  </Flex>
-                </Card>
-              ))}
-            </Flex>
+        <PostCarousel id={collaborator.uid} />
 
-            <Flex direction="column" gap="2" mt="4">
-              <TextArea
-                placeholder="Escribe tu comentario público aquí..."
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
+        <Separator size="4" />
+
+        {/* Rating Section */}
+        <Flex direction="column" gap="2">
+          <Heading as="h2" size="4">
+            Calificación
+          </Heading>
+          <Flex align="center" gap="2">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={star}
+                className={`h-6 w-6 cursor-pointer ${
+                  (hoverRating || rating) >= star
+                    ? "text-yellow-400 fill-yellow-400"
+                    : "text-gray-500"
+                }`}
+                onClick={() => setRating(star)}
+                onMouseEnter={() => setHoverRating(star)}
+                onMouseLeave={() => setHoverRating(0)}
               />
-              <Button className="self-end" onClick={handlePostComment}>
-                Publicar Comentario
-              </Button>
-            </Flex>
+            ))}
+            <Text weight="bold">({rating.toFixed(1)} de 5)</Text>
+          </Flex>
+          <Text as="p" size="2" className="text-muted-foreground">
+            Deja tu calificación para ayudar a otros.
+          </Text>
+        </Flex>
+
+        <Separator my="3" size="4" />
+
+        {/* Comments Section */}
+        <Flex direction="column" gap="3">
+          <Heading as="h2" size="4">
+            Comentarios Públicos
+          </Heading>
+          <Flex direction="column" gap="3">
+            {comments.map((comment, index) => (
+              <Card key={index}>
+                <Flex direction="column" gap="1">
+                  <Text weight="bold">{comment.user}</Text>
+                  <Text size="2" className="text-muted-foreground">
+                    {comment.time}
+                  </Text>
+                  <Text as="p" mt="2">
+                    {comment.text}
+                  </Text>
+                </Flex>
+              </Card>
+            ))}
+          </Flex>
+
+          <Flex direction="column" gap="2" mt="4">
+            <TextArea
+              placeholder="Escribe tu comentario público aquí..."
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+            />
+            <Button className="self-end" onClick={handlePostComment}>
+              Publicar Comentario
+            </Button>
           </Flex>
         </Flex>
       </Card>
