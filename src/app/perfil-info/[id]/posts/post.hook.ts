@@ -4,14 +4,19 @@ import { PostListDto } from "@/dtos/post.dto";
 import { fetchPublicPosts } from "./fetchPublicPosts";
 
 export function usePublicPosts(collaboratorId: string) {
-  return useInfiniteQuery<ApiResponse<PostListDto>, Error>({
+  return useInfiniteQuery<PostListDto, Error>({
     queryKey: ["public-posts", collaboratorId],
-    queryFn: async ({ pageParam = null }) =>
-      fetchPublicPosts(collaboratorId, pageParam as string),
+    queryFn: async ({ pageParam = null }) => {
+      const res = await fetchPublicPosts(collaboratorId, pageParam as string);
+
+      if (!res.success || !res.data) {
+        throw new Error(res.message || "Error al cargar posts");
+      }
+
+      return res.data;
+    },
     getNextPageParam: (lastPage) =>
-      lastPage.success && lastPage.data?.hasMore
-        ? lastPage.data.lastId
-        : undefined,
+      lastPage.hasMore ? lastPage.lastId : undefined,
     initialPageParam: null,
     enabled: !!collaboratorId,
     staleTime: 1000 * 60 * 5,

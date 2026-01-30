@@ -35,6 +35,7 @@ import { categorias } from "@/types/categorias";
 import { CollaboratorCard } from "./profile-card";
 import { useProfilesFilters } from "@/context/profiles-filters-context";
 import { useProfilesList } from "@/context/use-profiles-data";
+import { toast } from "sonner";
 
 export default function ProfilesPage() {
   const {
@@ -48,10 +49,21 @@ export default function ProfilesPage() {
     toggleCategory,
   } = useProfilesFilters();
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useProfilesList(ageRange, selectedCategories, selectedStar, locationData);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+    error,
+  } = useProfilesList(ageRange, selectedCategories, selectedStar, locationData);
 
   const profiles = data?.pages.flatMap((page) => page.data) ?? [];
+
+  if (isError) {
+    toast.error(error.message);
+  }
 
   return (
     <SectionImg imageUrl="https://i.ibb.co/VYVzBLXq/lamiendo-labios-letrero-neon-1262-21356.jpg">

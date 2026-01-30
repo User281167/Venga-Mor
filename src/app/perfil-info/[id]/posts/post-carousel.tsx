@@ -8,17 +8,24 @@ import "swiper/css/pagination";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Virtual } from "swiper/modules";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { usePublicPosts } from "./post.hook";
 import { PostSlide } from "./post-slide";
 import { ModalPostSlide } from "./modal-post-slide";
+import { toast } from "sonner";
 
 export default function PostCarousel({ id }: { id: string }) {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    usePublicPosts(id);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isError,
+    error,
+  } = usePublicPosts(id);
 
-  const posts = data?.pages.flatMap((page) => page.data?.data ?? []) ?? [];
+  const posts = data?.pages.flatMap((page) => page.data ?? []) ?? [];
 
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -43,6 +50,10 @@ export default function PostCarousel({ id }: { id: string }) {
     setActiveIndex(index);
     setIsOpen(true);
   }, []);
+
+  if (isError) {
+    toast.error(error.message);
+  }
 
   return (
     <>

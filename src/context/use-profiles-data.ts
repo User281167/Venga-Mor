@@ -31,7 +31,7 @@ export function useProfilesList(
       );
 
       if (!result.success || !result.data) {
-        throw new Error("Failed to fetch profiles");
+        throw new Error(result.message);
       }
 
       return result.data;
