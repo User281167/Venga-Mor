@@ -4,7 +4,6 @@ import {
   Badge,
   Button,
   Card,
-  Code,
   DataList,
   Flex,
   Grid,
@@ -86,7 +85,7 @@ export function CollaboratorCard({ collaborator }: CollaboratorCardProps) {
         </Flex>
 
         <Link
-          href={`/perfiles/${collaborator.uid}`}
+          href={`/perfil-info/${collaborator.uid}`}
           className="w-full cursor-pointer"
         >
           <Button variant="outline" className="w-full cursor-pointer">

@@ -32,23 +32,26 @@ import SectionImg from "@/components/section-img";
 
 import { categorias } from "@/types/categorias";
 
-import { useProfiles } from "@/context/profiles-context";
 import { CollaboratorCard } from "./profile-card";
+import { useProfilesFilters } from "@/context/profiles-filters-context";
+import { useProfilesList } from "@/context/use-profiles-data";
 
 export default function ProfilesPage() {
   const {
     ageRange,
     setAgeRange,
     selectedStar,
+    selectedCategories,
     setSelectedStar,
     locationData,
     setLocationData,
     toggleCategory,
-    profiles,
-    hasMore,
-    loading,
-    loadMore,
-  } = useProfiles();
+  } = useProfilesFilters();
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useProfilesList(ageRange, selectedCategories, selectedStar, locationData);
+
+  const profiles = data?.pages.flatMap((page) => page.data) ?? [];
 
   return (
     <SectionImg imageUrl="https://i.ibb.co/VYVzBLXq/lamiendo-labios-letrero-neon-1262-21356.jpg">
@@ -313,10 +316,10 @@ export default function ProfilesPage() {
         </Flex>
 
         <Button
-          hidden={!hasMore}
-          disabled={loading}
-          loading={loading}
-          onClick={loadMore}
+          hidden={!hasNextPage}
+          disabled={isFetchingNextPage}
+          loading={isLoading}
+          onClick={() => fetchNextPage()}
         >
           Cargar más
         </Button>

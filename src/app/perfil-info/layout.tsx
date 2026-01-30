@@ -4,7 +4,6 @@ import { useUser } from "@/context/user-context";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { ProfilesFiltersProvider } from "@/context/profiles-filters-context";
 
 export default function PerfilesLayout({
   children,
@@ -24,5 +23,5 @@ export default function PerfilesLayout({
     }
   }, [user, loadingUser, router]);
 
-  return <ProfilesFiltersProvider>{children}</ProfilesFiltersProvider>;
+  return <>{children}</>;
 }

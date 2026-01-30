@@ -4,6 +4,10 @@ import { Collaborator } from "@/types/collaborator";
 export async function getCollaborator(
   id: string,
 ): Promise<ApiResponse<Collaborator>> {
+  if (!id || id === "undefined") {
+    return ApiResponse.failure("ID de colaborador no válido.");
+  }
+
   try {
     const res = await fetch(`/api/colaboradores/${id}`, {
       method: "GET",
