@@ -1,5 +1,4 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { ApiResponse } from "@/lib/api-response";
 import { PostListDto } from "@/dtos/post.dto";
 import { fetchPublicPosts } from "./fetchPublicPosts";
 

@@ -9,7 +9,17 @@ import { PostItem } from "./post-item";
 export default function PerfilPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "profile-bg");
 
-  const { posts, isLoading, hasMore, loadMore, error } = usePostsFeed();
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+    error,
+  } = usePostsFeed();
+
+  const posts = data?.pages.flatMap((page) => page.data) ?? [];
 
   return (
     <Section className="min-h-screen min-w-full flex flex-col gap-4 items-center justify-center px-4 text-center bg-primary/10 overflow-hidden">
@@ -30,7 +40,8 @@ export default function PerfilPage() {
         <Heading className="text-4xl font-bold text-primary text-center">
           Mis publicaciones
         </Heading>
-        {error && <p className="text-red-400 mt-2">{error}</p>}
+
+        {isError && <p className="text-red-400 mt-2">{error.message}</p>}
       </header>
 
       <Grid
@@ -46,23 +57,23 @@ export default function PerfilPage() {
 
       {/* Estados de Carga / Botón Cargar Más */}
       <footer className="mt-12 mb-20">
-        {isLoading && (
+        {(isLoading || isFetchingNextPage) && (
           <div className="animate-pulse text-primary font-medium bg-gray-50/50 w-full px-3 py-2 rounded-md">
             Cargando contenido...
           </div>
         )}
 
-        {hasMore && !isLoading && (
+        {hasNextPage && !isLoading && (
           <Button
             size="3"
-            onClick={loadMore}
+            onClick={() => fetchNextPage()}
             className="px-8 bg-primary text-white font-semibold transition-transform hover:scale-105 active:scale-95 shadow-lg"
           >
             Ver más publicaciones
           </Button>
         )}
 
-        {!hasMore && posts.length > 0 && (
+        {!hasNextPage && posts.length > 0 && (
           <p className="text-primary text-sm italic bg-gray-50/50 w-full px-3 py-2 rounded-md">
             Has llegado al final de tus publicaciones
           </p>

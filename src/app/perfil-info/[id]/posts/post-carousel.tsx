@@ -1,6 +1,13 @@
 "use client";
 
-import { Button, Dialog, Spinner } from "@radix-ui/themes";
+import {
+  Button,
+  Dialog,
+  Flex,
+  Separator,
+  Spinner,
+  Text,
+} from "@radix-ui/themes";
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -8,16 +15,18 @@ import "swiper/css/pagination";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Virtual } from "swiper/modules";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { usePublicPosts } from "./post.hook";
-import { PostSlide } from "./post-slide";
-import { ModalPostSlide } from "./modal-post-slide";
+import { ImageSlide, VideoSlide } from "./post-slide";
+import { ModalMediaSlide } from "./modal-post-slide";
 import { toast } from "sonner";
+import { MediaSlide } from "./modal-slide";
 
 export default function PostCarousel({ id }: { id: string }) {
   const {
     data,
+    isLoading,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -55,6 +64,34 @@ export default function PostCarousel({ id }: { id: string }) {
     toast.error(error.message);
   }
 
+  const mediaSlides: MediaSlide[] = useMemo(() => {
+    return posts.flatMap((post) => {
+      const out: MediaSlide[] = [];
+
+      if (post.media?.video?.url) {
+        out.push({
+          postId: post.id,
+          type: "video",
+          url: post.media.video.url,
+          description: post.descripcion,
+          publicado: post.creado,
+        });
+      }
+
+      post.media?.images?.forEach((img) => {
+        out.push({
+          postId: post.id,
+          type: "image",
+          url: img.url,
+          description: post.descripcion,
+          publicado: post.creado,
+        });
+      });
+
+      return out;
+    });
+  }, [posts]);
+
   return (
     <>
       <Swiper
@@ -71,13 +108,20 @@ export default function PostCarousel({ id }: { id: string }) {
         onSlideChange={handleSlideChange}
         onReachEnd={handleReachEnd}
       >
-        {posts.map((post, i) => (
-          <SwiperSlide key={post.id}>
-            <PostSlide post={post} onClick={() => handleOpen(i)} />
+        {mediaSlides.map((slide, index) => (
+          <SwiperSlide
+            key={`${slide.postId}-${slide.url}`}
+            className="h-96 bg-black flex items-center justify-center rounded-lg overflow-hidden"
+          >
+            {slide.type === "video" ? (
+              <VideoSlide url={slide.url} onClick={() => handleOpen(index)} />
+            ) : (
+              <ImageSlide url={slide.url} onClick={() => handleOpen(index)} />
+            )}
           </SwiperSlide>
         ))}
 
-        {isFetchingNextPage && (
+        {(isLoading || isFetchingNextPage) && (
           <SwiperSlide>
             <div className="h-96 flex items-center justify-center">
               <Spinner className="m-auto" />
@@ -100,7 +144,7 @@ export default function PostCarousel({ id }: { id: string }) {
           <Dialog.Title className="sr-only">Posts</Dialog.Title>
 
           <Dialog.Close className="absolute top-4 right-4">
-            <Button variant="ghost" size="4">
+            <Button variant="ghost" size="4" className="z-10">
               ✕
             </Button>
           </Dialog.Close>
@@ -117,13 +161,34 @@ export default function PostCarousel({ id }: { id: string }) {
             onSlideChange={handleSlideChange}
             onReachEnd={handleReachEnd}
           >
-            {posts.map((item, i) => (
-              <SwiperSlide key={item.id} virtualIndex={i}>
-                <ModalPostSlide post={item} />
+            {mediaSlides.map((slide, index) => (
+              <SwiperSlide key={index} virtualIndex={index}>
+                <Flex
+                  direction="column"
+                  align="center"
+                  justify="center"
+                  gap="4"
+                  className="w-full h-full"
+                  mt="6"
+                >
+                  <Flex direction="column" gap="4" className="w-full">
+                    <Text as="p" className="text-white text-center">
+                      {slide.description}
+                    </Text>
+
+                    <Separator className="w-full" size="2" />
+
+                    <Text as="p" className="text-gray-400">
+                      {new Date(slide.publicado).toLocaleDateString()}
+                    </Text>
+                  </Flex>
+
+                  <ModalMediaSlide slide={slide} />
+                </Flex>
               </SwiperSlide>
             ))}
 
-            {isFetchingNextPage && (
+            {(isLoading || isFetchingNextPage) && (
               <SwiperSlide>
                 <div className="h-96 flex items-center justify-center">
                   <Spinner className="m-auto" />

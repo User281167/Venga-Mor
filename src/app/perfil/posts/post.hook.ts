@@ -1,56 +1,67 @@
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchPosts } from "@/app/perfil/posts/post-handler";
 import { PostData } from "@/types/post";
-import { useState, useEffect, useCallback } from "react";
-import { fetchPosts } from "./post-handler";
-import { PostListDto } from "@/dtos/post.dto";
-import { ApiResponse } from "@/lib/api-response";
+import { useUser } from "@/context/user-context";
 
-export const usePostsFeed = () => {
-  const [posts, setPosts] = useState<PostData[]>([]);
-  const [lastId, setLastId] = useState<string | null>(null);
-  const [hasMore, setHasMore] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+const queryKey = ["personal-posts", "feed"];
 
-  const loadPosts = useCallback(
-    async (isFirstLoad: boolean = false) => {
-      if (isLoading || (!hasMore && !isFirstLoad)) return;
+export function usePostsFeed() {
+  const { user } = useUser();
+  const queryClient = useQueryClient();
 
-      setIsLoading(true);
-      setError(null);
+  return useInfiniteQuery({
+    queryKey: [...queryKey, user?.uid], // ← Incluye user.uid en la key
+    queryFn: async ({ pageParam }) => {
+      const result = await fetchPosts(pageParam);
 
-      // Si es carga inicial, no enviamos lastId
-      const currentLastId = isFirstLoad ? null : lastId;
-      const result: ApiResponse<PostListDto> = await fetchPosts(currentLastId);
-
-      if (result.success && result.data) {
-        const data: PostListDto = result.data;
-
-        setPosts((prev) => (isFirstLoad ? data.data : [...prev, ...data.data]));
-        setLastId(data.lastId);
-        setHasMore(data.hasMore);
+      if (!result.success || !result.data) {
+        throw new Error(result.message || "Error al cargar posts");
       }
 
-      setIsLoading(false);
+      return result.data;
     },
-    [lastId, hasMore, isLoading],
-  );
+    getNextPageParam: (lastPage) => {
+      return lastPage.hasMore ? lastPage.lastId : undefined;
+    },
+    initialPageParam: null as string | null,
+    enabled: !!user, // ← Solo ejecuta si hay usuario autenticado
+    staleTime: 1000 * 60 * 2, // 2 minutos
+    gcTime: 1000 * 60 * 5, // 5 minutos
+  });
+}
 
-  // Carga inicial
-  useEffect(() => {
-    loadPosts(true);
-  }, []);
+// Hook para invalidar posts cuando sea necesario
+export function useInvalidatePosts() {
+  const queryClient = useQueryClient();
+  const { user } = useUser();
 
-  useEffect(() => {
-    const timeoutId = setTimeout(() => setError(null), 2000);
-    return () => clearTimeout(timeoutId);
-  }, [error]);
-
-  return {
-    posts,
-    isLoading,
-    hasMore,
-    error,
-    loadMore: () => loadPosts(false),
-    refresh: () => loadPosts(true),
+  return () => {
+    queryClient.invalidateQueries({
+      queryKey: [...queryKey, user?.uid],
+    });
   };
-};
+}
+
+// Hook para agregar un post optimísticamente
+export function useAddPostOptimistic() {
+  const queryClient = useQueryClient();
+  const { user } = useUser();
+
+  return (newPost: PostData) => {
+    queryClient.setQueryData([...queryKey, user?.uid], (old: any) => {
+      if (!old?.pages) return old;
+
+      return {
+        ...old,
+        pages: [
+          {
+            data: [newPost, ...old.pages[0].data],
+            hasMore: old.pages[0].hasMore,
+            lastId: old.pages[0].lastId,
+          },
+          ...old.pages.slice(1),
+        ],
+      };
+    });
+  };
+}

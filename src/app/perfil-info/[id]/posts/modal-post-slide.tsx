@@ -1,34 +1,31 @@
-import { PostData } from "@/types/post";
 import React from "react";
 import { useVideoVisibility } from "./use-video-visibility";
+import { MediaSlide } from "./modal-slide";
 
-export const ModalPostSlide = React.memo(function ModalPostSlide({
-  post,
+export const ModalMediaSlide = React.memo(function ModalMediaSlide({
+  slide,
 }: {
-  post: PostData;
+  slide: MediaSlide;
 }) {
   const videoRef = useVideoVisibility();
 
+  if (slide.type === "video") {
+    return (
+      <video
+        ref={videoRef}
+        src={slide.url}
+        controls
+        muted
+        playsInline
+        className="max-h-full max-w-full object-contain flex-1"
+      />
+    );
+  }
+
   return (
-    <div className="w-full h-full flex items-center justify-center">
-      {post.media.video?.url ? (
-        <video
-          ref={videoRef}
-          src={post.media.video.url}
-          controls
-          muted
-          playsInline
-          className="max-h-full max-w-full object-contain"
-        />
-      ) : (
-        post.media.images.map((image, j) => (
-          <img
-            key={image.name + j}
-            src={image.url}
-            className="h-full w-full object-contain"
-          />
-        ))
-      )}
-    </div>
+    <img
+      src={slide.url}
+      className="max-h-full max-w-full object-contain flex-1"
+    />
   );
 });

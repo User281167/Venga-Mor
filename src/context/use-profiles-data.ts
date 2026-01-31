@@ -17,7 +17,7 @@ export function useProfilesList(
 ) {
   return useInfiniteQuery({
     queryKey: [
-      "profiles",
+      "public-profiles",
       "list",
       { ageRange, categories, star, locationData },
     ],
@@ -49,7 +49,7 @@ export function useProfile(id: string | undefined) {
   const queryClient = useQueryClient();
 
   return useQuery({
-    queryKey: ["profile", id],
+    queryKey: ["profile-info", id],
     queryFn: async () => {
       if (!id) {
         throw new Error("Profile not found");
@@ -73,7 +73,7 @@ export function useProfile(id: string | undefined) {
       const queries = queryClient.getQueriesData<{
         pages: Array<{ data: Collaborator[] }>;
       }>({
-        queryKey: ["profiles", "list"],
+        queryKey: ["public-profiles", "list"],
       });
 
       for (const [, data] of queries) {

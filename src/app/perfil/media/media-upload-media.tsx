@@ -19,6 +19,7 @@ import { useUser } from "@/context/user-context";
 import { createMediaPost } from "./media-handler";
 import { useMediaUploadForm } from "./media.hook";
 import Link from "next/link";
+import { useInvalidatePosts } from "../posts/post.hook";
 
 export default function MediaUploadPanel() {
   const {
@@ -48,6 +49,8 @@ export default function MediaUploadPanel() {
     handleDragOver,
     handleDrop,
   } = useMediaUploadForm();
+
+  const invalidatePosts = useInvalidatePosts();
 
   const { user } = useUser();
 
@@ -82,6 +85,7 @@ export default function MediaUploadPanel() {
       setVideos([]);
       setImgProgress([]);
       setVidProgress(0);
+      invalidatePosts(); // Resetear petición post con tanstack
     }
 
     result.success

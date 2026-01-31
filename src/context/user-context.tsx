@@ -11,6 +11,7 @@ import { auth } from "@/lib/firebase";
 import { onIdTokenChanged } from "firebase/auth";
 import { ApiResponse } from "@/lib/api-response";
 import { UserDto } from "@/dtos/user.dto";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface UserContextType {
   user: AppUser | null;
@@ -25,6 +26,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const unsubscribe = onIdTokenChanged(auth, async (firebaseUser) => {
@@ -65,6 +67,16 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
     return () => unsubscribe();
   }, []);
+
+  // Cuando el usuario cambia, limpia cache del usuario anterior
+  useEffect(() => {
+    if (!user) {
+      // Usuario cerró sesión o no hay usuario
+      queryClient.removeQueries({
+        queryKey: ["personal-posts"],
+      });
+    }
+  }, [user, queryClient]);
 
   return (
     <UserContext.Provider value={{ user, setUser, loading, error }}>
