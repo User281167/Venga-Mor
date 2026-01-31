@@ -6,6 +6,7 @@ import { UpdateUserInfoSchema, UserDto } from "@/dtos/user.dto";
 import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase";
 import { getZodErrors } from "../utils";
+import { updateUser } from "@/handlers/updateUser";
 
 export async function POST(req: Request) {
   try {
@@ -134,8 +135,35 @@ export async function PUT(req: Request) {
 
     await batch.commit();
 
-    return Response.json(
-      ApiResponse.success(undefined, "Información sincronizada correctamente."),
+    const updatedUserDoc = await userRef.get();
+
+    if (!updatedUserDoc.exists) {
+      return Response.json(
+        ApiResponse.failure("Usuario no encontrado después de actualizar"),
+        { status: 404 },
+      );
+    }
+
+    const updatedUserData = updatedUserDoc.data();
+
+    // Construir el objeto AppUser con los datos actualizados
+    const updatedUser: AppUser = {
+      uid: uid,
+      email: updatedUserData?.email || decoded.email || "",
+      nombre: updatedUserData?.nombre || "",
+      apellido: updatedUserData?.apellido || "",
+      foto: updatedUserData?.foto || null,
+      tipo: decoded.tipo || "cliente",
+      creado: updatedUserData?.creado || Date.now(),
+      descripcion: updatedUserData?.descripcion || null,
+    };
+
+    return new Response(
+      ApiResponse.success(
+        updatedUser,
+        "Información sincronizada correctamente",
+      ).toJSON(),
+      { status: 200 },
     );
   } catch (error) {
     console.error("Error sincronizando:", error);
@@ -144,6 +172,7 @@ export async function PUT(req: Request) {
     });
   }
 }
+
 export async function GET() {
   try {
     // Tomamos el token del usuario desde la cookie

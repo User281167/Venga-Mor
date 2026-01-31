@@ -17,15 +17,9 @@ import FormUserInfo from "./user-form";
 import CollaboratorForm from "./collaborator/collaborator-form";
 import MediaUploadPanel from "./media/media-upload-media";
 
-import { logout } from "./user-handler";
-
 export default function PerfilPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "profile-bg");
-  const { user, loading, setUser, error } = useUser();
-
-  function logoutHandler() {
-    logout(setUser);
-  }
+  const { user, loading, logout } = useUser();
 
   return (
     <Section className="min-h-screen min-w-full flex flex-col gap-4 items-center justify-center px-4 text-center bg-primary/10 overflow-hidden">
@@ -82,7 +76,7 @@ export default function PerfilPage() {
           <Button
             variant="outline"
             className="w-full"
-            onClick={logoutHandler}
+            onClick={logout}
             disabled={loading}
           >
             Cerrar Sesión

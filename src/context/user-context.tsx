@@ -3,83 +3,105 @@ import {
   createContext,
   useContext,
   useState,
-  ReactNode,
   useEffect,
+  ReactNode,
 } from "react";
 import { AppUser } from "@/types/user";
-import { auth } from "@/lib/firebase";
-import { onIdTokenChanged } from "firebase/auth";
-import { ApiResponse } from "@/lib/api-response";
-import { UserDto } from "@/dtos/user.dto";
 import { useQueryClient } from "@tanstack/react-query";
+import { auth } from "@/lib/firebase";
+import { onIdTokenChanged, User as FirebaseUser } from "firebase/auth";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import {
+  deleteFirebaseIdToken,
+  updateFirabaseIdToken,
+} from "@/handlers/postIdToken";
 
 interface UserContextType {
-  user: AppUser | null;
-  setUser: (user: AppUser | null) => void;
+  firebaseUser: FirebaseUser | null; // Usuario de Firebase
+  user: AppUser | null; // Información del Usuario en DB
   loading: boolean;
   error: string | null;
+  logout: () => Promise<void>;
+  refreshUser: () => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<AppUser | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
+  const [loadingAuth, setLoadingAuth] = useState(true);
   const queryClient = useQueryClient();
 
+  // Escucha cambios en Firebase Auth
   useEffect(() => {
-    const unsubscribe = onIdTokenChanged(auth, async (firebaseUser) => {
-      setLoading(true);
+    const unsubscribe = onIdTokenChanged(auth, async (fbUser) => {
+      setLoadingAuth(true);
 
-      if (firebaseUser) {
-        // Renovar cookie HTTP-only
-        await fetch("/api/id-token", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token: await firebaseUser.getIdToken() }),
-        });
+      if (fbUser) {
+        try {
+          // Renovar cookie HTTP-only
+          const token = await fbUser.getIdToken();
+          await updateFirabaseIdToken(token);
 
-        const resUser = await fetch(`/api/usuarios`, {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        });
-
-        const user = (await resUser.json()) as ApiResponse<UserDto>;
-
-        if (user.success) {
-          setUser({
-            ...user.data,
-            uid: firebaseUser.uid,
-            email: firebaseUser.email!,
-          } as AppUser);
-
-          setError(null);
-        } else {
-          setError(user.message);
+          setFirebaseUser(fbUser);
+        } catch (error) {
+          console.error("Error al renovar token:", error);
+          setFirebaseUser(null);
         }
       } else {
-        setUser(null);
+        // Usuario cerró sesión - limpiar todo
+        setFirebaseUser(null);
+
+        // Limpiar cookie
+        await deleteFirebaseIdToken();
+
+        // Limpiar cache de TanStack Query
+        queryClient.clear(); // Limpia TODA la cache
       }
 
-      setLoading(false);
+      setLoadingAuth(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [queryClient]);
 
-  // Cuando el usuario cambia, limpia cache del usuario anterior
-  useEffect(() => {
-    if (!user) {
-      // Usuario cerró sesión o no hay usuario
-      queryClient.removeQueries({
-        queryKey: ["personal-posts"],
-      });
+  // Obtener perfil de usuario usando TanStack Query
+  const {
+    data: user,
+    isLoading: loadingProfile,
+    error: profileError,
+    refetch: refreshUser,
+  } = useUserProfile(firebaseUser?.uid ?? null);
+
+  const logout = async () => {
+    try {
+      await auth.signOut();
+      // El onIdTokenChanged se encarga de limpiar
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
     }
-  }, [user, queryClient]);
+  };
+
+  const loading = loadingAuth || (!!firebaseUser && loadingProfile);
+  const error = profileError ? String(profileError) : null;
+
+  const userApp = {
+    ...user,
+    uid: firebaseUser?.uid ?? "",
+    email: firebaseUser?.email ?? "",
+  } as AppUser;
 
   return (
-    <UserContext.Provider value={{ user, setUser, loading, error }}>
+    <UserContext.Provider
+      value={{
+        firebaseUser,
+        user: firebaseUser ? userApp : null,
+        loading,
+        error,
+        logout,
+        refreshUser,
+      }}
+    >
       {children}
     </UserContext.Provider>
   );
@@ -87,6 +109,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
 export const useUser = () => {
   const context = useContext(UserContext);
-  if (!context) throw new Error("useUser must be used within UserProvider");
+  if (context === undefined) {
+    throw new Error("useUser must be used within a UserProvider");
+  }
   return context;
 };

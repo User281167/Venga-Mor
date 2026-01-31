@@ -40,7 +40,8 @@ export function useProfilesList(
       return lastPage.hasMore ? lastPage.lastId : undefined;
     },
     initialPageParam: null as string | null,
-    staleTime: 1000 * 60 * 5, // 5 minutos
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
   });
 }
 
@@ -64,7 +65,8 @@ export function useProfile(id: string | undefined) {
       return res.data;
     },
     enabled: !!id,
-    staleTime: 1000 * 60 * 5, // 5 minutos
+    staleTime: 1000 * 60 * 30,
+    gcTime: 1000 * 60 * 60,
     // Intenta encontrar el perfil en las listas cacheadas
     initialData: () => {
       if (!id) return undefined;

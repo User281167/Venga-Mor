@@ -10,18 +10,18 @@ export default function ProfileLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading: loadingUser, error } = useUser();
+  const { firebaseUser, loading: loadingUser, error } = useUser();
   const router = useRouter();
 
   useEffect(() => {
-    if (!user && !loadingUser) {
+    if (!firebaseUser && !loadingUser) {
       router.push("/iniciar-sesion");
     }
 
     if (loadingUser && error) {
       toast.error("Error al cargar el perfil");
     }
-  }, [user, loadingUser, router]);
+  }, [firebaseUser, loadingUser, router]);
 
   return <>{children}</>;
 }

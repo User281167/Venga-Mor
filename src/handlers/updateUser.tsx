@@ -1,29 +1,10 @@
 import { UpdateUserInfo } from "@/dtos/user.dto";
 import { ApiResponse } from "@/lib/api-response";
-import { auth } from "@/lib/firebase";
-import { useQueryClient } from "@tanstack/react-query";
-import { signOut } from "firebase/auth";
+import { AppUser } from "@/types/user";
 
-export async function logout(setUser: (user: any) => void) {
-  await signOut(auth);
-  setUser(null);
-
-  const queryClient = useQueryClient();
-
-  // Limpia TODA la cache de posts cuando el usuario cierra sesión
-  queryClient.removeQueries({
-    queryKey: ["personal-posts"],
-  });
-
-  // Limpiar otras queries relacionadas al usuario
-  // queryClient.removeQueries({
-  //   queryKey: ["profile"],
-  // });
-
-  await fetch("/api/id-token", { method: "DELETE" });
-}
-
-export async function updateUser(data: UpdateUserInfo): Promise<ApiResponse> {
+export async function updateUser(
+  data: UpdateUserInfo,
+): Promise<ApiResponse<AppUser>> {
   try {
     const res = await fetch("/api/usuarios", {
       method: "PUT",
@@ -33,7 +14,7 @@ export async function updateUser(data: UpdateUserInfo): Promise<ApiResponse> {
       body: JSON.stringify(data),
     });
 
-    return (await res.json()) as ApiResponse;
+    return (await res.json()) as ApiResponse<AppUser>;
   } catch (error) {
     return ApiResponse.failure("Error inesperado al actulizar la inforamción.");
   }

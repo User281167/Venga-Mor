@@ -27,7 +27,7 @@ export default function SignInPage() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [loadingForm, setLoadingForm] = useState(true);
-  const { user, setUser, loading } = useUser();
+  const { user, loading } = useUser();
 
   const router = useRouter();
 
@@ -51,7 +51,6 @@ export default function SignInPage() {
 
     if (res.success && res.data) {
       toast.success(res.message);
-      setUser(res.data);
     } else {
       toast.error(res.message);
     }
@@ -66,7 +65,6 @@ export default function SignInPage() {
 
     if (res.success && res.data) {
       toast.success(res.message);
-      setUser(res.data);
     } else {
       toast.error(res.message);
     }

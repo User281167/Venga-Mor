@@ -8,6 +8,7 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { updateFirabaseIdToken } from "@/handlers/postIdToken";
 
 function getFirebaseLoginErrorMessage(code: string) {
   switch (code) {
@@ -40,11 +41,7 @@ export async function onSubmitLoginUser(
     if (!res.user) return ApiResponse.failure("Error al iniciar sesión.");
 
     const token = await res.user.getIdToken();
-    await fetch("/api/id-token", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: token }),
-    });
+    await updateFirabaseIdToken(token);
 
     const createdAtDate = res.user.metadata.creationTime
       ? new Date(res.user.metadata.creationTime)
@@ -112,11 +109,7 @@ export async function onSubmitLoginGmailUser(): Promise<ApiResponse<AppUser>> {
       creado: createdAtDate ? createdAtDate.getTime() : Date.now(),
     };
 
-    await fetch("/api/id-token", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: token }),
-    });
+    await updateFirabaseIdToken(token);
 
     return ApiResponse.success(user, "Inicio de sesión exitoso.");
   } catch (error: any) {

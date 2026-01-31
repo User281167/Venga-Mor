@@ -7,7 +7,6 @@ const queryKey = ["personal-posts", "feed"];
 
 export function usePostsFeed() {
   const { user } = useUser();
-  const queryClient = useQueryClient();
 
   return useInfiniteQuery({
     queryKey: [...queryKey, user?.uid], // ← Incluye user.uid en la key
@@ -26,7 +25,7 @@ export function usePostsFeed() {
     initialPageParam: null as string | null,
     enabled: !!user, // ← Solo ejecuta si hay usuario autenticado
     staleTime: 1000 * 60 * 2, // 2 minutos
-    gcTime: 1000 * 60 * 5, // 5 minutos
+    gcTime: 1000 * 60 * 60, // 1 hora
   });
 }
 

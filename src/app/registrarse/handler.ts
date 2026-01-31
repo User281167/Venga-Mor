@@ -8,6 +8,29 @@ import { ApiResponse } from "@/lib/api-response";
 import { registerFormSchema } from "../registrarse/schema";
 import z from "zod";
 import { AppUser } from "@/types/user";
+import { updateFirabaseIdToken } from "@/handlers/postIdToken";
+
+async function registerUser(
+  token: string,
+  user: AppUser,
+): Promise<ApiResponse<AppUser>> {
+  await updateFirabaseIdToken(token);
+
+  const resUser = await fetch("/api/usuarios", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idToken: token, userData: user }),
+  });
+
+  // puede hacer auth pero fallar el put en store
+  const resPutUser = (await resUser.json()) as ApiResponse<AppUser>;
+
+  return ApiResponse.success(
+    user,
+    "Usuario creado exitosamente",
+    resPutUser.errors,
+  );
+}
 
 function getFirebaseAuthErrorMessage(code: string) {
   switch (code) {
@@ -49,26 +72,7 @@ export async function onSubmitRegisterUser(
       creado: createdAtDate ? createdAtDate.getTime() : Date.now(),
     } as AppUser;
 
-    await fetch("/api/id-token", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: token }),
-    });
-
-    const resUser = await fetch("/api/usuarios", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ idToken: token, userData: user }),
-    });
-
-    // puede hacer auth pero fallar el put en store
-    const resPutUser = (await resUser.json()) as ApiResponse<AppUser>;
-
-    return ApiResponse.success(
-      user,
-      "Usuario creado exitosamente",
-      resPutUser.errors,
-    );
+    return await registerUser(token, user);
   } catch (error: any) {
     return ApiResponse.failure(getFirebaseAuthErrorMessage(error.code));
   }
@@ -122,26 +126,7 @@ export async function onSubmitRegisterGmailUser(): Promise<
       creado: createdAtDate ? createdAtDate.getTime() : Date.now(),
     };
 
-    await fetch("/api/id-token", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: token }),
-    });
-
-    const resUser = await fetch("/api/usuarios", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ idToken: token, userData: user }),
-    });
-
-    // puede hacer auth pero fallar el put en store
-    const resPutUser = (await resUser.json()) as ApiResponse<AppUser>;
-
-    return ApiResponse.success(
-      user,
-      "Usuario creado exitosamente",
-      resPutUser.errors,
-    );
+    return await registerUser(token, user);
   } catch (error: any) {
     return ApiResponse.failure(getGoogleSignInErrorMessage(error.code));
   }
