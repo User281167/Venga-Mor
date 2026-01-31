@@ -18,16 +18,16 @@ import {
   collaboratorFormSchema,
   CollaboratorInfo,
 } from "@/schema/collaborator";
-import {
-  createCollaborator,
-  getCollaborator,
-  updateCollaborator,
-} from "./collaborator-handler";
+
 import { orientaciones, useCollaboratorForm } from "./form-collaborator.hook";
-import { useEffect } from "react";
-import { ApiResponse } from "@/lib/api-response";
+import { useEffect, useRef } from "react";
 import { useUser } from "@/context/user-context";
 import { categorias } from "@/types/categorias";
+import {
+  useCollaboratorProfile,
+  useCreateCollaborator,
+  useUpdateCollaborator,
+} from "@/hooks/useCollaboratorData";
 
 export default function CollaboratorForm({ loading }: { loading: boolean }) {
   const {
@@ -40,60 +40,72 @@ export default function CollaboratorForm({ loading }: { loading: boolean }) {
     setCurrentInterest,
     addInterest,
     removeInterest,
-    validate,
     setSending,
     setCurrentCategoria,
     addCategoria,
     removeCategoria,
+    validate,
   } = useCollaboratorForm();
 
-  const { user, setUser } = useUser();
+  const { user } = useUser();
+  const isSubmittingRef = useRef(false);
 
+  // Obtener datos del colaborador si existe
+  const { data: collaboratorData } = useCollaboratorProfile();
+
+  // Mutaciones
+  const createMutation = useCreateCollaborator();
+  const updateMutation = useUpdateCollaborator();
+
+  const isCollaborator = user?.tipo === "colaborador";
+  const isMutating = createMutation.isPending || updateMutation.isPending;
+
+  // Cargar datos del colaborador cuando estén disponibles
   useEffect(() => {
-    if (user && user.tipo == "colaborador") {
-      async function load() {
-        setSending(true);
-        const res = await getCollaborator();
-        setSending(false);
-
-        if (res.success && res.data) {
-          setData(res.data);
-        } else {
-          toast.error(res.message);
-        }
-      }
-
-      load();
+    if (collaboratorData) {
+      setData(collaboratorData);
     }
-  }, [user]);
+  }, [collaboratorData, setData]);
+
+  // Sincronizar estado de sending con las mutaciones
+  useEffect(() => {
+    setSending(isMutating);
+  }, [isMutating, setSending]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Prevenir doble submit
+    if (isSubmittingRef.current || isMutating) {
+      toast.warning("Ya hay una operación en curso");
+      return;
+    }
 
     if (!validate()) {
       toast.error("Por favor revise los errores.");
       return;
     }
 
-    setSending(true);
-    let res: ApiResponse<CollaboratorInfo>;
+    isSubmittingRef.current = true;
 
-    if (user?.tipo == "colaborador") {
-      res = await updateCollaborator(data);
-    } else {
-      res = await createCollaborator(data);
-    }
-
-    setSending(false);
-
-    if (res.success) {
-      if (user) {
-        setUser({ ...user, tipo: "colaborador" });
+    try {
+      if (isCollaborator) {
+        // Actualizar colaborador existente
+        await updateMutation.mutateAsync(data);
+        toast.success("Colaborador actualizado correctamente");
+      } else {
+        // Crear nuevo colaborador
+        await createMutation.mutateAsync(data);
+        toast.success("Colaborador creado correctamente");
       }
-
-      toast.success(res.message);
-    } else {
-      toast.error(res.message);
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Error al procesar colaborador",
+      );
+    } finally {
+      isSubmittingRef.current = false;
     }
   };
 
@@ -516,10 +528,12 @@ export default function CollaboratorForm({ loading }: { loading: boolean }) {
               </Form.Field>
             </Flex>
 
-            <Button type="submit" disabled={sending}>
-              {user?.tipo == "colaborador"
-                ? "Actualizar información"
-                : "Crear colaborador"}
+            <Button type="submit" disabled={sending || isMutating}>
+              {isMutating
+                ? "Procesando..."
+                : isCollaborator
+                  ? "Actualizar información"
+                  : "Crear colaborador"}
             </Button>
           </Form.Root>
         </Flex>
