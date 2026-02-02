@@ -7,6 +7,23 @@
         { "fieldPath": "autorId", "order": "ASCENDING" },
         { "fieldPath": "creado", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "comentarios",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "colaborador_id", "order": "ASCENDING" },
+        { "fieldPath": "fecha", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "comentarios",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "colaborador_id", "order": "ASCENDING" },
+        { "fieldPath": "usuario_id", "order": "ASCENDING" },
+        { "fieldPath": "fecha", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

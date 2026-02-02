@@ -18,5 +18,23 @@ service cloud.firestore {
       allow update: if isOwner(userId) && request.resource.data.id == userId;
       allow delete: if false; // opcional, puedes bloquear borrado desde cliente
     }
+
+    // colaboradores: cada Colaborador solo puede leer/escribir su propio doc
+    match /colaboradores/{colaboradorId} {
+      allow get: if isOwner(colaboradorId);
+      allow list: if false;
+      allow create: if isOwner(colaboradorId) && request.resource.data.id == colaboradorId;
+      allow update: if isOwner(colaboradorId) && request.resource.data.id == colaboradorId;
+      allow delete: if false;
+    }
+
+    // Posts si solo el usuarios es el dueño del Post
+    match /posts/{postId} {
+      allow get: if isOwner(postId);
+      allow list: if false;
+      allow create: if isOwner(postId) && request.resource.data.id == postId;
+      allow update: if isOwner(postId) && request.resource.data.id == postId;
+      allow delete: if false;
+    }
   }
 }

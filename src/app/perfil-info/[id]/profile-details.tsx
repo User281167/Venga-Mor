@@ -21,44 +21,19 @@ import SectionImg from "@/components/section-img";
 
 import { Collaborator } from "@/types/collaborator";
 import PostCarousel from "./posts/post-carousel";
-
-const initialComments = [
-  {
-    user: "Usuario123",
-    time: "Hace 2 días",
-    text: "Una experiencia increíble, muy recomendada. Profesional y amable.",
-  },
-  {
-    user: "OtroUsuario",
-    time: "Hace 1 semana",
-    text: "Excelente compañía para eventos.",
-  },
-];
+import Comments from "./comments/comments";
 
 export default function ProfileDetail({
   collaborator,
 }: {
   collaborator: Collaborator;
 }) {
-  // const escort = escorts.find((e) => e.id === params.id);
   const escort = escorts[0];
   const router = useRouter();
 
   const [isFollowing, setIsFollowing] = useState(false);
-  const [comments, setComments] = useState(initialComments);
-  const [newComment, setNewComment] = useState("");
   const [rating, setRating] = useState(4);
   const [hoverRating, setHoverRating] = useState(0);
-
-  const handlePostComment = () => {
-    if (newComment.trim()) {
-      setComments([
-        ...comments,
-        { user: "Tú", time: "Ahora mismo", text: newComment },
-      ]);
-      setNewComment("");
-    }
-  };
 
   return (
     <SectionImg>
@@ -155,9 +130,7 @@ export default function ProfileDetail({
         </Flex>
 
         <Separator size="4" />
-
         <PostCarousel id={collaborator.uid} />
-
         <Separator size="4" />
 
         {/* Rating Section */}
@@ -189,37 +162,7 @@ export default function ProfileDetail({
         <Separator my="3" size="4" />
 
         {/* Comments Section */}
-        <Flex direction="column" gap="3">
-          <Heading as="h2" size="4">
-            Comentarios Públicos
-          </Heading>
-          <Flex direction="column" gap="3">
-            {comments.map((comment, index) => (
-              <Card key={index}>
-                <Flex direction="column" gap="1">
-                  <Text weight="bold">{comment.user}</Text>
-                  <Text size="2" className="text-muted-foreground">
-                    {comment.time}
-                  </Text>
-                  <Text as="p" mt="2">
-                    {comment.text}
-                  </Text>
-                </Flex>
-              </Card>
-            ))}
-          </Flex>
-
-          <Flex direction="column" gap="2" mt="4">
-            <TextArea
-              placeholder="Escribe tu comentario público aquí..."
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-            />
-            <Button className="self-end" onClick={handlePostComment}>
-              Publicar Comentario
-            </Button>
-          </Flex>
-        </Flex>
+        <Comments collaboratorId={collaborator.uid} />
       </Card>
     </SectionImg>
   );

@@ -6,7 +6,7 @@ import { UpdateUserInfoSchema, UserDto } from "@/dtos/user.dto";
 import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase";
 import { getZodErrors } from "../utils";
-import { updateUser } from "@/handlers/updateUser";
+import { setCookieUserName } from "../cookies";
 
 export async function POST(req: Request) {
   try {
@@ -63,6 +63,8 @@ export async function POST(req: Request) {
       descripcion: "",
     } as AppUser;
 
+    // guardar en cookies
+    await setCookieUserName(user.nombre + " " + user.apellido);
     await adminDb.collection("usuarios").doc(uid).set(userDoc);
 
     return Response.json(
@@ -158,6 +160,9 @@ export async function PUT(req: Request) {
       descripcion: updatedUserData?.descripcion || null,
     };
 
+    // cookie
+    await setCookieUserName(updatedUser.nombre);
+
     return new Response(
       ApiResponse.success(
         updatedUser,
@@ -212,6 +217,9 @@ export async function GET() {
           "https://pixabay.com/images/download/false-2061132_1920.png";
       }
     }
+
+    // guardar en cookies
+    await setCookieUserName(user.nombre + " " + user.apellido);
 
     return new Response(
       ApiResponse.success(user, "Usuario obtenido").toJSON(),
