@@ -45,7 +45,7 @@ export default function LoginPage() {
           </Button>
         </Link>
 
-        <Link href="/Ver perfiles" className="w-full">
+        <Link href="/perfiles" className="w-full">
           <Button
             size="3"
             variant="soft"
