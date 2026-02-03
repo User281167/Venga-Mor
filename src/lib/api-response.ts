@@ -1,3 +1,5 @@
+// Formato de resultados de la API para un estandar de respuesta de los endpoints
+
 export class ApiResponse<T = undefined> {
   data?: T;
   message: string = "";

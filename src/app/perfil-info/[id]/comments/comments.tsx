@@ -1,6 +1,11 @@
 "use client";
 import { useUser } from "@/context/user-context";
-import { useComments, useMyComment, usePostComment } from "./comments.hook";
+import {
+  useComments,
+  useDeleteMyComment,
+  useMyComment,
+  usePostComment,
+} from "./comments.hook";
 import { toast } from "sonner";
 import { useState } from "react";
 import {
@@ -12,6 +17,43 @@ import {
   Text,
   TextArea,
 } from "@radix-ui/themes";
+import { CommentModel } from "@/types/comment";
+import { Trash } from "lucide-react";
+
+function CommentCard({
+  comment,
+  owner = false,
+  handleDelete,
+}: {
+  comment: CommentModel;
+  owner?: boolean;
+  handleDelete?: () => void;
+}) {
+  return (
+    <Card className="flex flex-col gap2">
+      <Flex align="center" justify="between">
+        <Text as="p" weight="bold">
+          {owner ? "Tú" : comment.usuario_nombre}
+        </Text>
+
+        <Button
+          className="bg-transparent p-0 cursor-pointer hover:bg-red-300 transition-colors"
+          onClick={handleDelete}
+        >
+          <Trash color="red" />
+        </Button>
+      </Flex>
+
+      <Text as="p" size="2" className="text-muted-foreground">
+        {new Date(comment.fecha).toLocaleString()}
+      </Text>
+
+      <Text as="p" mt="2">
+        {comment.contenido}
+      </Text>
+    </Card>
+  );
+}
 
 export default function Comments({
   collaboratorId,
@@ -29,10 +71,14 @@ export default function Comments({
     error,
     isError,
   } = useComments(collaboratorId);
+
   const postMutation = usePostComment(collaboratorId);
+  const deleteMutation = useDeleteMyComment(collaboratorId);
 
   const { data: myComment, isLoading: loadingMyComment } =
     useMyComment(collaboratorId);
+
+  const { user } = useUser();
 
   let comments = data?.pages.flatMap((page) => page.data) ?? [];
 
@@ -40,14 +86,9 @@ export default function Comments({
     comments = comments.filter(
       (comment) => comment.usuario_id !== myComment.usuario_id,
     );
-    comments = [myComment, ...comments];
   }
 
-  const { user } = useUser();
-
-  const alredyCommented = comments.some(
-    (comment) => comment.usuario_id === user?.uid,
-  );
+  const alredyCommented = !!myComment;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,8 +114,29 @@ export default function Comments({
     }
   };
 
+  const handleDelete = async () => {
+    const result = await deleteMutation.mutateAsync();
+
+    // Manejar diferentes estados del resultado
+    if (result.status === "success") {
+      toast.success("Comentario eliminado correctamente");
+    } else if (result.status === "business-error") {
+      toast.error(result.message);
+    } else if (result.status === "empty") {
+      toast.info("No se encontró el comentario");
+    }
+  };
+
   if (isLoading) {
     return <Spinner />;
+  }
+
+  if (comments.length === 0) {
+    return (
+      <Heading as="h2" size="4">
+        No hay comentarios publicos
+      </Heading>
+    );
   }
 
   return (
@@ -84,24 +146,16 @@ export default function Comments({
       </Heading>
 
       <Flex direction="column" gap="3">
+        {myComment && (
+          <CommentCard
+            key={myComment.id}
+            comment={myComment}
+            handleDelete={handleDelete}
+          />
+        )}
+
         {comments.map((comment, index) => (
-          <Card key={index}>
-            <Flex direction="column" gap="1">
-              <Text as="p" weight="bold">
-                {comment.usuario_id === user?.uid
-                  ? "Tú"
-                  : comment.usuario_nombre}
-              </Text>
-
-              <Text as="p" size="2" className="text-muted-foreground">
-                {new Date(comment.fecha).toLocaleString()}
-              </Text>
-
-              <Text as="p" mt="2">
-                {comment.contenido}
-              </Text>
-            </Flex>
-          </Card>
+          <CommentCard key={comment.id} comment={comment} />
         ))}
 
         {isError && (
@@ -112,6 +166,7 @@ export default function Comments({
 
         {hasNextPage && (
           <Button
+            className="w-fit mx-auto"
             onClick={() => fetchNextPage()}
             disabled={isLoading || isFetchingNextPage}
             loading={isLoading || isFetchingNextPage}
@@ -121,7 +176,12 @@ export default function Comments({
         )}
       </Flex>
 
-      <Flex direction="column" gap="2" mt="4" hidden={alredyCommented}>
+      <Flex
+        direction="column"
+        gap="2"
+        mt="4"
+        hidden={alredyCommented || collaboratorId === user?.uid}
+      >
         <TextArea
           placeholder="Escribe tu comentario público aquí..."
           value={newComment}

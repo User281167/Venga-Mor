@@ -48,3 +48,57 @@ export async function GET(
     });
   }
 }
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const uid = await getUserID();
+
+    if (!uid) {
+      return new Response(ApiResponse.failure("No autorizado").toJSON(), {
+        status: 401,
+      });
+    }
+
+    const { id } = await params;
+
+    // Obtener el comentario del usuario actual
+    const snapshot = await adminDb
+      .collection("comentarios")
+      .where("colaborador_id", "==", id)
+      .where("usuario_id", "==", uid)
+      .orderBy("fecha", "desc")
+      .limit(1)
+      .get();
+
+    if (snapshot.empty) {
+      return new Response(
+        ApiResponse.failure("No se encontró ningún comentario").toJSON(),
+        { status: 404 },
+      );
+    }
+
+    const batch = adminDb.batch();
+
+    snapshot.docs.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+
+    await batch.commit();
+
+    return new Response(
+      ApiResponse.success(undefined, "Comentario eliminado").toJSON(),
+      {
+        status: 200,
+      },
+    );
+  } catch (error: any) {
+    console.error("Error al eliminar comentario:", error);
+
+    return new Response(ApiResponse.failure("Error inesperado").toJSON(), {
+      status: 500,
+    });
+  }
+}

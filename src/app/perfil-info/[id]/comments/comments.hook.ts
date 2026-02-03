@@ -4,10 +4,16 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { getComments, getMyComment, postComment } from "./commentsHandler";
+import {
+  deleteMyComment,
+  getComments,
+  getMyComment,
+  postComment,
+} from "./comments.handler";
 import { useUser } from "@/context/user-context";
 import { CommentsDto } from "@/dtos/comments.dto";
 import { CommentModel } from "@/types/comment";
+import { QueryResult } from "@/hooks/queryResult";
 
 // Hook para obtener comentarios con paginación infinita
 export function useComments(colaboradorId: string | undefined) {
@@ -144,5 +150,83 @@ export function useMyComment(colaboradorId: string | undefined) {
     enabled: !!colaboradorId && !!user, // Solo si hay usuario autenticado
     staleTime: 1000 * 60 * 60,
     gcTime: 1000 * 60 * 60 * 24 * 7,
+  });
+}
+
+export function useDeleteMyComment(colaboradorId: string | undefined) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      if (!colaboradorId) {
+        return QueryResult.businessError("ID de colaborador requerido");
+      }
+
+      const res = await deleteMyComment(colaboradorId);
+
+      // Separar errores de negocio de errores de red
+      if (!res.success) {
+        return QueryResult.businessError(
+          res.message || "Error al eliminar comentario",
+        );
+      }
+
+      return QueryResult.success(undefined);
+    },
+    onMutate: async () => {
+      // Actualización optimista - remover comentario inmediatamente
+      await queryClient.cancelQueries({
+        queryKey: ["myComment", colaboradorId],
+      });
+
+      // Snapshot del comentario anterior
+      const previousComment = queryClient.getQueryData([
+        "myComment",
+        colaboradorId,
+      ]) as CommentModel;
+
+      // Limpiar comentario de la cache
+      queryClient.setQueryData(["myComment", colaboradorId], null);
+
+      // También removerlo de la lista infinita
+      queryClient.setQueryData<{
+        pages: CommentsDto[];
+        pageParams: (string | null)[];
+      }>(["comments", colaboradorId], (old) => {
+        if (!old?.pages) return old;
+
+        return {
+          ...old,
+          pages: old.pages.map((page, index) => ({
+            ...page,
+            data: page.data.filter(
+              (c) => c.usuario_id !== previousComment?.usuario_id,
+            ),
+            total: index === 0 ? Math.max(0, page.total - 1) : page.total,
+          })),
+        };
+      });
+
+      return { previousComment };
+    },
+    onError: (error, variables, context) => {
+      // Rollback si falla
+      if (context?.previousComment) {
+        queryClient.setQueryData(
+          ["myComment", colaboradorId],
+          context.previousComment,
+        );
+      }
+    },
+    onSuccess: (result) => {
+      // Si es éxito, invalidar queries para refrescar
+      if (result.status === "success") {
+        queryClient.invalidateQueries({
+          queryKey: ["comments", colaboradorId],
+        });
+
+        queryClient.setQueryData(["myComment", colaboradorId], null);
+      }
+    },
   });
 }

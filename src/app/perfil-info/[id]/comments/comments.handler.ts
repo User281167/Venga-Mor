@@ -1,5 +1,7 @@
 import { CommentsDto } from "@/dtos/comments.dto";
+import { ApiResponse } from "@/lib/api-response";
 import { CommentModel } from "@/types/comment";
+import { api } from "@/lib/apiHelper";
 
 export async function postComment(
   colaboradorId: string,
@@ -114,4 +116,14 @@ export async function getMyComment(
       ? error
       : new Error("Error inesperado al obtener tu comentario");
   }
+}
+
+export async function deleteMyComment(
+  colaboradorId: string,
+): Promise<ApiResponse> {
+  if (!colaboradorId.trim()) {
+    return ApiResponse.failure("Id necesario para eliminar comentario");
+  }
+
+  return api.del(`/api/colaboradores/${colaboradorId}/comentarios/me`);
 }
