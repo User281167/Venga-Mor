@@ -9,7 +9,6 @@ import {
   Text,
   Button,
   Avatar,
-  TextArea,
   Dialog,
 } from "@radix-ui/themes";
 import { Separator } from "@radix-ui/themes/components/separator";
@@ -22,6 +21,9 @@ import SectionImg from "@/components/section-img";
 import { Collaborator } from "@/types/collaborator";
 import PostCarousel from "./posts/post-carousel";
 import Comments from "./comments/comments";
+import { useToggleFollow } from "@/hooks/useFollow";
+import { useUser } from "@/context/user-context";
+import { toast } from "sonner";
 
 export default function ProfileDetail({
   collaborator,
@@ -31,9 +33,28 @@ export default function ProfileDetail({
   const escort = escorts[0];
   const router = useRouter();
 
-  const [isFollowing, setIsFollowing] = useState(false);
   const [rating, setRating] = useState(4);
   const [hoverRating, setHoverRating] = useState(0);
+
+  const { user } = useUser();
+  const { toggle, isFollowing, isPending } = useToggleFollow(collaborator.uid);
+
+  const handleToggleFollow = async () => {
+    if (!user) {
+      toast.error("Debes iniciar sesión para seguir colaboradores");
+      return;
+    }
+
+    const result = await toggle();
+
+    if (result.status === "success") {
+      toast.success(
+        isFollowing ? "Dejaste de seguir" : "Ahora sigues a este colaborador",
+      );
+    } else if (result.status === "business-error") {
+      toast.error(result.message);
+    }
+  };
 
   return (
     <SectionImg>
@@ -42,7 +63,12 @@ export default function ProfileDetail({
         size="3"
       >
         {/* Header */}
-        <Flex gap="5" align="center">
+        <Flex
+          gap="5"
+          align="center"
+          justify={{ initial: "center", sm: "start" }}
+          wrap="wrap"
+        >
           <Avatar
             src={collaborator.foto || ""}
             fallback={collaborator.nombre.charAt(0)}
@@ -62,29 +88,25 @@ export default function ProfileDetail({
         </Flex>
 
         {/* Action Buttons */}
-        <Flex gap="3">
+        <Flex gap="3" wrap="wrap">
           <Button
-            className="flex-1 bg-primary"
-            onClick={() => router.push(`/chats/${escort?.id}`)}
-          >
-            <MessageCircle className="mr-2 h-4 w-4" /> Enviar Mensaje
-          </Button>
-
-          <Button
+            className="w-full md:flex-1"
             variant={isFollowing ? "solid" : "soft"}
-            className="flex-1"
-            onClick={() => setIsFollowing(!isFollowing)}
+            onClick={() => handleToggleFollow()}
+            loading={isPending}
+            disabled={isPending}
           >
             <Heart
-              className={`mr-2 h-4 w-4 ${isFollowing ? "fill-current" : ""}`}
-            />{" "}
+              size={16}
+              className={`${isFollowing ? "fill-current" : ""}`}
+            />
             {isFollowing ? "Siguiendo" : "Seguir"}
           </Button>
 
           <Dialog.Root>
             <Dialog.Trigger>
-              <Button variant="soft" className="flex-1">
-                <Diamond className="mr-2 h-4 w-4" /> Enviar Joyas
+              <Button variant="soft" className="w-full md:flex-1">
+                <Diamond size={16} /> Enviar Joyas
               </Button>
             </Dialog.Trigger>
 
@@ -104,6 +126,13 @@ export default function ProfileDetail({
               </Flex>
             </Dialog.Content>
           </Dialog.Root>
+
+          <Button
+            className="bg-primary w-full md:flex-1"
+            onClick={() => router.push(`/chats/${escort?.id}`)}
+          >
+            <MessageCircle size={16} /> Enviar Mensaje
+          </Button>
         </Flex>
 
         <Separator size="4" />
