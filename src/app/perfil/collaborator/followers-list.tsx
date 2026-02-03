@@ -1,5 +1,5 @@
 "use client";
-import { useMyFollowing } from "@/hooks/useFollow";
+import { useCollaboratorFollowers } from "@/hooks/useFollow";
 import {
   Dialog,
   Button,
@@ -10,10 +10,12 @@ import {
   Heading,
 } from "@radix-ui/themes";
 import { AlertCircle, Loader2, XIcon } from "lucide-react";
-import Link from "next/link";
-import { toast } from "sonner";
 
-export default function FollowingList() {
+interface FollowersListProps {
+  colaboradorId: string;
+}
+
+export default function FollowersList({ colaboradorId }: FollowersListProps) {
   const {
     data,
     isLoading,
@@ -22,10 +24,9 @@ export default function FollowingList() {
     hasNextPage,
     isFetchingNextPage,
     isError,
-  } = useMyFollowing();
+  } = useCollaboratorFollowers(colaboradorId);
 
-  // Extraer seguidos de todas las páginas
-  const following =
+  const followers =
     data?.pages.flatMap((page) => {
       if (page.status === "success") {
         return page.data.data;
@@ -33,18 +34,12 @@ export default function FollowingList() {
       return [];
     }) || [];
 
-  // Obtener el total (de la primera página)
   const total =
     data?.pages[0]?.status === "success" ? data.pages[0].data.total : null;
 
-  // Detectar errores de negocio en cualquier página
   const businessError = data?.pages.find(
     (page) => page.status === "business-error",
   );
-
-  if (businessError) {
-    toast.error(businessError.message);
-  }
 
   return (
     <Dialog.Root>
@@ -55,7 +50,7 @@ export default function FollowingList() {
           loading={isLoading}
           disabled={isLoading}
         >
-          Siguiendo {total !== null && `(${total})`}
+          Seguidores {total !== null && `(${total})`}
         </Button>
       </Dialog.Trigger>
 
@@ -65,33 +60,32 @@ export default function FollowingList() {
         </Dialog.Close>
 
         <Dialog.Title>
-          <Flex justify="between" align="center">
-            <Text as="p">Siguiendo</Text>
+          <Flex gap="4" align="center">
+            <Heading as="h2">Seguidores</Heading>
 
             {total !== null && (
               <Text size="2" color="gray">
-                {total} {total === 1 ? "colaborador" : "colaboradores"}
+                {total} {total === 1 ? "seguidor" : "seguidores"}
               </Text>
             )}
           </Flex>
         </Dialog.Title>
 
         <Dialog.Description size="2" mb="4">
-          Colaboradores que sigues
+          Personas que siguen a este colaborador
         </Dialog.Description>
 
         <ScrollArea style={{ maxHeight: "400px" }}>
-          {/* Estado: Carga inicial */}
           {isLoading && (
             <Flex direction="column" gap="3" align="center" py="6">
               <Loader2 className="animate-spin" size={32} />
+
               <Text as="p" color="gray">
-                Cargando seguidos...
+                Cargando seguidores...
               </Text>
             </Flex>
           )}
 
-          {/* Estado: Error de red (throw en handler) */}
           {isError && !isLoading && (
             <Flex direction="column" gap="2" align="center" py="6">
               <AlertCircle size={32} color="red" />
@@ -114,7 +108,6 @@ export default function FollowingList() {
             </Flex>
           )}
 
-          {/* Estado: Error de negocio (QueryResult.businessError) */}
           {!isLoading && businessError && (
             <Flex direction="column" gap="2" align="center" py="6">
               <AlertCircle size={32} color="orange" />
@@ -122,63 +115,55 @@ export default function FollowingList() {
               <Text as="p" color="orange" weight="bold">
                 {businessError.status === "business-error"
                   ? businessError.message
-                  : "Error al obtener seguidos"}
+                  : "Error al obtener seguidores"}
               </Text>
             </Flex>
           )}
 
-          {/* Estado: Sin seguidos */}
           {!isLoading &&
             !isError &&
             !businessError &&
-            following.length === 0 && (
+            followers.length === 0 && (
               <Flex direction="column" gap="2" align="center" py="6">
                 <Text as="p" color="gray">
-                  No sigues a ningún colaborador aún
+                  Aún no tiene seguidores
                 </Text>
               </Flex>
             )}
 
-          {/* Estado: Lista con datos */}
-          {!isLoading && !isError && !businessError && following.length > 0 && (
+          {!isLoading && !isError && !businessError && followers.length > 0 && (
             <Flex direction="column" gap="2">
-              {following.map((item) => (
-                <Link
-                  key={item.colaborador_id}
-                  href={`/perfil-info/${item.colaborador_id}`}
-                  className="block"
+              {followers.map((follower) => (
+                <Flex
+                  key={follower.usuario_id}
+                  gap="3"
+                  p="3"
+                  align="center"
+                  className="hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                 >
-                  <Flex
-                    gap="3"
-                    p="3"
-                    align="center"
-                    className="hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                  >
-                    <Avatar
-                      src={item.avatar || undefined}
-                      fallback={item.nombre.charAt(0)}
-                      size="3"
-                    />
+                  <Avatar
+                    src={follower.avatar || undefined}
+                    fallback={follower.nombre.charAt(0)}
+                    size="3"
+                  />
 
-                    <div className="flex-1">
-                      <Heading as="h4" size="4" weight="bold">
-                        {item.nombre}
-                      </Heading>
+                  <div className="flex-1">
+                    <Heading as="h4" size="4" weight="bold">
+                      {follower.nombre}
+                    </Heading>
 
-                      <Text as="p" size="1" color="gray">
-                        Siguiendo desde{" "}
-                        {new Date(item.fecha).toLocaleDateString("es-ES", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </Text>
-                    </div>
-                  </Flex>
-                </Link>
+                    <Text as="p" size="1" color="gray">
+                      Siguiendo desde{" "}
+                      {new Date(follower.fecha).toLocaleDateString("es-ES", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </Text>
+                  </div>
+                </Flex>
               ))}
 
-              {/* Botón "Cargar más" */}
               {hasNextPage && (
                 <Flex justify="center" pt="3">
                   <Button
@@ -196,15 +181,6 @@ export default function FollowingList() {
                       "Cargar más"
                     )}
                   </Button>
-                </Flex>
-              )}
-
-              {/* Error al cargar siguiente página */}
-              {!hasNextPage && isFetchingNextPage && (
-                <Flex justify="center" pt="3">
-                  <Text as="p" size="2" color="red">
-                    Error al cargar más seguidos
-                  </Text>
                 </Flex>
               )}
             </Flex>

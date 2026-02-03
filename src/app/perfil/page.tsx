@@ -17,6 +17,7 @@ import FormUserInfo from "./user-form";
 import CollaboratorForm from "./collaborator/collaborator-form";
 import MediaUploadPanel from "./media/media-upload-media";
 import FollowingList from "./following-list";
+import FollowersList from "./collaborator/followers-list";
 
 export default function PerfilPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "profile-bg");
@@ -74,6 +75,15 @@ export default function PerfilPage() {
           <FormUserInfo user={user} />
           <CollaboratorForm loading={loading} />
           <FollowingList />
+
+          <Skeleton
+            loading={loading}
+            className="h-64 w-full max-w-screen-lg mx-auto rounded-lg"
+          >
+            {user?.tipo === "colaborador" && (
+              <FollowersList colaboradorId={user.uid} />
+            )}
+          </Skeleton>
 
           <Button
             variant="outline"
