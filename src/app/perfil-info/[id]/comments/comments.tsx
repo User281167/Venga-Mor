@@ -131,14 +131,6 @@ export default function Comments({
     return <Spinner />;
   }
 
-  if (comments.length === 0) {
-    return (
-      <Heading as="h2" size="4">
-        No hay comentarios publicos
-      </Heading>
-    );
-  }
-
   return (
     <Flex direction="column" gap="3">
       <Heading as="h2" size="4">
@@ -146,6 +138,12 @@ export default function Comments({
       </Heading>
 
       <Flex direction="column" gap="3">
+        {comments.length === 0 && (
+          <Text as="p" size="3">
+            No hay comentarios publicos
+          </Text>
+        )}
+
         {myComment && (
           <CommentCard
             key={myComment.id}
