@@ -10,8 +10,8 @@ import {
   Button,
   Avatar,
   Dialog,
+  Separator,
 } from "@radix-ui/themes";
-import { Separator } from "@radix-ui/themes/components/separator";
 import { Star, MessageCircle, Diamond, Heart } from "lucide-react";
 import { useState } from "react";
 

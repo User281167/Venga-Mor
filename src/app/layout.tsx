@@ -10,6 +10,12 @@ import { BottomNav } from "@/components/bottom-nav";
 export const metadata: Metadata = {
   title: "Venga Mor",
   description: "Tu compañía de élite en Bogotá.",
+  icons: {
+    icon: "https://i.ibb.co/XZ1jGh0x/In-Shot-20231119-124433570.jpg",
+  },
+  openGraph: {
+    images: ["https://i.ibb.co/XZ1jGh0x/In-Shot-20231119-124433570.jpg"],
+  },
 };
 
 export default function RootLayout({
@@ -33,6 +39,10 @@ export default function RootLayout({
         <link
           href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Playball&display=swap"
           rel="stylesheet"
+        />
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/react-responsive-carousel/3.2.23/css/carousel.min.css"
         />
       </head>
 
