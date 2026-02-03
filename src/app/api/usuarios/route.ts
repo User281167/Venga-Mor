@@ -6,7 +6,7 @@ import { UpdateUserInfoSchema, UserDto } from "@/dtos/user.dto";
 import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase";
 import { getZodErrors } from "../utils";
-import { setCookieUserName } from "../cookies";
+import { UserCookieService } from "../services/user-cookie.service";
 
 export async function POST(req: Request) {
   try {
@@ -64,7 +64,7 @@ export async function POST(req: Request) {
     } as AppUser;
 
     // guardar en cookies
-    await setCookieUserName(user.nombre + " " + user.apellido);
+    await UserCookieService.setName(user.nombre + " " + user.apellido);
     await adminDb.collection("usuarios").doc(uid).set(userDoc);
 
     return Response.json(
@@ -161,7 +161,9 @@ export async function PUT(req: Request) {
     };
 
     // cookie
-    await setCookieUserName(updatedUser.nombre);
+    await UserCookieService.setName(
+      updatedUser.nombre + " " + updatedUser.apellido,
+    );
 
     return new Response(
       ApiResponse.success(
@@ -219,7 +221,7 @@ export async function GET() {
     }
 
     // guardar en cookies
-    await setCookieUserName(user.nombre + " " + user.apellido);
+    await UserCookieService.setName(user.nombre + " " + user.apellido);
 
     return new Response(
       ApiResponse.success(user, "Usuario obtenido").toJSON(),

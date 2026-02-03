@@ -4,25 +4,25 @@ export const api = {
   get: <T>(url: string, init: RequestInit = {}) =>
     apiFetch<T>(url, { ...init, method: "GET" }),
 
-  post: <T, B>(url: string, body: B, init: RequestInit = {}) =>
+  post: <T, B = undefined>(url: string, body?: B, init: RequestInit = {}) =>
     apiFetch<T>(url, {
       ...init,
       method: "POST",
-      body: JSON.stringify(body),
+      body: body ? JSON.stringify(body) : null,
     }),
 
-  put: <T, B>(url: string, body: B, init: RequestInit = {}) =>
+  put: <T, B>(url: string, body?: B, init: RequestInit = {}) =>
     apiFetch<T>(url, {
       ...init,
       method: "PUT",
-      body: JSON.stringify(body),
+      body: body ? JSON.stringify(body) : null,
     }),
 
-  patch: <T, B>(url: string, body: B, init: RequestInit = {}) =>
+  patch: <T, B>(url: string, body?: B, init: RequestInit = {}) =>
     apiFetch<T>(url, {
       ...init,
       method: "PATCH",
-      body: JSON.stringify(body),
+      body: body ? JSON.stringify(body) : null,
     }),
 
   del: (url: string, init: RequestInit = {}) =>

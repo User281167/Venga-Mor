@@ -1,4 +1,4 @@
-import { getCookieUser } from "@/app/api/cookies";
+import { UserCookieService } from "@/app/api/services/user-cookie.service";
 import { getUserID } from "@/app/api/utils";
 import { CommentsDto } from "@/dtos/comments.dto";
 import { ApiResponse } from "@/lib/api-response";
@@ -63,7 +63,7 @@ export async function POST(
       );
     }
 
-    const userName = await getCookieUser();
+    const userName = await UserCookieService.getName();
 
     if (!userName) {
       return new Response(
@@ -126,7 +126,7 @@ export async function GET(
     }
 
     const lastId = searchParams.get("lastId"); // El ID del último comentario cargado
-    const limitNum = 1;
+    const limitNum = 5;
 
     let query = adminDb
       .collection("comentarios")
