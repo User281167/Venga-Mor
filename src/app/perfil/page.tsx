@@ -16,6 +16,7 @@ import Image from "next/image";
 import FormUserInfo from "./user-form";
 import CollaboratorForm from "./collaborator/collaborator-form";
 import MediaUploadPanel from "./media/media-upload-media";
+import FollowingList from "./following-list";
 
 export default function PerfilPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "profile-bg");
@@ -72,6 +73,7 @@ export default function PerfilPage() {
 
           <FormUserInfo user={user} />
           <CollaboratorForm loading={loading} />
+          <FollowingList />
 
           <Button
             variant="outline"
