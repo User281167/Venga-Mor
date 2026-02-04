@@ -5,6 +5,7 @@ import {
   Dialog,
   Flex,
   Separator,
+  Skeleton,
   Spinner,
   Text,
 } from "@radix-ui/themes";
@@ -121,13 +122,12 @@ export default function PostCarousel({ id }: { id: string }) {
           </SwiperSlide>
         ))}
 
-        {(isLoading || isFetchingNextPage) && (
-          <SwiperSlide>
-            <div className="h-96 flex items-center justify-center">
-              <Spinner className="m-auto" />
-            </div>
-          </SwiperSlide>
-        )}
+        {(isLoading || isFetchingNextPage) &&
+          Array.from({ length: 4 }).map((_, index) => (
+            <SwiperSlide key={index}>
+              <Skeleton className="h-96"></Skeleton>
+            </SwiperSlide>
+          ))}
       </Swiper>
 
       <Dialog.Root open={isOpen} onOpenChange={(isOpen) => setIsOpen(isOpen)}>

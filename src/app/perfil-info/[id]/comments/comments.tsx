@@ -143,7 +143,7 @@ export default function Comments({
             </Skeleton>
           ))}
 
-        {comments.length === 0 && (
+        {!isLoading && comments.length === 0 && (
           <Text as="p" size="3">
             No hay comentarios publicos
           </Text>
