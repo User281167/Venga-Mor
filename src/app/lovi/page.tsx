@@ -1,6 +1,9 @@
 import { Card, Flex, Heading, Section, Text, Avatar } from "@radix-ui/themes";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 export default function LoviPage() {
+  const loviImage = PlaceHolderImages.find(p => p.id === 'floating-mascot');
+
   return (
     <Section className="flex flex-col gap-6 p-4">
       <Heading className="text-4xl font-bold text-primary mb-8 text-center">
@@ -9,7 +12,7 @@ export default function LoviPage() {
 
       <Card className="flex flex-col gap-4 w-11/12 max-w-2xl mx-auto items-center text-center bg-card/80 p-6">
         <Avatar
-          src="https://i.ibb.co/XZ1jGh0x/In-Shot-20231119-124433570.jpg"
+          src={loviImage?.imageUrl}
           fallback="L"
           size="9"
           radius="full"
