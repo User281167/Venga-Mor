@@ -6,6 +6,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { FloatingClipsButton } from "@/components/floating-clips-button";
 import { BottomNav } from "@/components/bottom-nav";
+import { FloatingMascot } from "@/components/floating-mascot";
 
 export const metadata: Metadata = {
   title: "Venga Mor",
@@ -51,6 +52,7 @@ export default function RootLayout({
           <Providers>
             <>
               {children}
+              <FloatingMascot />
               <FloatingClipsButton />
               <BottomNav />
             </>
