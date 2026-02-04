@@ -2,6 +2,7 @@ import { Section } from "@radix-ui/themes";
 import Image from "next/image";
 
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { useTheme } from "@/context/theme-context";
 
 export default function HeaderGif({
   children,
@@ -11,6 +12,7 @@ export default function HeaderGif({
   imageUrl?: string;
 }) {
   const introGif = PlaceHolderImages.find((p) => p.id === "intro-gif");
+  const { bgOpacity } = useTheme();
 
   const imageUrl = customImageUrl || introGif?.imageUrl;
   const imageAlt = customImageUrl
@@ -28,7 +30,8 @@ export default function HeaderGif({
           alt={imageAlt}
           unoptimized
           priority
-          className="absolute -z-10 h-screen w-full opacity-30 object-cover object-center transition-all duration-1000 ease-in-out"
+          className="absolute -z-10 h-screen w-full object-cover object-center transition-all duration-1000 ease-in-out"
+          style={{ opacity: bgOpacity / 100 }}
           data-ai-hint={imageHint}
           width={1920}
           height={1080}
