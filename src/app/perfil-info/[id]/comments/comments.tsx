@@ -9,11 +9,12 @@ import {
 import { toast } from "sonner";
 import { useState } from "react";
 import {
+  Box,
   Button,
   Card,
   Flex,
   Heading,
-  Spinner,
+  Skeleton,
   Text,
   TextArea,
 } from "@radix-ui/themes";
@@ -37,8 +38,9 @@ function CommentCard({
         </Text>
 
         <Button
-          className="bg-transparent p-0 cursor-pointer hover:bg-red-300 transition-colors"
+          className="bg-transparent p-0 cursor-pointer hover:scale-105"
           onClick={handleDelete}
+          hidden={!owner}
         >
           <Trash color="red" />
         </Button>
@@ -88,7 +90,7 @@ export default function Comments({
     );
   }
 
-  const alredyCommented = !!myComment;
+  const alredyCommented = !!myComment || postMutation.isPending;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,10 +129,6 @@ export default function Comments({
     }
   };
 
-  if (isLoading) {
-    return <Spinner />;
-  }
-
   return (
     <Flex direction="column" gap="3">
       <Heading as="h2" size="4">
@@ -138,6 +136,13 @@ export default function Comments({
       </Heading>
 
       <Flex direction="column" gap="3">
+        {isLoading &&
+          Array.from({ length: 4 }).map((_, index) => (
+            <Skeleton key={index} loading={isLoading}>
+              <Box className="w-full h-24"></Box>
+            </Skeleton>
+          ))}
+
         {comments.length === 0 && (
           <Text as="p" size="3">
             No hay comentarios publicos
@@ -149,11 +154,12 @@ export default function Comments({
             key={myComment.id}
             comment={myComment}
             handleDelete={handleDelete}
+            owner
           />
         )}
 
         {comments.map((comment, index) => (
-          <CommentCard key={comment.id} comment={comment} />
+          <CommentCard key={comment.id} comment={comment} owner={false} />
         ))}
 
         {isError && (
@@ -178,7 +184,9 @@ export default function Comments({
         direction="column"
         gap="2"
         mt="4"
-        hidden={alredyCommented || collaboratorId === user?.uid}
+        hidden={
+          alredyCommented || collaboratorId === user?.uid || loadingMyComment
+        }
       >
         <TextArea
           placeholder="Escribe tu comentario público aquí..."

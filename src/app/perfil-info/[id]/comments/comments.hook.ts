@@ -65,7 +65,7 @@ export function usePostComment(colaboradorId: string | undefined) {
         colaborador_id: colaboradorId!,
         fecha: new Date().toISOString(),
         usuario_id: user?.uid || "temp",
-        usuario_nombre: user?.nombre || "Tú",
+        usuario_nombre: "Tú",
         contenido: content.trim().slice(0, 200),
       };
 
@@ -108,6 +108,9 @@ export function usePostComment(colaboradorId: string | undefined) {
         pageParams: (string | null)[];
       }>(["comments", colaboradorId], (old) => {
         if (!old?.pages) return old;
+
+        // Actualizar MyComment
+        queryClient.setQueryData(["myComment", colaboradorId], newComment);
 
         return {
           ...old,

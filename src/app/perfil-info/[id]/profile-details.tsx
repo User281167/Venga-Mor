@@ -37,7 +37,9 @@ export default function ProfileDetail({
   const [hoverRating, setHoverRating] = useState(0);
 
   const { user } = useUser();
-  const { toggle, isFollowing, isPending } = useToggleFollow(collaborator.uid);
+  const { toggle, isFollowing, isPending, followStatus } = useToggleFollow(
+    collaborator.uid,
+  );
 
   const handleToggleFollow = async () => {
     if (!user) {
@@ -88,13 +90,13 @@ export default function ProfileDetail({
         </Flex>
 
         {/* Action Buttons */}
-        <Flex gap="3" wrap="wrap">
+        <Flex gap="3" wrap="wrap" hidden={collaborator.uid === user?.uid}>
           <Button
             className="w-full md:flex-1"
             variant={isFollowing ? "solid" : "soft"}
             onClick={() => handleToggleFollow()}
             loading={isPending}
-            disabled={isPending}
+            disabled={isPending || followStatus?.status !== "success"}
           >
             <Heart
               size={16}
