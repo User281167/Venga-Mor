@@ -3,8 +3,9 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Card, Text } from '@radix-ui/themes';
+import { Text } from '@radix-ui/themes';
 import { AnimatePresence, motion } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 
 const messages = [
     "Modelos únicas.",
@@ -26,64 +27,70 @@ const messages = [
 ];
 
 export function FloatingMascot() {
+    const pathname = usePathname();
     const mascotImage = PlaceHolderImages.find(p => p.id === 'floating-mascot');
     const [currentMessage, setCurrentMessage] = useState(messages[0]);
     const [isVisible, setIsVisible] = useState(false);
 
+    const noMascotRoutes = ['/iniciar-sesion', '/registrarse', '/restablecer-cuenta', '/'];
+    const shouldShowMascot = !noMascotRoutes.includes(pathname);
+
     useEffect(() => {
-        // Show after a delay
-        const initialTimeout = setTimeout(() => {
-            setIsVisible(true);
-        }, 2000);
+        if (shouldShowMascot) {
+            const initialTimeout = setTimeout(() => {
+                setIsVisible(true);
+            }, 2000);
 
-        // Change message every 8 seconds
-        const interval = setInterval(() => {
-            const randomIndex = Math.floor(Math.random() * messages.length);
-            setCurrentMessage(messages[randomIndex]);
-        }, 8000);
+            const interval = setInterval(() => {
+                const randomIndex = Math.floor(Math.random() * messages.length);
+                setCurrentMessage(messages[randomIndex]);
+            }, 8000);
 
-        return () => {
-            clearTimeout(initialTimeout);
-            clearInterval(interval);
-        };
-    }, []);
+            return () => {
+                clearTimeout(initialTimeout);
+                clearInterval(interval);
+            };
+        } else {
+            setIsVisible(false);
+        }
+    }, [shouldShowMascot]);
 
     if (!mascotImage || !isVisible) {
         return null;
     }
 
     return (
-        <div className="fixed top-4 right-4 z-[100] w-64 hidden md:block">
+        <div className="fixed top-24 right-4 z-[100] w-auto max-w-xs hidden md:block">
             <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+                 className="flex items-center gap-3 justify-end"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 1 }}
             >
-                <Card className="bg-card/80 backdrop-blur-sm relative shadow-lg">
-                     <div className="absolute -top-8 -left-8 w-20 h-20">
-                         <Image
-                            src={mascotImage.imageUrl}
-                            alt={mascotImage.description}
-                            width={80}
-                            height={80}
-                            className="rounded-full border-2 border-primary object-cover"
-                         />
-                    </div>
-                    <AnimatePresence mode="wait">
-                         <motion.div
-                            key={currentMessage}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            transition={{ duration: 0.4 }}
-                            className="pl-10 min-h-[50px] flex items-center"
-                        >
-                            <Text as="p" size="2" className="text-white/90 italic">
-                                "{currentMessage}"
-                            </Text>
-                        </motion.div>
-                    </AnimatePresence>
-                </Card>
+                {/* Animated Text */}
+                <AnimatePresence mode="wait">
+                     <motion.div
+                        key={currentMessage}
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 10 }}
+                        transition={{ duration: 0.5 }}
+                        style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.7)' }}
+                    >
+                        <Text as="p" size="2" weight="bold" className="text-white italic text-right">
+                           "{currentMessage}"
+                        </Text>
+                    </motion.div>
+                </AnimatePresence>
+
+                {/* Mascot Image */}
+                 <Image
+                    src={mascotImage.imageUrl}
+                    alt={mascotImage.description}
+                    width={64}
+                    height={64}
+                    className="rounded-full border-2 border-primary object-cover shadow-lg"
+                 />
             </motion.div>
         </div>
     );
