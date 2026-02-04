@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Button, Flex, Popover, Text } from '@radix-ui/themes';
+import { Button, Flex, Popover, Text, Separator, Slider } from '@radix-ui/themes';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import { useTheme } from '@/context/theme-context';
@@ -28,13 +28,26 @@ const messages = [
     "Mor, vive cada segundo en Venga Mor.",
 ];
 
+const themeColors = [
+    { name: 'Venga Mor', value: '337 85% 55%' },
+    { name: 'Cian Neón', value: '180 85% 50%' },
+    { name: 'Violeta Eléctrico', value: '270 90% 65%' },
+    { name: 'Lima Caliente', value: '75 90% 50%' },
+]
+
 export function FloatingMascot() {
     const pathname = usePathname();
     const mascotImage = PlaceHolderImages.find(p => p.id === 'floating-mascot');
     const [currentMessage, setCurrentMessage] = useState(messages[0]);
     const [isVisible, setIsVisible] = useState(false);
 
-    const { setExploreBackground, resetExploreBackground } = useTheme();
+    const { 
+        setExploreBackground, 
+        resetExploreBackground,
+        setPrimaryColor,
+        bgOpacity,
+        setBgOpacity,
+    } = useTheme();
 
     const noMascotRoutes = ['/iniciar-sesion', '/registrarse', '/restablecer-cuenta', '/'];
     const shouldShowMascot = !noMascotRoutes.includes(pathname);
@@ -48,7 +61,7 @@ export function FloatingMascot() {
 
             const interval = setInterval(() => {
                 const randomIndex = Math.floor(Math.random() * messages.length);
-                setCurrentMessage(messages[randomIndex]);
+                setCurrentMessage("Mor, " + messages[randomIndex].replace(/^Mor, /, ''));
             }, 8000);
 
             return () => {
@@ -112,6 +125,31 @@ export function FloatingMascot() {
                  <Popover.Content>
                     <Flex direction="column" gap="3">
                         <Text size="2" weight="bold">Estabilizador de Experiencia</Text>
+                        
+                        <Separator />
+
+                        <Text size="1" weight="bold" color='gray'>Color del Tema</Text>
+                        <Flex gap="2" wrap="wrap">
+                            {themeColors.map(color => (
+                                <Button key={color.name} size="1" variant='soft' onClick={() => setPrimaryColor(color.value)}>
+                                    {color.name}
+                                </Button>
+                            ))}
+                        </Flex>
+
+                        <Separator />
+                        
+                        <Text size="1" weight="bold" color='gray'>Brillo del Fondo</Text>
+                        <Slider 
+                            value={[bgOpacity]} 
+                            onValueChange={(value) => setBgOpacity(value[0])}
+                            min={0}
+                            max={100}
+                            step={5}
+                        />
+
+                        <Separator />
+                        
                         {isExplorePage && (
                             <>
                                 <Button variant="soft" onClick={handleSetBackground}>Poner de fondo</Button>
