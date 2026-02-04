@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Poppins, Playball } from "next/font/google";
 import { Toaster } from "sonner";
 
 import "@radix-ui/themes/styles.css";
@@ -8,13 +9,46 @@ import { FloatingClipsButton } from "@/components/floating-clips-button";
 import { BottomNav } from "@/components/bottom-nav";
 import { FloatingMascot } from "@/components/floating-mascot";
 
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+  variable: "--font-poppins",
+  display: "swap",
+});
+
+const playball = Playball({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-playball",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Venga Mor",
   description: "Tu compañía de élite en Bogotá.",
+  viewport:
+    "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
   icons: {
     icon: "https://i.ibb.co/XZ1jGh0x/In-Shot-20231119-124433570.jpg",
+    apple: "https://i.ibb.co/XZ1jGh0x/In-Shot-20231119-124433570.jpg",
   },
   openGraph: {
+    title: "Venga Mor",
+    description: "Tu compañía de élite en Bogotá.",
+    images: [
+      {
+        url: "https://i.ibb.co/XZ1jGh0x/In-Shot-20231119-124433570.jpg",
+        width: 574,
+        height: 571,
+        alt: "Venga Mor Logo",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Venga Mor",
+    description: "Tu compañía de élite en Bogotá.",
     images: ["https://i.ibb.co/XZ1jGh0x/In-Shot-20231119-124433570.jpg"],
   },
 };
@@ -25,28 +59,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <head>
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
-        />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Playball&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/react-responsive-carousel/3.2.23/css/carousel.min.css"
-        />
-      </head>
-
+    <html lang="en" className={`${poppins.variable} ${playball.variable} dark`}>
       <body className="font-body antialiased bg-background">
         <main className="flex flex-col min-h-screen pb-16">
           <Providers>
