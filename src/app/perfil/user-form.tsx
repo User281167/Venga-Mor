@@ -109,7 +109,11 @@ export default function FormUserInfo({ user }: { user: AppUser | null }) {
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>
-        <Button variant="outline" className="w-full" disabled={isLoading}>
+        <Button
+          variant="outline"
+          className="w-full"
+          disabled={isLoading || !user}
+        >
           Editar Perfil
         </Button>
       </Dialog.Trigger>

@@ -72,13 +72,19 @@ export default function PerfilPage() {
             </Text>
           </Skeleton>
 
-          <FormUserInfo user={user} />
+          <Skeleton
+            loading={loading}
+            className="h-8 w-full max-w-screen-lg mx-auto rounded-lg"
+          >
+            <FormUserInfo user={user} />
+          </Skeleton>
+
           <CollaboratorForm loading={loading} />
-          <FollowingList />
+          <FollowingList loading={loading} />
 
           <Skeleton
             loading={loading}
-            className="h-64 w-full max-w-screen-lg mx-auto rounded-lg"
+            className="h-8 w-full max-w-screen-lg mx-auto rounded-lg"
           >
             {user?.tipo === "colaborador" && (
               <FollowersList colaboradorId={user.uid} />

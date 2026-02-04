@@ -13,10 +13,14 @@ import { AlertCircle, Loader2, XIcon } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
-export default function FollowingList() {
+interface FollowingListProps {
+  loading: boolean;
+}
+
+export default function FollowingList({ loading }: FollowingListProps) {
   const {
     data,
-    isLoading,
+    isLoading: useLoading,
     error,
     fetchNextPage,
     hasNextPage,
@@ -45,6 +49,8 @@ export default function FollowingList() {
   if (businessError) {
     toast.error(businessError.message);
   }
+
+  const isLoading = loading || useLoading;
 
   return (
     <Dialog.Root>
