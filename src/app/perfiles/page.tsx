@@ -36,6 +36,7 @@ import { CollaboratorCard } from "./profile-card";
 import { useProfilesFilters } from "@/context/profiles-filters-context";
 import { useProfilesList } from "@/context/use-profiles-data";
 import { toast } from "sonner";
+import { useTheme } from "@/context/theme-context";
 
 export default function ProfilesPage() {
   const {
@@ -59,6 +60,7 @@ export default function ProfilesPage() {
     error,
   } = useProfilesList(ageRange, selectedCategories, selectedStar, locationData);
 
+  const { exploreBackground } = useTheme();
   const profiles = data?.pages.flatMap((page) => page.data) ?? [];
 
   if (isError) {
@@ -66,7 +68,7 @@ export default function ProfilesPage() {
   }
 
   return (
-    <SectionImg imageUrl="https://i.ibb.co/VYVzBLXq/lamiendo-labios-letrero-neon-1262-21356.jpg">
+    <SectionImg imageUrl={exploreBackground} imageHint="woman neon">
       <Flex direction="column" gap="4" className="mx-auto w-11/12 max-w-3xl">
         <header className="flex items-center justify-between">
           <Heading className="text-4xl font-bold font-headline text-primary">

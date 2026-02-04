@@ -3,9 +3,11 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Text } from '@radix-ui/themes';
+import { Button, Flex, Popover, Text } from '@radix-ui/themes';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePathname } from 'next/navigation';
+import { useTheme } from '@/context/theme-context';
+import { toast } from 'sonner';
 
 const messages = [
     "Mor, modelos únicas.",
@@ -32,8 +34,11 @@ export function FloatingMascot() {
     const [currentMessage, setCurrentMessage] = useState(messages[0]);
     const [isVisible, setIsVisible] = useState(false);
 
+    const { setExploreBackground, resetExploreBackground } = useTheme();
+
     const noMascotRoutes = ['/iniciar-sesion', '/registrarse', '/restablecer-cuenta', '/'];
     const shouldShowMascot = !noMascotRoutes.includes(pathname);
+    const isExplorePage = pathname.startsWith('/perfiles');
 
     useEffect(() => {
         if (shouldShowMascot) {
@@ -59,38 +64,64 @@ export function FloatingMascot() {
         return null;
     }
 
+    const handleSetBackground = () => {
+        setExploreBackground(mascotImage.imageUrl);
+        toast.success("Fondo de pantalla actualizado!");
+    };
+    
+    const handleResetBackground = () => {
+        resetExploreBackground();
+        toast.info("Fondo de pantalla restablecido.");
+    };
+
     return (
         <div className="fixed top-24 left-4 z-[100] w-auto max-w-xs">
-            <motion.div
-                 className="flex items-center gap-3 justify-start"
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 1 }}
-            >
-                 {/* Mascot Image */}
-                 <Image
-                    src={mascotImage.imageUrl}
-                    alt={mascotImage.description}
-                    width={64}
-                    height={64}
-                    className="rounded-full border-2 border-primary object-cover shadow-lg"
-                 />
-                {/* Animated Text */}
-                <AnimatePresence mode="wait">
-                     <motion.div
-                        key={currentMessage}
-                        initial={{ opacity: 0, x: -10 }}
+             <Popover.Root>
+                <Popover.Trigger>
+                    <motion.div
+                        className="flex items-center gap-3 justify-start cursor-pointer"
+                        initial={{ opacity: 0, x: -50 }}
                         animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -10 }}
-                        transition={{ duration: 0.5 }}
-                        style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.7)' }}
+                        transition={{ duration: 0.5, delay: 1 }}
                     >
-                        <Text as="p" size="2" weight="bold" className="text-white italic text-left">
-                           "{currentMessage}"
-                        </Text>
+                        {/* Mascot Image */}
+                        <Image
+                            src={mascotImage.imageUrl}
+                            alt={mascotImage.description}
+                            width={64}
+                            height={64}
+                            className="rounded-full border-2 border-primary object-cover shadow-lg"
+                        />
+                        {/* Animated Text */}
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={currentMessage}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -10 }}
+                                transition={{ duration: 0.5 }}
+                                style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.7)' }}
+                            >
+                                <Text as="p" size="2" weight="bold" className="text-white italic text-left">
+                                "{currentMessage}"
+                                </Text>
+                            </motion.div>
+                        </AnimatePresence>
                     </motion.div>
-                </AnimatePresence>
-            </motion.div>
+                </Popover.Trigger>
+                 <Popover.Content>
+                    <Flex direction="column" gap="3">
+                        <Text size="2" weight="bold">Estabilizador de Experiencia</Text>
+                        {isExplorePage && (
+                            <>
+                                <Button variant="soft" onClick={handleSetBackground}>Poner de fondo</Button>
+                                <Button variant="soft" color="gray" onClick={handleResetBackground}>Restablecer fondo</Button>
+                            </>
+                        )}
+                        <Text size="1" color="gray">Modo Inmersivo (OLED) está activo.</Text>
+                    </Flex>
+                </Popover.Content>
+            </Popover.Root>
         </div>
     );
 }
