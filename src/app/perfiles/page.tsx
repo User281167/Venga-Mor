@@ -36,6 +36,7 @@ import { CollaboratorCard } from "./profile-card";
 import { useProfilesFilters } from "@/context/profiles-filters-context";
 import { useProfilesList } from "@/context/use-profiles-data";
 import { toast } from "sonner";
+import ProfileCardSkeleton from "./profileCardSkeleton";
 
 export default function ProfilesPage() {
   const {
@@ -165,7 +166,7 @@ export default function ProfilesPage() {
           <Text as="p" className="text-lg text-white/90">
             Bienvenido a Venga Mor, tu espacio exclusivo para conectar con
             acompañantes de élite en un ambiente de total privacidad y
-            discreción.
+            discreción
           </Text>
         </Card>
 
@@ -250,10 +251,6 @@ export default function ProfilesPage() {
 
                 <TextField.Root
                   type="text"
-                  disabled={
-                    locationData?.pais === "" ||
-                    locationData?.pais === undefined
-                  }
                   value={locationData?.estado_region || ""}
                   onChange={(e) =>
                     setLocationData({
@@ -267,10 +264,6 @@ export default function ProfilesPage() {
 
                 <TextField.Root
                   type="text"
-                  disabled={
-                    locationData?.estado_region === "" ||
-                    locationData?.estado_region === undefined
-                  }
                   value={locationData?.ciudad_localidad || ""}
                   onChange={(e) =>
                     setLocationData({
@@ -319,6 +312,11 @@ export default function ProfilesPage() {
         </Flex>
 
         <Flex direction="column" gap="4">
+          {isLoading &&
+            Array.from({ length: 2 }).map((_, index) => (
+              <ProfileCardSkeleton key={index} />
+            ))}
+
           {profiles.map((profile) => (
             <CollaboratorCard
               key={profile.uid + profile.nombre}
@@ -330,7 +328,7 @@ export default function ProfilesPage() {
         <Button
           hidden={!hasNextPage}
           disabled={isFetchingNextPage}
-          loading={isLoading}
+          loading={isLoading || isFetchingNextPage}
           onClick={() => fetchNextPage()}
         >
           Cargar más
