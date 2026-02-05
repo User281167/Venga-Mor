@@ -1,4 +1,3 @@
-// hooks/useFollow.ts
 import {
   useQuery,
   useMutation,
@@ -13,7 +12,6 @@ import {
   getCollaboratorFollowers,
 } from "@/handlers/follow-handler";
 import { useUser } from "@/context/user-context";
-import { QueryResult } from "./queryResult";
 import { FollowingModel } from "@/app/models/follow.model";
 
 // ============================================
@@ -26,22 +24,11 @@ export function useFollowStatus(colaboradorId: string | undefined) {
     queryKey: ["followStatus", colaboradorId, user?.uid],
     queryFn: async () => {
       if (!colaboradorId) {
-        return QueryResult.businessError("ID de colaborador requerido");
+        return false;
       }
 
       const res = await getMyFollowStatus(colaboradorId);
-
-      if (!res.success) {
-        return QueryResult.businessError(
-          res.message || "Error al verificar estado",
-        );
-      }
-
-      if (!res.data) {
-        return QueryResult.empty(); // No lo sigo
-      }
-
-      return QueryResult.success(res.data);
+      return res.success;
     },
     enabled: !!colaboradorId && !!user, // Solo si hay colaborador y usuario autenticado
     staleTime: 1000 * 60 * 5, // 5 minutos
@@ -58,16 +45,11 @@ export function useFollowCollaborator(colaboradorId: string | undefined) {
   return useMutation({
     mutationFn: async () => {
       if (!colaboradorId) {
-        return QueryResult.businessError("ID de colaborador requerido");
+        return false;
       }
 
       const res = await followCollaborator(colaboradorId);
-
-      if (!res.success) {
-        return QueryResult.businessError(res.message || "Error al seguir");
-      }
-
-      return QueryResult.success(undefined);
+      return res.success; // follow retorna undefined, retornar true para verficar onSuccess
     },
     onMutate: async () => {
       // Actualización optimista
@@ -91,7 +73,7 @@ export function useFollowCollaborator(colaboradorId: string | undefined) {
 
       queryClient.setQueryData(
         ["followStatus", colaboradorId, user?.uid],
-        QueryResult.success(tempFollow),
+        tempFollow,
       );
 
       return { previous };
@@ -106,7 +88,7 @@ export function useFollowCollaborator(colaboradorId: string | undefined) {
       }
     },
     onSuccess: (result) => {
-      if (result.status === "success") {
+      if (result) {
         // Invalidar para refrescar con datos reales
         queryClient.invalidateQueries({
           queryKey: ["followStatus", colaboradorId, user?.uid],
@@ -136,18 +118,11 @@ export function useUnfollowCollaborator(colaboradorId: string | undefined) {
   return useMutation({
     mutationFn: async () => {
       if (!colaboradorId) {
-        return QueryResult.businessError("ID de colaborador requerido");
+        return false;
       }
 
       const res = await unfollowCollaborator(colaboradorId);
-
-      if (!res.success) {
-        return QueryResult.businessError(
-          res.message || "Error al dejar de seguir",
-        );
-      }
-
-      return QueryResult.success(undefined);
+      return res.success;
     },
     onMutate: async () => {
       await queryClient.cancelQueries({
@@ -163,7 +138,7 @@ export function useUnfollowCollaborator(colaboradorId: string | undefined) {
       // Remover el follow optimísticamente
       queryClient.setQueryData(
         ["followStatus", colaboradorId, user?.uid],
-        QueryResult.empty(),
+        false,
       );
 
       return { previous };
@@ -177,7 +152,7 @@ export function useUnfollowCollaborator(colaboradorId: string | undefined) {
       }
     },
     onSuccess: (result) => {
-      if (result.status === "success") {
+      if (result) {
         queryClient.invalidateQueries({
           queryKey: ["followStatus", colaboradorId, user?.uid],
         });
@@ -202,7 +177,7 @@ export function useToggleFollow(colaboradorId: string | undefined) {
   const unfollowMutation = useUnfollowCollaborator(colaboradorId);
   const { data: followStatus } = useFollowStatus(colaboradorId);
 
-  const isFollowing = followStatus?.status === "success";
+  const isFollowing = !!followStatus;
   const isPending = followMutation.isPending || unfollowMutation.isPending;
 
   const toggle = async () => {
@@ -230,19 +205,16 @@ export function useMyFollowing() {
   return useInfiniteQuery({
     queryKey: ["myFollowing", user?.uid],
     queryFn: async ({ pageParam }) => {
-      const res = await getMyFollowing(pageParam);
-
-      if (!res.success || !res.data) {
-        return QueryResult.businessError(
-          res.message || "Error al obtener seguidos",
-        );
+      if (!user) {
+        return undefined;
       }
 
-      return QueryResult.success(res.data);
+      const res = await getMyFollowing(pageParam);
+      return res.data;
     },
     getNextPageParam: (lastPage) => {
-      if (lastPage.status !== "success") return undefined;
-      return lastPage.data.hasMore ? lastPage.data.lastId : undefined;
+      if (!lastPage) return undefined;
+      return lastPage.hasMore ? lastPage.lastId : undefined;
     },
     initialPageParam: null as string | null,
     enabled: !!user,
@@ -259,22 +231,15 @@ export function useCollaboratorFollowers(colaboradorId: string | undefined) {
     queryKey: ["collaboratorFollowers", colaboradorId],
     queryFn: async ({ pageParam }) => {
       if (!colaboradorId) {
-        return QueryResult.businessError("ID de colaborador requerido");
+        return undefined;
       }
 
       const res = await getCollaboratorFollowers(colaboradorId, pageParam);
-
-      if (!res.success || !res.data) {
-        return QueryResult.businessError(
-          res.message || "Error al obtener seguidores",
-        );
-      }
-
-      return QueryResult.success(res.data);
+      return res.data;
     },
     getNextPageParam: (lastPage) => {
-      if (lastPage.status !== "success") return undefined;
-      return lastPage.data.hasMore ? lastPage.data.lastId : undefined;
+      if (!lastPage) return undefined;
+      return lastPage.hasMore ? lastPage.lastId : undefined;
     },
     initialPageParam: null as string | null,
     enabled: !!colaboradorId,

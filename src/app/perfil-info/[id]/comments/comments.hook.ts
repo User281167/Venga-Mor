@@ -13,18 +13,20 @@ import {
 import { useUser } from "@/context/user-context";
 import { CommentsDto } from "@/dtos/comments.dto";
 import { CommentModel } from "@/types/comment";
-import { QueryResult } from "@/hooks/queryResult";
 
 // Hook para obtener comentarios con paginación infinita
 export function useComments(colaboradorId: string | undefined) {
   return useInfiniteQuery({
     queryKey: ["comments", colaboradorId],
     queryFn: async ({ pageParam }) => {
-      if (!colaboradorId) throw new Error("ID de colaborador requerido");
-      return await getComments(colaboradorId, pageParam);
+      if (colaboradorId) {
+        return await getComments(colaboradorId, pageParam);
+      }
+
+      return undefined;
     },
     getNextPageParam: (lastPage) => {
-      return lastPage.hasMore ? lastPage.lastId : undefined;
+      return lastPage?.hasMore ? lastPage.lastId : undefined;
     },
     initialPageParam: null as string | null,
     enabled: !!colaboradorId,
@@ -44,7 +46,8 @@ export function usePostComment(colaboradorId: string | undefined) {
 
   return useMutation({
     mutationFn: async (content: string) => {
-      if (!colaboradorId) throw new Error("ID de colaborador requerido");
+      if (!colaboradorId) return undefined;
+
       return await postComment(colaboradorId, content);
     },
     onMutate: async (content) => {
@@ -113,17 +116,16 @@ export function usePostComment(colaboradorId: string | undefined) {
         queryClient.setQueryData(["myComment", colaboradorId], newComment);
 
         return {
-          ...old,
           pages: [
             {
-              ...old.pages[0],
-              data: [
-                newComment,
-                ...old.pages[0].data.filter((c) => !c.id.startsWith("temp-")),
-              ],
-            },
+              data: [newComment, ...old.pages[0].data],
+              lastId: old.pages[0].lastId,
+              total: old.pages[0].total + 1,
+              hasMore: old.pages[0].hasMore,
+            } as CommentsDto,
             ...old.pages.slice(1),
           ],
+          pageParams: old.pageParams,
         };
       });
     },
@@ -162,19 +164,11 @@ export function useDeleteMyComment(colaboradorId: string | undefined) {
   return useMutation({
     mutationFn: async () => {
       if (!colaboradorId) {
-        return QueryResult.businessError("ID de colaborador requerido");
+        return false;
       }
 
       const res = await deleteMyComment(colaboradorId);
-
-      // Separar errores de negocio de errores de red
-      if (!res.success) {
-        return QueryResult.businessError(
-          res.message || "Error al eliminar comentario",
-        );
-      }
-
-      return QueryResult.success(undefined);
+      return res.success;
     },
     onMutate: async () => {
       // Actualización optimista - remover comentario inmediatamente
@@ -223,7 +217,7 @@ export function useDeleteMyComment(colaboradorId: string | undefined) {
     },
     onSuccess: (result) => {
       // Si es éxito, invalidar queries para refrescar
-      if (result.status === "success") {
+      if (result) {
         queryClient.invalidateQueries({
           queryKey: ["comments", colaboradorId],
         });

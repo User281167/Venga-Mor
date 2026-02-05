@@ -26,20 +26,8 @@ export default function FollowersList({ colaboradorId }: FollowersListProps) {
     isError,
   } = useCollaboratorFollowers(colaboradorId);
 
-  const followers =
-    data?.pages.flatMap((page) => {
-      if (page.status === "success") {
-        return page.data.data;
-      }
-      return [];
-    }) || [];
-
-  const total =
-    data?.pages[0]?.status === "success" ? data.pages[0].data.total : null;
-
-  const businessError = data?.pages.find(
-    (page) => page.status === "business-error",
-  );
+  const followers = data?.pages.flatMap((p) => p?.data || []) || [];
+  const total = data?.pages.reduce((acc, page) => acc + (page?.total || 0), 0);
 
   return (
     <Dialog.Root>
@@ -108,57 +96,55 @@ export default function FollowersList({ colaboradorId }: FollowersListProps) {
             </Flex>
           )}
 
-          {!isLoading && businessError && (
+          {!isLoading && isError && (
             <Flex direction="column" gap="2" align="center" py="6">
               <AlertCircle size={32} color="orange" />
 
               <Text as="p" color="orange" weight="bold">
-                {businessError.status === "business-error"
-                  ? businessError.message
-                  : "Error al obtener seguidores"}
+                {!!error ? error.message : "Error al obtener seguidores"}
               </Text>
             </Flex>
           )}
 
-          {!isLoading &&
-            !isError &&
-            !businessError &&
-            followers.length === 0 && (
-              <Flex direction="column" gap="2" align="center" py="6">
-                <Text as="p" color="gray">
-                  Aún no tiene seguidores
-                </Text>
-              </Flex>
-            )}
+          {!isLoading && !isError && followers.length === 0 && (
+            <Flex direction="column" gap="2" align="center" py="6">
+              <Text as="p" color="gray">
+                Aún no tiene seguidores
+              </Text>
+            </Flex>
+          )}
 
-          {!isLoading && !isError && !businessError && followers.length > 0 && (
+          {!isLoading && !isError && followers.length > 0 && (
             <Flex direction="column" gap="2">
               {followers.map((follower) => (
                 <Flex
-                  key={follower.usuario_id}
+                  key={follower?.usuario_id}
                   gap="3"
                   p="3"
                   align="center"
                   className="hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                 >
                   <Avatar
-                    src={follower.avatar || undefined}
-                    fallback={follower.nombre.charAt(0)}
+                    src={follower?.avatar || undefined}
+                    fallback={follower?.nombre?.charAt(0)}
                     size="3"
                   />
 
                   <div className="flex-1">
                     <Heading as="h4" size="4" weight="bold">
-                      {follower.nombre}
+                      {follower?.nombre}
                     </Heading>
 
                     <Text as="p" size="1" color="gray">
                       Siguiendo desde{" "}
-                      {new Date(follower.fecha).toLocaleDateString("es-ES", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
+                      {new Date(follower?.fecha || "").toLocaleDateString(
+                        "es-ES",
+                        {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        },
+                      )}
                     </Text>
                   </div>
                 </Flex>

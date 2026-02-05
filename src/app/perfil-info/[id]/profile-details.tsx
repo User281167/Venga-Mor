@@ -37,9 +37,7 @@ export default function ProfileDetail({
   const [hoverRating, setHoverRating] = useState(0);
 
   const { user } = useUser();
-  const { toggle, isFollowing, isPending, followStatus } = useToggleFollow(
-    collaborator.uid,
-  );
+  const { toggle, isFollowing, isPending } = useToggleFollow(collaborator.uid);
 
   const handleToggleFollow = async () => {
     if (!user) {
@@ -49,12 +47,12 @@ export default function ProfileDetail({
 
     const result = await toggle();
 
-    if (result.status === "success") {
+    if (result) {
       toast.success(
         isFollowing ? "Dejaste de seguir" : "Ahora sigues a este colaborador",
       );
-    } else if (result.status === "business-error") {
-      toast.error(result.message);
+    } else {
+      toast.error("Error al seguir colaborador");
     }
   };
 
@@ -96,7 +94,7 @@ export default function ProfileDetail({
             variant={isFollowing ? "solid" : "soft"}
             onClick={() => handleToggleFollow()}
             loading={isPending}
-            disabled={isPending || followStatus?.status !== "success"}
+            disabled={isPending}
           >
             <Heart
               size={16}

@@ -1,3 +1,4 @@
+import { NetworkError, ServerError } from "@/errors/errors";
 import { ApiResponse } from "@/lib/api-response";
 
 export async function apiFetch<T>(
@@ -15,7 +16,7 @@ export async function apiFetch<T>(
       ...init,
     });
   } catch {
-    throw new Error("NETWORK_ERROR");
+    throw new NetworkError("Error de red, inténtalo de nuevo más tarde");
   }
 
   let json: ApiResponse<T>;
@@ -33,7 +34,7 @@ export async function apiFetch<T>(
   if (!res.ok) {
     // 5xx, 408, 429 → error de red/servidor (throw)
     if (res.status >= 500 || res.status === 408 || res.status === 429) {
-      throw new Error(json.message || `HTTP_${res.status}`);
+      throw new ServerError("Error del servidor, inténtalo de nuevo más tarde");
     }
 
     // 4xx → error de negocio (return)
@@ -41,12 +42,4 @@ export async function apiFetch<T>(
   }
 
   return json;
-}
-
-// ✅ Helper específico para DELETE (no espera data)
-export async function apiDelete(
-  input: RequestInfo,
-  init: RequestInit = {},
-): Promise<ApiResponse<void>> {
-  return apiFetch<void>(input, { ...init, method: "DELETE" });
 }
