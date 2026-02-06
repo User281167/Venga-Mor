@@ -1,4 +1,4 @@
-import { NetworkError, ServerError } from "@/errors/errors";
+import { BusinessError, NetworkError, ServerError } from "@/errors/errors";
 import { ApiResponse } from "@/lib/api-response";
 
 export async function apiFetch<T>(
@@ -38,7 +38,8 @@ export async function apiFetch<T>(
     }
 
     // 4xx → error de negocio (return)
-    return json;
+    const errors = json.errors?.join("\n");
+    throw new BusinessError(`${json.message || ""}\n${errors || ""}`);
   }
 
   return json;

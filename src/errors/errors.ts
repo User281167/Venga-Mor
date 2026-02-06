@@ -7,3 +7,7 @@ export class ServerError extends Error {
   code = "SERVER_ERROR";
   message = "Error del servidor, inténtalo de nuevo más tarde";
 }
+
+export class BusinessError extends Error {
+  code = "BUSINESS_ERROR";
+}

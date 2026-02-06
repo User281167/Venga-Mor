@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Dialog,
-  Flex,
-  Separator,
-  Skeleton,
-  Spinner,
-  Text,
-} from "@radix-ui/themes";
+import { Button, Dialog, Skeleton, Spinner } from "@radix-ui/themes";
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -23,6 +15,7 @@ import { ImageSlide, VideoSlide } from "./post-slide";
 import { ModalMediaSlide } from "./modal-post-slide";
 import { toast } from "sonner";
 import { MediaSlide } from "./modal-slide";
+import { XIcon } from "lucide-react";
 
 export default function PostCarousel({ id }: { id: string }) {
   const {
@@ -145,7 +138,7 @@ export default function PostCarousel({ id }: { id: string }) {
 
           <Dialog.Close className="absolute top-4 right-4">
             <Button variant="ghost" size="4" className="z-10">
-              ✕
+              <XIcon />
             </Button>
           </Dialog.Close>
 
@@ -163,28 +156,7 @@ export default function PostCarousel({ id }: { id: string }) {
           >
             {mediaSlides.map((slide, index) => (
               <SwiperSlide key={index} virtualIndex={index}>
-                <Flex
-                  direction="column"
-                  align="center"
-                  justify="center"
-                  gap="4"
-                  className="w-full h-full"
-                  mt="6"
-                >
-                  <Flex direction="column" gap="4" className="w-full">
-                    <Text as="p" className="text-white text-center">
-                      {slide.description}
-                    </Text>
-
-                    <Separator className="w-full" size="2" />
-
-                    <Text as="p" className="text-gray-400">
-                      {new Date(slide.publicado).toLocaleDateString()}
-                    </Text>
-                  </Flex>
-
-                  <ModalMediaSlide slide={slide} />
-                </Flex>
+                <ModalMediaSlide slide={slide} />
               </SwiperSlide>
             ))}
 

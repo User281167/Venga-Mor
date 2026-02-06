@@ -13,6 +13,7 @@ import {
 } from "@/handlers/follow-handler";
 import { useUser } from "@/context/user-context";
 import { FollowingModel } from "@/app/models/follow.model";
+import { BusinessError } from "@/errors/errors";
 
 // ============================================
 // 1. Hook para verificar si sigo a un colaborador
@@ -24,7 +25,7 @@ export function useFollowStatus(colaboradorId: string | undefined) {
     queryKey: ["followStatus", colaboradorId, user?.uid],
     queryFn: async () => {
       if (!colaboradorId) {
-        return false;
+        throw new BusinessError("Colaborador no encontrado");
       }
 
       const res = await getMyFollowStatus(colaboradorId);
@@ -45,7 +46,7 @@ export function useFollowCollaborator(colaboradorId: string | undefined) {
   return useMutation({
     mutationFn: async () => {
       if (!colaboradorId) {
-        return false;
+        throw new BusinessError("Colaborador no encontrado");
       }
 
       const res = await followCollaborator(colaboradorId);
@@ -118,7 +119,9 @@ export function useUnfollowCollaborator(colaboradorId: string | undefined) {
   return useMutation({
     mutationFn: async () => {
       if (!colaboradorId) {
-        return false;
+        throw new BusinessError(
+          "No se pudo seguir al colaborador, intenta nuevamente.",
+        );
       }
 
       const res = await unfollowCollaborator(colaboradorId);
@@ -206,7 +209,7 @@ export function useMyFollowing() {
     queryKey: ["myFollowing", user?.uid],
     queryFn: async ({ pageParam }) => {
       if (!user) {
-        return undefined;
+        throw new BusinessError("No se pudo obtener la lista de seguidos");
       }
 
       const res = await getMyFollowing(pageParam);
@@ -231,7 +234,7 @@ export function useCollaboratorFollowers(colaboradorId: string | undefined) {
     queryKey: ["collaboratorFollowers", colaboradorId],
     queryFn: async ({ pageParam }) => {
       if (!colaboradorId) {
-        return undefined;
+        throw new BusinessError("No se pudo obtener la lista de seguidores");
       }
 
       const res = await getCollaboratorFollowers(colaboradorId, pageParam);

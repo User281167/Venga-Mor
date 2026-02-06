@@ -13,17 +13,19 @@ import {
 import { useUser } from "@/context/user-context";
 import { CommentsDto } from "@/dtos/comments.dto";
 import { CommentModel } from "@/types/comment";
+import { BusinessError } from "@/errors/errors";
 
 // Hook para obtener comentarios con paginación infinita
 export function useComments(colaboradorId: string | undefined) {
   return useInfiniteQuery({
     queryKey: ["comments", colaboradorId],
     queryFn: async ({ pageParam }) => {
-      if (colaboradorId) {
-        return await getComments(colaboradorId, pageParam);
+      if (!colaboradorId?.trim()) {
+        throw new BusinessError("El ID del colaborador es requerido");
       }
 
-      return undefined;
+      const res = await getComments(colaboradorId, pageParam);
+      return res;
     },
     getNextPageParam: (lastPage) => {
       return lastPage?.hasMore ? lastPage.lastId : undefined;
@@ -32,10 +34,6 @@ export function useComments(colaboradorId: string | undefined) {
     enabled: !!colaboradorId,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 20,
-    retry: (failureCount, error) => {
-      if (error.message.includes("no encontrado")) return false;
-      return failureCount < 2;
-    },
   });
 }
 
@@ -46,7 +44,7 @@ export function usePostComment(colaboradorId: string | undefined) {
 
   return useMutation({
     mutationFn: async (content: string) => {
-      if (!colaboradorId) return undefined;
+      if (!colaboradorId) throw new BusinessError("Error verifique la sesión");
 
       return await postComment(colaboradorId, content);
     },
@@ -149,7 +147,8 @@ export function useMyComment(colaboradorId: string | undefined) {
   return useQuery({
     queryKey: ["myComment", colaboradorId],
     queryFn: async () => {
-      if (!colaboradorId) throw new Error("ID de colaborador requerido");
+      if (!colaboradorId)
+        throw new BusinessError("Error colaborador no encontrado");
       return await getMyComment(colaboradorId);
     },
     enabled: !!colaboradorId && !!user, // Solo si hay usuario autenticado
@@ -164,11 +163,10 @@ export function useDeleteMyComment(colaboradorId: string | undefined) {
   return useMutation({
     mutationFn: async () => {
       if (!colaboradorId) {
-        return false;
+        throw new BusinessError("Error colaborador no encontrado");
       }
 
-      const res = await deleteMyComment(colaboradorId);
-      return res.success;
+      await deleteMyComment(colaboradorId);
     },
     onMutate: async () => {
       // Actualización optimista - remover comentario inmediatamente
@@ -217,13 +215,11 @@ export function useDeleteMyComment(colaboradorId: string | undefined) {
     },
     onSuccess: (result) => {
       // Si es éxito, invalidar queries para refrescar
-      if (result) {
-        queryClient.invalidateQueries({
-          queryKey: ["comments", colaboradorId],
-        });
+      queryClient.invalidateQueries({
+        queryKey: ["comments", colaboradorId],
+      });
 
-        queryClient.setQueryData(["myComment", colaboradorId], null);
-      }
+      queryClient.setQueryData(["myComment", colaboradorId], null);
     },
   });
 }
