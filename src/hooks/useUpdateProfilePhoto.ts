@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@/context/user-context";
 import { AppUser } from "@/types/user";
 import { updateImage } from "@/handlers/updateUser";
+import { BusinessError } from "@/errors/errors";
 
 export function useUpdateProfilePhoto() {
   const queryClient = useQueryClient();
@@ -12,7 +13,7 @@ export function useUpdateProfilePhoto() {
       const result = await updateImage(file);
 
       if (!result.success || !result.data) {
-        throw new Error(result.message || "Error al actualizar imagen");
+        throw new BusinessError(result.message || "Error al actualizar imagen");
       }
 
       // Retorna solo la nueva URL

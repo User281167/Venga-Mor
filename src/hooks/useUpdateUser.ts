@@ -3,6 +3,7 @@ import { AppUser } from "@/types/user";
 import { useUser } from "@/context/user-context";
 import { updateUser } from "@/handlers/updateUser";
 import { UpdateUserInfo } from "@/dtos/user.dto";
+import { BusinessError } from "@/errors/errors";
 
 export function useUpdateUser() {
   const queryClient = useQueryClient();
@@ -15,7 +16,9 @@ export function useUpdateUser() {
       console.log("Result ", result);
 
       if (!result.success || !result.data) {
-        throw new Error(result.message || "Error al actualizar usuario");
+        throw new BusinessError(
+          result.message || "Error al actualizar usuario",
+        );
       }
 
       return result.data;
