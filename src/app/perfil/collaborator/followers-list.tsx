@@ -4,12 +4,12 @@ import {
   Dialog,
   Button,
   Flex,
-  Avatar,
   Text,
   ScrollArea,
   Heading,
 } from "@radix-ui/themes";
 import { AlertCircle, Loader2, XIcon } from "lucide-react";
+import { FollowerCard } from "./follower-card";
 
 interface FollowersListProps {
   colaboradorId: string;
@@ -19,6 +19,7 @@ export default function FollowersList({ colaboradorId }: FollowersListProps) {
   const {
     data,
     isLoading,
+    refetch,
     error,
     fetchNextPage,
     hasNextPage,
@@ -60,7 +61,7 @@ export default function FollowersList({ colaboradorId }: FollowersListProps) {
         </Dialog.Title>
 
         <Dialog.Description size="2" mb="4">
-          Personas que siguen a este colaborador
+          Personas que te siguen
         </Dialog.Description>
 
         <ScrollArea style={{ maxHeight: "400px" }}>
@@ -83,26 +84,12 @@ export default function FollowersList({ colaboradorId }: FollowersListProps) {
               </Text>
 
               <Text as="p" size="2" color="gray">
-                {error instanceof Error ? error.message : "Error de conexión"}
+                {error.message}
               </Text>
 
-              <Button
-                size="2"
-                variant="soft"
-                onClick={() => window.location.reload()}
-              >
+              <Button size="2" variant="soft" onClick={() => refetch()}>
                 Reintentar
               </Button>
-            </Flex>
-          )}
-
-          {!isLoading && isError && (
-            <Flex direction="column" gap="2" align="center" py="6">
-              <AlertCircle size={32} color="orange" />
-
-              <Text as="p" color="orange" weight="bold">
-                {!!error ? error.message : "Error al obtener seguidores"}
-              </Text>
             </Flex>
           )}
 
@@ -117,37 +104,7 @@ export default function FollowersList({ colaboradorId }: FollowersListProps) {
           {!isLoading && !isError && followers.length > 0 && (
             <Flex direction="column" gap="2">
               {followers.map((follower) => (
-                <Flex
-                  key={follower?.usuario_id}
-                  gap="3"
-                  p="3"
-                  align="center"
-                  className="hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                >
-                  <Avatar
-                    src={follower?.avatar || undefined}
-                    fallback={follower?.nombre?.charAt(0)}
-                    size="3"
-                  />
-
-                  <div className="flex-1">
-                    <Heading as="h4" size="4" weight="bold">
-                      {follower?.nombre}
-                    </Heading>
-
-                    <Text as="p" size="1" color="gray">
-                      Siguiendo desde{" "}
-                      {new Date(follower?.fecha || "").toLocaleDateString(
-                        "es-ES",
-                        {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        },
-                      )}
-                    </Text>
-                  </div>
-                </Flex>
+                <FollowerCard key={follower.usuario_id} follower={follower} />
               ))}
 
               {hasNextPage && (

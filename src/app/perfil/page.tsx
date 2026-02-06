@@ -16,7 +16,7 @@ import Image from "next/image";
 import FormUserInfo from "./user-form";
 import CollaboratorForm from "./collaborator/collaborator-form";
 import MediaUploadPanel from "./media/media-upload-media";
-import FollowingList from "./following-list";
+import FollowingList from "./following/following-list";
 import FollowersList from "./collaborator/followers-list";
 
 export default function PerfilPage() {

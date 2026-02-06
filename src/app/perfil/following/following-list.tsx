@@ -1,17 +1,8 @@
 "use client";
 import { useMyFollowing } from "@/hooks/useFollow";
-import {
-  Dialog,
-  Button,
-  Flex,
-  Avatar,
-  Text,
-  ScrollArea,
-  Heading,
-} from "@radix-ui/themes";
+import { Dialog, Button, Flex, Text, ScrollArea } from "@radix-ui/themes";
 import { AlertCircle, Loader2, XIcon } from "lucide-react";
-import Link from "next/link";
-import { toast } from "sonner";
+import { FollowingCard } from "./following-card";
 
 interface FollowingListProps {
   loading: boolean;
@@ -21,27 +12,24 @@ export default function FollowingList({ loading }: FollowingListProps) {
   const {
     data,
     isLoading: useLoading,
+    isFetching,
     error,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
     isError,
+    refetch,
   } = useMyFollowing();
 
   // Extraer seguidos de todas las páginas
-  const following = data?.pages.flatMap((page) => page?.data) || [];
+  const following = data?.pages.flatMap((page) => page?.data || []) || [];
 
-  // Obtener el total (de la primera página)
   const total = data?.pages.reduce(
     (acc, page) => acc + (page?.data?.length || 0),
     0,
   );
 
-  if (isError) {
-    toast.error(error.message);
-  }
-
-  const isLoading = loading || useLoading;
+  const isLoading = loading || useLoading || isFetching;
 
   return (
     <Dialog.Root>
@@ -82,6 +70,7 @@ export default function FollowingList({ loading }: FollowingListProps) {
           {isLoading && (
             <Flex direction="column" gap="3" align="center" py="6">
               <Loader2 className="animate-spin" size={32} />
+
               <Text as="p" color="gray">
                 Cargando seguidos...
               </Text>
@@ -98,26 +87,12 @@ export default function FollowingList({ loading }: FollowingListProps) {
               </Text>
 
               <Text as="p" size="2" color="gray">
-                {error instanceof Error ? error.message : "Error de conexión"}
+                {error.message}
               </Text>
 
-              <Button
-                size="2"
-                variant="soft"
-                onClick={() => window.location.reload()}
-              >
+              <Button size="2" variant="soft" onClick={() => refetch()}>
                 Reintentar
               </Button>
-            </Flex>
-          )}
-
-          {!isLoading && isError && (
-            <Flex direction="column" gap="2" align="center" py="6">
-              <AlertCircle size={32} color="orange" />
-
-              <Text as="p" color="orange" weight="bold">
-                {isError ? error.message : "Error al obtener seguidos"}
-              </Text>
             </Flex>
           )}
 
@@ -134,42 +109,7 @@ export default function FollowingList({ loading }: FollowingListProps) {
           {!isLoading && !isError && following.length > 0 && (
             <Flex direction="column" gap="2">
               {following.map((item) => (
-                <Link
-                  key={item?.colaborador_id}
-                  href={`/perfil-info/${item?.colaborador_id}`}
-                  className="block"
-                >
-                  <Flex
-                    gap="3"
-                    p="3"
-                    align="center"
-                    className="hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                  >
-                    <Avatar
-                      src={item?.avatar || undefined}
-                      fallback={item?.nombre.charAt(0)}
-                      size="3"
-                    />
-
-                    <div className="flex-1">
-                      <Heading as="h4" size="4" weight="bold">
-                        {item?.nombre}
-                      </Heading>
-
-                      <Text as="p" size="1" color="gray">
-                        Siguiendo desde{" "}
-                        {new Date(item?.fecha || "").toLocaleDateString(
-                          "es-ES",
-                          {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          },
-                        )}
-                      </Text>
-                    </div>
-                  </Flex>
-                </Link>
+                <FollowingCard key={item?.colaborador_id} user={item} />
               ))}
 
               {/* Botón "Cargar más" */}
@@ -190,15 +130,6 @@ export default function FollowingList({ loading }: FollowingListProps) {
                       "Cargar más"
                     )}
                   </Button>
-                </Flex>
-              )}
-
-              {/* Error al cargar siguiente página */}
-              {!hasNextPage && isFetchingNextPage && (
-                <Flex justify="center" pt="3">
-                  <Text as="p" size="2" color="red">
-                    Error al cargar más seguidos
-                  </Text>
                 </Flex>
               )}
             </Flex>
