@@ -11,12 +11,15 @@ import {
 } from "@radix-ui/themes";
 import Link from "next/link";
 import { Collaborator } from "@/types/collaborator";
+import React from "react";
 
 interface CollaboratorCardProps {
   collaborator: Collaborator;
 }
 
-export function CollaboratorCard({ collaborator }: CollaboratorCardProps) {
+export const CollaboratorCard = React.memo(function CollaboratorCard({
+  collaborator,
+}: CollaboratorCardProps) {
   const locationLabel =
     [collaborator.direccion?.ciudad_localidad, collaborator.direccion?.pais]
       .filter(Boolean)
@@ -100,4 +103,4 @@ export function CollaboratorCard({ collaborator }: CollaboratorCardProps) {
       </Grid>
     </Card>
   );
-}
+});

@@ -24,10 +24,8 @@ export default function FollowingList({ loading }: FollowingListProps) {
   // Extraer seguidos de todas las páginas
   const following = data?.pages.flatMap((page) => page?.data || []) || [];
 
-  const total = data?.pages.reduce(
-    (acc, page) => acc + (page?.data?.length || 0),
-    0,
-  );
+  const total =
+    data?.pages.reduce((acc, page) => acc + (page?.data?.length || 0), 0) || 0;
 
   const isLoading = loading || useLoading || isFetching;
 
