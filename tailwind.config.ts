@@ -10,8 +10,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ["Poppins", "sans-serif"],
-        headline: ["Playball", "cursive"],
+        body: ["var(--font-poppins)", "sans-serif"],
+        headline: ["var(--font-playball)", "cursive"],
         code: ["monospace"],
       },
       colors: {

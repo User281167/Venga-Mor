@@ -4,6 +4,7 @@ import { Button, Flex, Heading } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
 import PayPalPayment from "@/components/pay-pal";
 import HeaderGif from "@/components/header-gif";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 const rotatingTexts = [
   "Servicios íntimos",
@@ -13,20 +14,38 @@ const rotatingTexts = [
   "Seguridad y compromiso",
 ];
 
+const backgroundImages = [
+  PlaceHolderImages.find((p) => p.id === "intro-gif"),
+  PlaceHolderImages.find((p) => p.id === "intro-gif-2"),
+].filter(Boolean);
+
 export default function LoginPage() {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
+  const [bgImage, setBgImage] = useState(backgroundImages[0]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    const textInterval = setInterval(() => {
       setCurrentTextIndex(
         (prevIndex) => (prevIndex + 1) % rotatingTexts.length,
       );
     }, 3000);
-    return () => clearInterval(interval);
+
+    const bgInterval = setInterval(() => {
+      setBgImage((current) =>
+        current?.id === "intro-gif"
+          ? backgroundImages[1]!
+          : backgroundImages[0]!,
+      );
+    }, 6000); // Change background every 6 seconds
+
+    return () => {
+      clearInterval(textInterval);
+      clearInterval(bgInterval);
+    };
   }, []);
 
   return (
-    <HeaderGif>
+    <HeaderGif imageUrl={bgImage?.imageUrl}>
       <Flex direction="column" align="center" gap="5">
         <Heading
           className="text-8xl md:text-9xl font-headline text-primary"
@@ -40,7 +59,10 @@ export default function LoginPage() {
         </p>
 
         <Link href="/iniciar-sesion" className="w-full">
-          <Button size="4" className="bg-primary w-full cursor-pointer">
+          <Button
+            size="4"
+            className="bg-primary w-full cursor-pointer text-primary-foreground"
+          >
             Ingresar
           </Button>
         </Link>

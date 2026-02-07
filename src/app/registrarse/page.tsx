@@ -204,7 +204,7 @@ export default function LoginPage() {
           <Button
             disabled={loadingForm}
             type="submit"
-            className="bg-primary hover:bg-primary/80"
+            className="bg-primary hover:bg-primary/80 text-primary-foreground"
             size="3"
           >
             Registrarse

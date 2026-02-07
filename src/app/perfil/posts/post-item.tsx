@@ -1,5 +1,4 @@
-import { Box, Flex, Grid, Text } from "@radix-ui/themes";
-import { Separator } from "@radix-ui/themes/components/select";
+import { Box, Flex, Grid, Separator, Text } from "@radix-ui/themes";
 import * as Dialog from "@radix-ui/react-dialog";
 import { XIcon } from "lucide-react";
 

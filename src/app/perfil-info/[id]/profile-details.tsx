@@ -10,8 +10,8 @@ import {
   Button,
   Avatar,
   Dialog,
+  Separator,
 } from "@radix-ui/themes";
-import { Separator } from "@radix-ui/themes/components/separator";
 import { Star, MessageCircle, Diamond, Heart } from "lucide-react";
 import { useState } from "react";
 
@@ -107,7 +107,7 @@ export default function ProfileDetail({
 
           <Dialog.Root>
             <Dialog.Trigger>
-              <Button variant="soft" className="w-full md:flex-1">
+              <Button variant="soft" className="w-full md:flex-1 ">
                 <Diamond size={16} /> Enviar Joyas
               </Button>
             </Dialog.Trigger>
@@ -130,7 +130,7 @@ export default function ProfileDetail({
           </Dialog.Root>
 
           <Button
-            className="bg-primary w-full md:flex-1"
+            className="bg-primary w-full md:flex-1 text-primary-foreground"
             onClick={() => router.push(`/chats/${escort?.id}`)}
           >
             <MessageCircle size={16} /> Enviar Mensaje

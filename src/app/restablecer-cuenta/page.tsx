@@ -104,7 +104,7 @@ export default function SignInPage() {
             disabled={loadingForm}
             hidden={emailSent}
             type="submit"
-            className="bg-primary hover:bg-primary/80"
+            className="bg-primary hover:bg-primary/80 text-primary-foreground"
             size="3"
           >
             Reestablecer

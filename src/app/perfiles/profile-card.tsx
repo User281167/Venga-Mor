@@ -33,7 +33,7 @@ export function CollaboratorCard({ collaborator }: CollaboratorCardProps) {
         />
 
         <div>
-          <h3 className="text-2xl font-bold text-accent font-headline">
+          <h3 className="text-2xl font-bold font-headline text-primary">
             {collaborator.nombre} {collaborator.apellido}
           </h3>
 

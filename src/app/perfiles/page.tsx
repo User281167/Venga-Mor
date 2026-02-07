@@ -37,6 +37,7 @@ import { useProfilesFilters } from "@/context/profiles-filters-context";
 import { useProfilesList } from "@/context/use-profiles-data";
 import { toast } from "sonner";
 import ProfileCardSkeleton from "./profileCardSkeleton";
+import { useTheme } from "@/context/theme-context";
 
 export default function ProfilesPage() {
   const {
@@ -60,14 +61,15 @@ export default function ProfilesPage() {
     error,
   } = useProfilesList(ageRange, selectedCategories, selectedStar, locationData);
 
-  const profiles = data?.pages.flatMap((page) => page.data) ?? [];
+  const { exploreBackground } = useTheme();
+  const profiles = data?.pages.flatMap((page) => page?.data || []) ?? [];
 
   if (isError) {
     toast.error(error.message);
   }
 
   return (
-    <SectionImg imageUrl="https://i.ibb.co/VYVzBLXq/lamiendo-labios-letrero-neon-1262-21356.jpg">
+    <SectionImg imageUrl={exploreBackground} imageHint="woman neon">
       <Flex direction="column" gap="4" className="mx-auto w-11/12 max-w-3xl">
         <header className="flex items-center justify-between">
           <Heading className="text-4xl font-bold font-headline text-primary">
@@ -174,7 +176,7 @@ export default function ProfilesPage() {
           <div>
             <Label.Root
               htmlFor="age-range"
-              className="text-lg font-semibold text-accent mb-3 block"
+              className="text-lg font-semibold text-primary mb-3 block"
             >
               Rango de Edad:{" "}
               <span className="text-white">
@@ -194,7 +196,7 @@ export default function ProfilesPage() {
           </div>
 
           <div>
-            <Label.Root className="text-lg font-semibold text-accent mb-3 block">
+            <Label.Root className="text-lg font-semibold text-primary mb-3 block">
               Categorías
             </Label.Root>
 

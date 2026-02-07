@@ -3,16 +3,26 @@ import admin from "firebase-admin";
 const bucket = process.env.FIREBASE_STORAGE_BUCKET;
 
 if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
-    }),
-    storageBucket: bucket,
-  });
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
+  if (projectId && clientEmail && privateKey) {
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId,
+        clientEmail,
+        privateKey: privateKey.replace(/\\n/g, "\n"),
+      }),
+      storageBucket: bucket,
+    });
+  } else {
+    console.warn("Firebase Admin credentials not set. SDK not initialized.");
+  }
 }
 
-export const adminAuth = admin.auth();
-export const adminDb = admin.firestore();
-export const adminBucket = admin.storage().bucket(bucket);
+export const adminAuth = admin.apps.length ? admin.auth() : null;
+export const adminDb = admin.apps.length ? admin.firestore() : null;
+export const adminBucket = admin.apps.length
+  ? admin.storage().bucket(bucket)
+  : null;

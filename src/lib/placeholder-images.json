@@ -91,6 +91,12 @@
       "imageHint": "neon lips"
     },
     {
+      "id": "explore-bg-default",
+      "description": "Neon lips background for explore page",
+      "imageUrl": "https://i.ibb.co/VYVzBLXq/lamiendo-labios-letrero-neon-1262-21356.jpg",
+      "imageHint": "neon lips"
+    },
+    {
       "id": "chat-bg",
       "description": "Neon sign of a sexy lady body",
       "imageUrl": "https://i.ibb.co/kgm2LSwW/HDJSign-Sexy-Lady-Body-Neon-Sign-HDJ-Sign-2380.jpg",
@@ -107,6 +113,18 @@
       "description": "Neon sign of licking lips",
       "imageUrl": "https://i.ibb.co/JWcG8T2V/lamiendo-labios-letrero-neon-1262-21356.jpg",
       "imageHint": "neon lips"
+    },
+    {
+      "id": "intro-gif-2",
+      "description": "Second introductory background image",
+      "imageUrl": "https://i.ibb.co/nNPQtLbr/In-Shot-20260203-184953322.png",
+      "imageHint": "woman neon"
+    },
+    {
+      "id": "floating-mascot",
+      "description": "Floating mascot image",
+      "imageUrl": "https://i.ibb.co/nNPQtLbr/In-Shot-20260203-184953322.png",
+      "imageHint": "woman neon"
     }
   ]
 }
