@@ -14,12 +14,15 @@ import ProfileHeader from "./profile-header";
 import ProfileAbout from "./profile-about";
 
 import { Collaborator } from "@/types/collaborator";
+import { useUser } from "@/context/user-context";
 
 export default function ProfileDetail({
   collaborator,
 }: {
   collaborator: Collaborator;
 }) {
+  const { user } = useUser();
+
   return (
     <SectionImg>
       <Card
@@ -36,8 +39,12 @@ export default function ProfileDetail({
         <PostCarousel id={collaborator.uid} />
         <Separator size="4" />
 
-        <RaitingCollaborator />
-        <Separator my="3" size="4" />
+        {user?.uid !== collaborator.uid && (
+          <>
+            <RaitingCollaborator collaboratorId={collaborator.uid} />
+            <Separator my="3" size="4" />
+          </>
+        )}
 
         <Comments collaboratorId={collaborator.uid} />
       </Card>
