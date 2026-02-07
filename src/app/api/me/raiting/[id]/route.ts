@@ -98,8 +98,8 @@ export async function PUT(
         colaboradorId,
         userId: uid,
         valor,
-        creado: now,
-        actualizado: now,
+        creado: now.toISOString(),
+        actualizado: now.toISOString(),
       });
 
       const doc = {
