@@ -1,129 +1,73 @@
 import { CommentsDto } from "@/dtos/comments.dto";
-import { ApiResponse } from "@/lib/api-response";
 import { CommentModel } from "@/types/comment";
 import { api } from "@/lib/apiHelper";
+import { BusinessError } from "@/errors/errors";
 
 export async function postComment(
   colaboradorId: string,
   content: string,
-): Promise<CommentModel> {
+): Promise<CommentModel | undefined> {
   const trimContent: string = content?.trim().slice(0, 200) ?? "";
 
   if (!trimContent) {
-    throw new Error("El contenido no puede estar vacío"); // ← Throw para TanStack
+    throw new BusinessError("El contenido no puede estar vacío"); // ← Throw para TanStack
   }
 
-  try {
-    const response = await fetch(
-      `/api/colaboradores/${colaboradorId}/comentarios`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ content: trimContent }),
-      },
-    );
+  const res = await api.post<CommentModel>(
+    `/api/colaboradores/${colaboradorId}/comentarios`,
+    {
+      content: trimContent,
+    },
+  );
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Error al crear el comentario");
-    }
-
-    const result = await response.json();
-
-    if (!result.success || !result.data) {
-      throw new Error(result.message || "Error al crear el comentario");
-    }
-
-    return result.data;
-  } catch (error) {
-    // Re-throw para que TanStack Query lo maneje
-    throw error instanceof Error
-      ? error
-      : new Error("Error inesperado al crear el comentario");
-  }
+  return res.data;
 }
 
 export async function getComments(
   colaboradorId: string,
   lastId: string | null,
-): Promise<CommentsDto> {
+): Promise<CommentsDto | undefined> {
+  if (!colaboradorId.trim()) {
+    throw new BusinessError("El ID del colaborador es requerido");
+  }
+
   const params = new URLSearchParams();
 
   if (lastId) {
     params.append("lastId", lastId);
   }
 
-  try {
-    const response = await fetch(
-      `/api/colaboradores/${colaboradorId}/comentarios?${params.toString()}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
+  const res = await api.get<CommentsDto>(
+    `/api/colaboradores/${colaboradorId}/comentarios?${params.toString()}`,
+  );
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Error al obtener los comentarios");
-    }
-
-    const result = await response.json();
-
-    if (!result.success || !result.data) {
-      throw new Error(result.message || "Error al obtener los comentarios");
-    }
-
-    return result.data;
-  } catch (error) {
-    throw error instanceof Error
-      ? error
-      : new Error("Error inesperado al obtener los comentarios");
-  }
+  return res.data;
 }
 
 export async function getMyComment(
   colaboradorId: string,
-): Promise<CommentModel | null> {
-  try {
-    const response = await fetch(
-      `/api/colaboradores/${colaboradorId}/comentarios/me`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Error al obtener tu comentario");
-    }
-
-    const result = await response.json();
-
-    if (!result.success) {
-      throw new Error(result.message || "Error al obtener tu comentario");
-    }
-
-    return result.data; // Puede ser null si no tiene comentario
-  } catch (error) {
-    throw error instanceof Error
-      ? error
-      : new Error("Error inesperado al obtener tu comentario");
+): Promise<CommentModel | undefined> {
+  if (!colaboradorId || !colaboradorId.trim()) {
+    throw new BusinessError("El ID del colaborador es requerido");
   }
+
+  const res = await api.get<CommentModel>(
+    `/api/colaboradores/${colaboradorId}/comentarios/me`,
+  );
+
+  return res.data;
 }
 
 export async function deleteMyComment(
   colaboradorId: string,
-): Promise<ApiResponse> {
+): Promise<undefined> {
   if (!colaboradorId.trim()) {
-    return ApiResponse.failure("Id necesario para eliminar comentario");
+    throw new BusinessError("Id necesario para eliminar comentario");
   }
 
-  return api.del(`/api/colaboradores/${colaboradorId}/comentarios/me`);
+  const res = await api.del(
+    `/api/colaboradores/${colaboradorId}/comentarios/me`,
+  );
+
+  return res.data;
 }

@@ -1,34 +1,33 @@
 "use client";
-import { useCollaboratorFollowers } from "@/hooks/useFollow";
-import {
-  Dialog,
-  Button,
-  Flex,
-  Text,
-  ScrollArea,
-  Heading,
-} from "@radix-ui/themes";
+import { useMyFollowing } from "@/hooks/useFollow";
+import { Dialog, Button, Flex, Text, ScrollArea } from "@radix-ui/themes";
 import { AlertCircle, Loader2, XIcon } from "lucide-react";
-import { FollowerCard } from "./follower-card";
+import { FollowingCard } from "./following-card";
 
-interface FollowersListProps {
-  colaboradorId: string;
+interface FollowingListProps {
+  loading: boolean;
 }
 
-export default function FollowersList({ colaboradorId }: FollowersListProps) {
+export default function FollowingList({ loading }: FollowingListProps) {
   const {
     data,
-    isLoading,
-    refetch,
+    isLoading: useLoading,
+    isFetching,
     error,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
     isError,
-  } = useCollaboratorFollowers(colaboradorId);
+    refetch,
+  } = useMyFollowing();
 
-  const followers = data?.pages.flatMap((p) => p?.data || []) || [];
-  const total = data?.pages.reduce((acc, page) => acc + (page?.total || 0), 0);
+  // Extraer seguidos de todas las páginas
+  const following = data?.pages.flatMap((page) => page?.data || []) || [];
+
+  const total =
+    data?.pages.reduce((acc, page) => acc + (page?.data?.length || 0), 0) || 0;
+
+  const isLoading = loading || useLoading || isFetching;
 
   return (
     <Dialog.Root>
@@ -39,7 +38,7 @@ export default function FollowersList({ colaboradorId }: FollowersListProps) {
           loading={isLoading}
           disabled={isLoading}
         >
-          Seguidores {total !== null && `(${total})`}
+          Siguiendo {total !== null && `(${total})`}
         </Button>
       </Dialog.Trigger>
 
@@ -49,32 +48,34 @@ export default function FollowersList({ colaboradorId }: FollowersListProps) {
         </Dialog.Close>
 
         <Dialog.Title>
-          <Flex gap="4" align="center">
-            <Heading as="h2">Seguidores</Heading>
+          <Flex align="center" gap="4">
+            <Text as="p">Siguiendo</Text>
 
             {total !== null && (
               <Text size="2" color="gray">
-                {total} {total === 1 ? "seguidor" : "seguidores"}
+                {total} {total === 1 ? "colaborador" : "colaboradores"}
               </Text>
             )}
           </Flex>
         </Dialog.Title>
 
         <Dialog.Description size="2" mb="4">
-          Personas que te siguen
+          Colaboradores que sigues
         </Dialog.Description>
 
         <ScrollArea style={{ maxHeight: "400px" }}>
+          {/* Estado: Carga inicial */}
           {isLoading && (
             <Flex direction="column" gap="3" align="center" py="6">
               <Loader2 className="animate-spin" size={32} />
 
               <Text as="p" color="gray">
-                Cargando seguidores...
+                Cargando seguidos...
               </Text>
             </Flex>
           )}
 
+          {/* Estado: Error de red (throw en handler) */}
           {isError && !isLoading && (
             <Flex direction="column" gap="2" align="center" py="6">
               <AlertCircle size={32} color="red" />
@@ -93,20 +94,23 @@ export default function FollowersList({ colaboradorId }: FollowersListProps) {
             </Flex>
           )}
 
-          {!isLoading && !isError && followers.length === 0 && (
+          {/* Estado: Sin seguidos */}
+          {!isLoading && !isError && following.length === 0 && (
             <Flex direction="column" gap="2" align="center" py="6">
               <Text as="p" color="gray">
-                Aún no tiene seguidores
+                No sigues a ningún colaborador aún
               </Text>
             </Flex>
           )}
 
-          {!isLoading && !isError && followers.length > 0 && (
+          {/* Estado: Lista con datos */}
+          {!isLoading && !isError && following.length > 0 && (
             <Flex direction="column" gap="2">
-              {followers.map((follower) => (
-                <FollowerCard key={follower.usuario_id} follower={follower} />
+              {following.map((item) => (
+                <FollowingCard key={item?.colaborador_id} user={item} />
               ))}
 
+              {/* Botón "Cargar más" */}
               {hasNextPage && (
                 <Flex justify="center" pt="3">
                   <Button

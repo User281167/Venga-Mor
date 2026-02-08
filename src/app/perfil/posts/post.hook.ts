@@ -2,6 +2,7 @@ import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchPosts } from "@/app/perfil/posts/post-handler";
 import { PostData } from "@/types/post";
 import { useUser } from "@/context/user-context";
+import { BusinessError } from "@/errors/errors";
 
 const queryKey = ["personal-posts", "feed"];
 
@@ -9,12 +10,12 @@ export function usePostsFeed() {
   const { user } = useUser();
 
   return useInfiniteQuery({
-    queryKey: [...queryKey, user?.uid], // ← Incluye user.uid en la key
+    queryKey: [...queryKey, user?.uid],
     queryFn: async ({ pageParam }) => {
       const result = await fetchPosts(pageParam);
 
       if (!result.success || !result.data) {
-        throw new Error(result.message || "Error al cargar posts");
+        throw new BusinessError(result.message || "Error al cargar posts");
       }
 
       return result.data;

@@ -6,6 +6,7 @@ import {
 } from "@/handlers/collaborator-handler";
 import { CollaboratorInfo } from "@/schema/collaborator";
 import { useUser } from "@/context/user-context";
+import { BusinessError } from "@/errors/errors";
 
 // Hook para obtener datos del colaborador
 export function useCollaboratorProfile() {
@@ -17,7 +18,9 @@ export function useCollaboratorProfile() {
       const result = await getCollaborator();
 
       if (!result.success || !result.data) {
-        throw new Error(result.message || "Error al obtener colaborador");
+        throw new BusinessError(
+          result.message || "Error al obtener colaborador",
+        );
       }
 
       return result.data;
@@ -39,7 +42,7 @@ export function useCreateCollaborator() {
       const result = await createCollaborator(data);
 
       if (!result.success || !result.data) {
-        throw new Error(result.message || "Error al crear colaborador");
+        throw new BusinessError(result.message || "Error al crear colaborador");
       }
 
       return result.data;
@@ -77,7 +80,9 @@ export function useUpdateCollaborator() {
       const result = await updateCollaborator(data);
 
       if (!result.success || !result.data) {
-        throw new Error(result.message || "Error al actualizar colaborador");
+        throw new BusinessError(
+          result.message || "Error al actualizar colaborador",
+        );
       }
 
       return result.data;

@@ -13,27 +13,27 @@ import {
 import { useUser } from "@/context/user-context";
 import { CommentsDto } from "@/dtos/comments.dto";
 import { CommentModel } from "@/types/comment";
-import { QueryResult } from "@/hooks/queryResult";
+import { BusinessError } from "@/errors/errors";
 
 // Hook para obtener comentarios con paginación infinita
 export function useComments(colaboradorId: string | undefined) {
   return useInfiniteQuery({
     queryKey: ["comments", colaboradorId],
     queryFn: async ({ pageParam }) => {
-      if (!colaboradorId) throw new Error("ID de colaborador requerido");
-      return await getComments(colaboradorId, pageParam);
+      if (!colaboradorId?.trim()) {
+        throw new BusinessError("El ID del colaborador es requerido");
+      }
+
+      const res = await getComments(colaboradorId, pageParam);
+      return res;
     },
     getNextPageParam: (lastPage) => {
-      return lastPage.hasMore ? lastPage.lastId : undefined;
+      return lastPage?.hasMore ? lastPage.lastId : undefined;
     },
     initialPageParam: null as string | null,
     enabled: !!colaboradorId,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 20,
-    retry: (failureCount, error) => {
-      if (error.message.includes("no encontrado")) return false;
-      return failureCount < 2;
-    },
   });
 }
 
@@ -44,7 +44,8 @@ export function usePostComment(colaboradorId: string | undefined) {
 
   return useMutation({
     mutationFn: async (content: string) => {
-      if (!colaboradorId) throw new Error("ID de colaborador requerido");
+      if (!colaboradorId) throw new BusinessError("Error verifique la sesión");
+
       return await postComment(colaboradorId, content);
     },
     onMutate: async (content) => {
@@ -113,17 +114,16 @@ export function usePostComment(colaboradorId: string | undefined) {
         queryClient.setQueryData(["myComment", colaboradorId], newComment);
 
         return {
-          ...old,
           pages: [
             {
-              ...old.pages[0],
-              data: [
-                newComment,
-                ...old.pages[0].data.filter((c) => !c.id.startsWith("temp-")),
-              ],
-            },
+              data: [newComment, ...old.pages[0].data],
+              lastId: old.pages[0].lastId,
+              total: old.pages[0].total + 1,
+              hasMore: old.pages[0].hasMore,
+            } as CommentsDto,
             ...old.pages.slice(1),
           ],
+          pageParams: old.pageParams,
         };
       });
     },
@@ -147,7 +147,8 @@ export function useMyComment(colaboradorId: string | undefined) {
   return useQuery({
     queryKey: ["myComment", colaboradorId],
     queryFn: async () => {
-      if (!colaboradorId) throw new Error("ID de colaborador requerido");
+      if (!colaboradorId)
+        throw new BusinessError("Error colaborador no encontrado");
       return await getMyComment(colaboradorId);
     },
     enabled: !!colaboradorId && !!user, // Solo si hay usuario autenticado
@@ -162,19 +163,10 @@ export function useDeleteMyComment(colaboradorId: string | undefined) {
   return useMutation({
     mutationFn: async () => {
       if (!colaboradorId) {
-        return QueryResult.businessError("ID de colaborador requerido");
+        throw new BusinessError("Error colaborador no encontrado");
       }
 
-      const res = await deleteMyComment(colaboradorId);
-
-      // Separar errores de negocio de errores de red
-      if (!res.success) {
-        return QueryResult.businessError(
-          res.message || "Error al eliminar comentario",
-        );
-      }
-
-      return QueryResult.success(undefined);
+      await deleteMyComment(colaboradorId);
     },
     onMutate: async () => {
       // Actualización optimista - remover comentario inmediatamente
@@ -223,13 +215,11 @@ export function useDeleteMyComment(colaboradorId: string | undefined) {
     },
     onSuccess: (result) => {
       // Si es éxito, invalidar queries para refrescar
-      if (result.status === "success") {
-        queryClient.invalidateQueries({
-          queryKey: ["comments", colaboradorId],
-        });
+      queryClient.invalidateQueries({
+        queryKey: ["comments", colaboradorId],
+      });
 
-        queryClient.setQueryData(["myComment", colaboradorId], null);
-      }
+      queryClient.setQueryData(["myComment", colaboradorId], null);
     },
   });
 }

@@ -12,7 +12,7 @@ interface PostItemProps {
   post: PostData;
 }
 
-export const PostItem = ({ post }: PostItemProps) => {
+export const PostItem = React.memo(function PostItem({ post }: PostItemProps) {
   const allMedia = [...(post.media.images || []), post.media.video].filter(
     Boolean,
   );
@@ -78,9 +78,9 @@ export const PostItem = ({ post }: PostItemProps) => {
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm animate-in fade-in duration-300" />
 
           <Dialog.Content className="fixed left-1/2 top-1/2 z-[51] w-[95vw] h-[90vh] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center outline-none">
-            <Dialog.Title className="mt-2">Contenido</Dialog.Title>
+            <Dialog.Title className="sr-only">Contenido</Dialog.Title>
 
-            <Dialog.Close className="absolute top-4 right-4 border-gray-400/30 border-2 rounded-md z-[100]">
+            <Dialog.Close className="absolute top-0 right-0 border-gray-400/30 border-2 rounded-md z-[100]">
               <XIcon size={32} />
             </Dialog.Close>
 
@@ -89,7 +89,7 @@ export const PostItem = ({ post }: PostItemProps) => {
               infiniteLoop={true}
               width="100%"
               dynamicHeight={false}
-              className="carousel-root"
+              className="carousel-root mt-16"
             >
               {allMedia.map((item, i) => (
                 <div
@@ -125,4 +125,4 @@ export const PostItem = ({ post }: PostItemProps) => {
       </Flex>
     </Dialog.Root>
   );
-};
+});
