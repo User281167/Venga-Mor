@@ -8,6 +8,10 @@ import {
 } from "react";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 
+const THEME_COLOR_KEY = "theme-color";
+const THEME_OPACITY_KEY = "theme-opacity";
+const THEME_BACKGROUND_IMAGE_KEY = "theme-background-image";
+
 type ThemeColor = {
   value: string; // HSL color value
   foreground: string; // HSL color value for text/icons on top of the primary color
@@ -67,14 +71,40 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
       "--primary-foreground",
       color.foreground,
     );
+
+    localStorage.setItem(THEME_COLOR_KEY, colorName);
   };
+
+  // carga inicial
+  useEffect(() => {
+    const savedColorName = localStorage.getItem(THEME_COLOR_KEY);
+    if (savedColorName) {
+      setThemeColor(savedColorName);
+    }
+
+    const savedOpacity = localStorage.getItem(THEME_OPACITY_KEY);
+    if (savedOpacity) {
+      setBgOpacity(parseInt(savedOpacity, 10));
+    }
+
+    const savedBackground = localStorage.getItem(THEME_BACKGROUND_IMAGE_KEY);
+    if (savedBackground) {
+      setExploreBackground(savedBackground);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(THEME_OPACITY_KEY, bgOpacity.toString());
+  }, [bgOpacity]);
 
   const setBackground = (url: string) => {
     setExploreBackground(url);
+    localStorage.setItem(THEME_BACKGROUND_IMAGE_KEY, url);
   };
 
   const resetBackground = () => {
     setExploreBackground(defaultExploreBg?.imageUrl || "");
+    localStorage.removeItem(THEME_BACKGROUND_IMAGE_KEY);
   };
 
   return (
