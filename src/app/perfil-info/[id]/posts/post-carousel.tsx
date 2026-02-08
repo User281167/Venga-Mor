@@ -128,7 +128,7 @@ export default function PostCarousel({ id }: { id: string }) {
           aria-describedby="posts-carousel-description"
           className="
               fixed inset-0 z-50
-              h-[90vh] w-screen
+              h-[90vh] w-full md:max-w-4xl xl:max-w-7xl
               flex items-center justify-center
               outline-none
               bg-stone-900
