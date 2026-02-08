@@ -182,17 +182,17 @@ export function FloatingMascot() {
           </motion.div>
         </Popover.Trigger>
         <Popover.Content>
-          <Flex direction="column" gap="3">
+          <Flex direction="column" gap="3" className="max-w-56 sm:max-w-96">
             <Text size="2" weight="bold">
               Estabilizador de Experiencia
             </Text>
 
-            <Separator />
-
+            <Separator className="w-full" />
             <Text size="1" weight="bold" color="gray">
               Color del Tema
             </Text>
-            <Flex gap="2" wrap="wrap">
+
+            <Flex gap="2" wrap="wrap" className="w-full">
               {themeColorNames.map((color) => (
                 <Button
                   key={color}
@@ -205,7 +205,7 @@ export function FloatingMascot() {
               ))}
             </Flex>
 
-            <Separator />
+            <Separator className="w-full" />
 
             <Text size="1" weight="bold" color="gray">
               Brillo del Fondo
@@ -218,7 +218,7 @@ export function FloatingMascot() {
               step={5}
             />
 
-            <Separator />
+            <Separator className="w-full" />
 
             <Text size="1" weight="bold" color="gray">
               Música Local
@@ -267,7 +267,7 @@ export function FloatingMascot() {
               )}
             </Flex>
 
-            <Separator />
+            <Separator className="w-full" />
 
             {isExplorePage && (
               <>

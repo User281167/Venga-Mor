@@ -7,37 +7,23 @@ import {
   Card,
   Flex,
   Heading,
-  Section,
   Skeleton,
   Text,
 } from "@radix-ui/themes";
-import Image from "next/image";
 
 import FormUserInfo from "./user-form";
 import CollaboratorForm from "./collaborator/collaborator-form";
 import MediaUploadPanel from "./media/media-upload-media";
 import FollowingList from "./following/following-list";
 import FollowersList from "./collaborator/followers-list";
+import SectionImg from "@/components/section-img";
 
 export default function PerfilPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "profile-bg");
   const { user, loading, logout } = useUser();
 
   return (
-    <Section className="min-h-screen min-w-full flex flex-col gap-4 items-center justify-center px-4 text-center bg-primary/10 overflow-hidden">
-      {bgImage && (
-        <Image
-          src={bgImage.imageUrl}
-          alt="Introducción Venga Mor"
-          unoptimized
-          priority
-          className="fixed left-0 top-0 -z-10 h-screen w-full opacity-30 object-cover object-center"
-          data-ai-hint={bgImage.imageHint}
-          width={1920}
-          height={1080}
-        />
-      )}
-
+    <SectionImg imageUrl={bgImage?.imageUrl} imageHint={bgImage?.description}>
       <Heading className="text-4xl font-bold text-primary mb-8 text-center">
         Mi Perfil
       </Heading>
@@ -108,6 +94,6 @@ export default function PerfilPage() {
       >
         {user?.tipo === "colaborador" && <MediaUploadPanel />}
       </Skeleton>
-    </Section>
+    </SectionImg>
   );
 }

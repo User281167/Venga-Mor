@@ -1,41 +1,32 @@
 "use client";
 import { MessageSquare } from "lucide-react";
-import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Avatar, Card, Flex, Heading, Section, Text } from "@radix-ui/themes";
 import Link from "next/link";
 import { escorts } from "@/lib/data";
+import SectionImg from "@/components/section-img";
 
 export default function ChatsPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "chat-bg");
 
   // Use escorts data for a more dynamic feel
-  const chatContacts = escorts.slice(0, 4).map(escort => {
-    const profileImage = PlaceHolderImages.find(p => p.id === escort.imageId);
+  const chatContacts = escorts.slice(0, 4).map((escort) => {
+    const profileImage = PlaceHolderImages.find((p) => p.id === escort.imageId);
     return {
-        id: escort.id,
-        name: escort.name,
-        lastMessage: "Toca para iniciar una conversación...",
-        time: "Ahora",
-        avatar: profileImage?.imageUrl || '',
-    }
+      id: escort.id,
+      name: escort.name,
+      lastMessage: "Toca para iniciar una conversación...",
+      time: "Ahora",
+      avatar: profileImage?.imageUrl || "",
+    };
   });
 
   return (
-    <Section className="relative min-h-[calc(100vh-128px)]">
-      {bgImage && (
-        <Image
-          src={bgImage.imageUrl}
-          alt={bgImage.description}
-          unoptimized
-          priority
-          className="absolute  -z-10 h-full w-full opacity-30 object-cover object-center"
-          data-ai-hint={bgImage.imageHint}
-          width={1920}
-          height={1080}
-        />
-      )}
-
+    <SectionImg
+      imageUrl={bgImage?.imageUrl}
+      alt={bgImage?.description}
+      imageHint={bgImage?.imageHint}
+    >
       <div className="flex flex-col w-11/12 max-w-2xl gap-4 mx-auto">
         <Heading className="text-4xl font-bold text-primary mb-8 text-center">
           Chats
@@ -45,9 +36,7 @@ export default function ChatsPage() {
           <div className="space-y-4">
             {chatContacts.map((contact) => (
               <Link href={`/chats/${contact.id}`} key={contact.id}>
-                <Card
-                  className="bg-card/80 hover:bg-card/90 cursor-pointer transition-colors"
-                >
+                <Card className="bg-card/80 hover:bg-card/90 cursor-pointer transition-colors">
                   <Flex p="4" align="center" gap="4">
                     <Avatar
                       className="h-12 w-12"
@@ -96,6 +85,6 @@ export default function ChatsPage() {
           </div>
         )}
       </div>
-    </Section>
+    </SectionImg>
   );
 }

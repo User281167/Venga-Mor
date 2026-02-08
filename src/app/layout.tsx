@@ -1,4 +1,3 @@
-import type Metadata from "next";
 import { Poppins, Playball } from "next/font/google";
 import { Toaster } from "sonner";
 
@@ -8,6 +7,7 @@ import { Providers } from "./providers";
 import { FloatingClipsButton } from "@/components/floating-clips-button";
 import { BottomNav } from "@/components/bottom-nav";
 import { FloatingMascot } from "@/components/floating-mascot";
+import { Metadata, Viewport } from "next";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -26,8 +26,6 @@ const playball = Playball({
 export const metadata: Metadata = {
   title: "Venga Mor",
   description: "Tu compañía de élite en Bogotá.",
-  viewport:
-    "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
   icons: {
     icon: "https://i.ibb.co/XZ1jGh0x/In-Shot-20231119-124433570.jpg",
     apple: "https://i.ibb.co/XZ1jGh0x/In-Shot-20231119-124433570.jpg",
@@ -51,6 +49,13 @@ export const metadata: Metadata = {
     description: "Tu compañía de élite en Bogotá.",
     images: ["https://i.ibb.co/XZ1jGh0x/In-Shot-20231119-124433570.jpg"],
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({

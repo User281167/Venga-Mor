@@ -1,27 +1,14 @@
 "use client";
 import { Share2, Shield } from "lucide-react";
-import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Button, Card, Flex, Heading, Section, Text } from "@radix-ui/themes";
+import SectionImg from "@/components/section-img";
 
 export default function InfoPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "info-bg");
 
   return (
-    <Section className="relative min-h-[calc(100vh-128px)]">
-      {bgImage && (
-        <Image
-          src={bgImage.imageUrl}
-          alt={bgImage.description}
-          unoptimized
-          priority
-          className="absolute -z-10 h-full w-full opacity-30 object-cover object-center"
-          data-ai-hint={bgImage.imageHint}
-          width={1920}
-          height={1080}
-        />
-      )}
-
+    <SectionImg imageUrl={bgImage?.imageUrl} imageHint={bgImage?.imageHint}>
       <Flex
         width="90%"
         maxWidth="900px"
@@ -36,7 +23,7 @@ export default function InfoPage() {
         <Card className="bg-card/80" size="3">
           <Flex direction="column" gap="2">
             <span className="flex items-center gap-2">
-              <Share2 className="h-6 w-6 text-accent" />
+              <Share2 className="h-6 w-6 text-primary" />
               <span>Compartir la App</span>
             </span>
           </Flex>
@@ -45,7 +32,7 @@ export default function InfoPage() {
             <p className="text-muted-foreground mb-4">
               ¿Te gusta nuestra app? ¡Compártela con tus amigos!
             </p>
-            <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
+            <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
               Compartir ahora
             </Button>
           </Flex>
@@ -82,6 +69,6 @@ export default function InfoPage() {
           </Flex>
         </Card>
       </Flex>
-    </Section>
+    </SectionImg>
   );
 }
