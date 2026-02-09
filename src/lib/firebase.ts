@@ -6,6 +6,7 @@ import {
 } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { getDatabase } from "firebase/database";
 import { ENV } from "./env";
 
 const firebaseConfig = {
@@ -15,12 +16,14 @@ const firebaseConfig = {
   storageBucket: ENV.FIREBASE_STORAGE_BUCKET,
   messagingSenderId: ENV.FIREBASE_MESSAGING_SENDER_ID,
   appId: ENV.FIREBASE_APP_ID,
+  databaseURL: ENV.FIREBASE_REALTIME_DB,
 };
 
 export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+export const realtimeDb = getDatabase(app);
 
 setPersistence(auth, browserLocalPersistence);
 auth.useDeviceLanguage();

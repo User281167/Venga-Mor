@@ -1,4 +1,5 @@
 "use client";
+
 import {
   createContext,
   useContext,
@@ -6,15 +7,21 @@ import {
   useEffect,
   ReactNode,
 } from "react";
+
 import { AppUser } from "@/types/user";
+
 import { useQueryClient } from "@tanstack/react-query";
+import { useUserProfile } from "@/hooks/useUserProfile";
+
 import { auth } from "@/lib/firebase";
 import { onIdTokenChanged, User as FirebaseUser } from "firebase/auth";
-import { useUserProfile } from "@/hooks/useUserProfile";
+
 import {
   deleteFirebaseIdToken,
   updateFirabaseIdToken,
 } from "@/handlers/postIdToken";
+
+import { ConnectionManager } from "@/services/connection";
 
 interface UserContextType {
   firebaseUser: FirebaseUser | null; // Usuario de Firebase
@@ -42,6 +49,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           // Renovar cookie HTTP-only
           const token = await fbUser.getIdToken();
           await updateFirabaseIdToken(token);
+
+          // Inicializar presencia online/offline en el chat
+          ConnectionManager.initialize(fbUser.uid);
 
           setFirebaseUser(fbUser);
         } catch (error) {
@@ -75,6 +85,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     try {
+      if (user?.uid) {
+        // Marcar como offline
+        await ConnectionManager.disconnect(user.uid);
+      }
+
       await auth.signOut();
       // El onIdTokenChanged se encarga de limpiar
     } catch (error) {

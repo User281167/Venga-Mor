@@ -11,6 +11,8 @@ import { useRouter } from "next/navigation";
 import { Collaborator } from "@/types/collaborator";
 import { useToggleFollow } from "@/hooks/useFollow";
 import { useUser } from "@/context/user-context";
+import { ChatService } from "@/services/chat";
+import { useState } from "react";
 
 export default function ProfileActions({
   collaborator,
@@ -23,6 +25,8 @@ export default function ProfileActions({
   const { user } = useUser();
   const { toggle, isFollowing, isPending } = useToggleFollow(collaborator.uid);
 
+  const [loading, setLoading] = useState(false);
+
   const handleToggleFollow = async () => {
     if (!user) {
       toast.error("Debes iniciar sesión para seguir colaboradores");
@@ -33,6 +37,39 @@ export default function ProfileActions({
 
     if (!result) {
       toast.error("Error al seguir colaborador");
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!user) {
+      toast.error("Debes iniciar sesión para enviar mensajes");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // Crear u obtener el chat
+      const chatId = await ChatService.getOrCreateChat(
+        user.uid,
+        {
+          displayName: user.nombre + " " + user.apellido,
+          photoURL: user.foto ?? null,
+        },
+        collaborator.uid,
+        {
+          displayName: collaborator.nombre + " " + collaborator.apellido,
+          photoURL: collaborator.foto ?? null,
+        },
+      );
+
+      // Redirigir a la página del chat
+      router.push(`/chats/${chatId}`);
+    } catch (error) {
+      toast.error("Error al crear chat");
+      console.error("Error al crear el chat:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -75,7 +112,9 @@ export default function ProfileActions({
 
       <Button
         className="bg-primary w-full md:flex-1 text-primary-foreground"
-        onClick={() => router.push(`/chats/${escort?.id}`)}
+        onClick={handleSendMessage}
+        loading={loading}
+        disabled={loading}
       >
         <MessageCircle size={16} /> Enviar Mensaje
       </Button>
