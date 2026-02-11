@@ -80,6 +80,8 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     const savedColorName = localStorage.getItem(THEME_COLOR_KEY);
     if (savedColorName) {
       setThemeColor(savedColorName);
+    } else {
+      setThemeColor("Venga Mor");
     }
 
     const savedOpacity = localStorage.getItem(THEME_OPACITY_KEY);
