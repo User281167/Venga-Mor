@@ -8,156 +8,81 @@ import {
   Text,
   TextField,
   Button,
-  Section,
 } from "@radix-ui/themes";
 import { Send, ArrowLeft } from "lucide-react";
 import SectionImg from "@/components/section-img";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 
-import { useEffect, useState, useRef } from "react";
+import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 
-import { ChatService } from "@/services/chat";
-import { PresenceService } from "@/services/presence";
-
 import { useUser } from "@/context/user-context";
+import { useChat } from "./chat-message.hook";
+import { ChatItem } from "./chat-item";
 import { toast } from "sonner";
-
-interface Message {
-  id: string;
-  text: string;
-  senderId: string;
-  timestamp: number;
-  status: "sent" | "read";
-}
 
 export default function ChatPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
+
   const { user } = useUser();
+  const {
+    loading,
+    chatInfo,
+    otherUserStatus,
+    messages,
+    message,
+    setMessage,
+    chatNotFound,
+    chatError,
+    handleKeyPress,
+    handleSend,
+    errorMessage,
+  } = useChat(params.id);
+
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const bgImage = PlaceHolderImages.find((p) => p.id === "chat-bg");
 
-  const chatId = params?.id;
-
-  const [message, setMessage] = useState<string>("");
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [chatInfo, setChatInfo] = useState<any>(null);
-  const [otherUserStatus, setOtherUserStatus] = useState<"online" | "offline">(
-    "offline",
-  );
-
-  // Scroll automático al final
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  // Cargar info del chat y mensajes
-  useEffect(() => {
-    if (!user?.uid || !chatId) return;
-
-    const loadChat = async () => {
-      try {
-        // Obtener info del chat (otherUser, etc)
-        const info = await ChatService.getChatInfo(chatId, user.uid);
-
-        if (!info) {
-          router.push("/chats");
-          return;
-        }
-
-        setChatInfo(info);
-
-        // Suscribirse a mensajes
-        const unsubscribeMessages = ChatService.subscribeToMessages(
-          chatId,
-          setMessages,
-        );
-
-        // Marcar mensajes como leídos
-        ChatService.markMessagesAsRead(chatId, user.uid);
-
-        // Suscribirse al estado del otro usuario
-        const otherUserId = Object.keys(info.participants).find(
-          (id) => id !== user.uid,
-        );
-
-        if (otherUserId) {
-          const unsubscribePresence = PresenceService.subscribeToUserStatus(
-            otherUserId,
-            setOtherUserStatus,
-          );
-
-          setLoading(false);
-
-          return () => {
-            unsubscribeMessages();
-            unsubscribePresence();
-          };
-        }
-
-        setLoading(false);
-        return () => unsubscribeMessages();
-      } catch (error) {
-        console.error("Error loading chat:", error);
-        router.push("/chats");
-      }
-    };
-
-    loadChat();
-  }, [user, chatId, router]);
-
-  const handleSend = async () => {
-    if (!message.trim() || !user || !chatId || !chatInfo) return;
-
-    const otherUserId = Object.keys(chatInfo.participants).find(
-      (id) => id !== user.uid,
-    );
-
-    if (!otherUserId) return;
-
-    try {
-      await ChatService.sendMessage(
-        chatId,
-        user.uid,
-        `${user.nombre} ${user.apellido}`,
-        otherUserId,
-        message,
-      );
-
-      setMessage("");
-    } catch (error) {
-      toast.error("Error al enviar el mensaje");
-      console.error("Error sending message:", error);
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
+  if (errorMessage) {
+    toast.error(errorMessage);
+  }
 
   if (loading) {
     return (
-      <Section className="py-8 px-4 h-[calc(100vh-80px)] flex items-center justify-center">
+      <SectionImg
+        imageUrl={bgImage?.imageUrl}
+        alt={bgImage?.description}
+        imageHint={bgImage?.imageHint}
+      >
         <Text>Cargando chat...</Text>
-      </Section>
+      </SectionImg>
     );
   }
 
-  if (!chatInfo || !chatInfo.otherUser) {
+  if (chatError) {
     return (
-      <Section className="py-8 px-4 h-[calc(100vh-80px)] flex items-center justify-center">
-        <Text>Chat no encontrado</Text>
-      </Section>
+      <SectionImg
+        imageUrl={bgImage?.imageUrl}
+        alt={bgImage?.description}
+        imageHint={bgImage?.imageHint}
+      >
+        <Text>Error al cargar el chat</Text>
+      </SectionImg>
     );
   }
 
-  const { otherUser } = chatInfo;
-  const bgImage = PlaceHolderImages.find((p) => p.id === "chat-bg");
+  if (chatNotFound || !chatInfo || !chatInfo.otherUser) {
+    return (
+      <SectionImg
+        imageUrl={bgImage?.imageUrl}
+        alt={bgImage?.description}
+        imageHint={bgImage?.imageHint}
+      >
+        <Text>Chat no encontrado</Text>
+      </SectionImg>
+    );
+  }
 
   return (
     <SectionImg
@@ -177,15 +102,15 @@ export default function ChatPage() {
           </Button>
 
           <Avatar
-            src={otherUser.photoURL || undefined}
-            fallback={otherUser.displayName.charAt(0).toUpperCase()}
+            src={chatInfo.otherUser.photoURL || undefined}
+            fallback={chatInfo.otherUser.displayName.charAt(0).toUpperCase()}
             size="3"
             radius="full"
           />
 
           <div className="flex-grow">
             <Heading as="h1" className="text-xl">
-              {otherUser.displayName}
+              {chatInfo.otherUser.displayName}
             </Heading>
             <Text size="1" className="text-muted-foreground">
               {otherUserStatus === "online" ? (
@@ -214,33 +139,13 @@ export default function ChatPage() {
           ) : (
             messages.map((msg) => {
               const isMyMessage = msg.senderId === user?.uid;
+
               return (
-                <div
-                  key={msg.id}
-                  className={`flex flex-col ${
-                    isMyMessage ? "items-end" : "items-start"
-                  }`}
-                >
-                  <div
-                    className={`p-3 rounded-lg max-w-[80%] ${
-                      isMyMessage
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary"
-                    }`}
-                  >
-                    <Text>{msg.text}</Text>
-                  </div>
-                  <Text size="1" className="text-muted-foreground mt-1">
-                    {new Date(msg.timestamp).toLocaleTimeString("es-ES", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                    {isMyMessage && msg.status === "read" && " · Leído"}
-                  </Text>
-                </div>
+                <ChatItem key={msg.id} msg={msg} isMyMessage={isMyMessage} />
               );
             })
           )}
+
           <div ref={chatEndRef} />
         </Flex>
 

@@ -1,5 +1,13 @@
 import { realtimeDb } from "@/lib/firebase";
 import {
+  Chat,
+  ChatDB,
+  ChatInfo,
+  LastMessageDB,
+  Message,
+  MessageDB,
+} from "@/types/chat.type";
+import {
   ref,
   push,
   onValue,
@@ -18,7 +26,7 @@ interface UserInfo {
 
 export class ChatService {
   // CHAT ID DETERMINÍSTICO (1-a-1)
-  static getChatId(userA: string, userB: string) {
+  static getChatId(userA: string, userB: string): string {
     return [userA, userB].sort().join("_");
   }
 
@@ -28,7 +36,7 @@ export class ChatService {
     user1Info: UserInfo,
     user2Id: string,
     user2Info: UserInfo,
-  ) {
+  ): Promise<string> {
     const chatId = this.getChatId(user1Id, user2Id);
     const chatRef = ref(realtimeDb, `chats/${chatId}`);
 
@@ -39,20 +47,16 @@ export class ChatService {
     }
 
     // Crear chat con información desnormalizada
-    await set(chatRef, {
+    const newChat: ChatDB = {
       participants: {
-        [user1Id]: {
-          displayName: user1Info.displayName,
-          photoURL: user1Info.photoURL,
-        },
-        [user2Id]: {
-          displayName: user2Info.displayName,
-          photoURL: user2Info.photoURL,
-        },
+        [user1Id]: user1Info,
+        [user2Id]: user2Info,
       },
       createdAt: serverTimestamp(),
       lastMessage: null,
-    });
+    };
+
+    await set(chatRef, newChat);
 
     // Añadir referencias en ambos usuarios
     await set(ref(realtimeDb, `users/${user1Id}/chats/${chatId}`), true);
@@ -71,21 +75,24 @@ export class ChatService {
   ) {
     const messagesRef = ref(realtimeDb, `chats/${chatId}/messages`);
 
-    // Guardar mensaje
-    await push(messagesRef, {
+    const newMessage: MessageDB = {
       text: message,
       senderId,
       timestamp: serverTimestamp(),
       status: "sent",
-    });
+    };
+
+    await push(messagesRef, newMessage);
 
     // Actualizar último mensaje
-    await set(ref(realtimeDb, `chats/${chatId}/lastMessage`), {
+    const lastMessage: LastMessageDB = {
       text: message,
       senderId,
-      senderName, // ✅ Guardamos el nombre
+      senderName,
       timestamp: serverTimestamp(),
-    });
+    };
+
+    await set(ref(realtimeDb, `chats/${chatId}/lastMessage`), lastMessage);
   }
 
   // OBTENER O CREAR CHAT (helper importante)
@@ -94,7 +101,7 @@ export class ChatService {
     user1Info: UserInfo,
     user2Id: string,
     user2Info: UserInfo,
-  ) {
+  ): Promise<string> {
     const chatId = this.getChatId(user1Id, user2Id);
     const chatRef = ref(realtimeDb, `chats/${chatId}`);
 
@@ -110,7 +117,7 @@ export class ChatService {
   // ESCUCHAR MENSAJES
   static subscribeToMessages(
     chatId: string,
-    callback: (messages: any[]) => void,
+    callback: (messages: Message[]) => void,
   ) {
     const messagesQuery = query(
       ref(realtimeDb, `chats/${chatId}/messages`),
@@ -118,7 +125,8 @@ export class ChatService {
     );
 
     return onValue(messagesQuery, (snapshot) => {
-      const messages: any[] = [];
+      const messages: Message[] = [];
+
       snapshot.forEach((child) => {
         messages.push({
           id: child.key,
@@ -138,6 +146,7 @@ export class ChatService {
 
     snapshot.forEach((child) => {
       const msg = child.val();
+
       if (msg.senderId !== userId && msg.status !== "read") {
         updates[`${child.key}/status`] = "read";
       }
@@ -149,11 +158,11 @@ export class ChatService {
   }
 
   // OBTENER CHATS DEL USUARIO CON INFO
-  static getUserChats(userId: string, callback: (chats: any[]) => void) {
+  static getUserChats(userId: string, callback: (chats: ChatInfo[]) => void) {
     const chatsRef = ref(realtimeDb, `users/${userId}/chats`);
 
     return onValue(chatsRef, async (snapshot) => {
-      const chatPromises: Promise<any>[] = [];
+      const chatPromises: Promise<ChatInfo | null>[] = [];
 
       snapshot.forEach((childSnapshot) => {
         const chatId = childSnapshot.key!;
@@ -161,17 +170,20 @@ export class ChatService {
       });
 
       const chats = await Promise.all(chatPromises);
-      callback(chats.filter(Boolean));
+      callback(chats.filter((chat): chat is ChatInfo => chat !== null));
     });
   }
 
-  static async getChatInfo(chatId: string, currentUserId: string) {
+  static async getChatInfo(
+    chatId: string,
+    currentUserId: string,
+  ): Promise<ChatInfo | null> {
     const chatRef = ref(realtimeDb, `chats/${chatId}`);
     const snapshot = await get(chatRef);
 
     if (!snapshot.exists()) return null;
 
-    const chatData = snapshot.val();
+    const chatData = snapshot.val() as Chat;
 
     // Encontrar el otro participante
     const otherUserId = Object.keys(chatData.participants).find(

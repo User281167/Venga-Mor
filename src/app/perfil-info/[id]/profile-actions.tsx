@@ -1,6 +1,5 @@
 "use client";
 
-import { escorts } from "@/lib/data";
 import { Flex, Button, Dialog } from "@radix-ui/themes";
 import { MessageCircle, Diamond, Heart } from "lucide-react";
 import PayPalPayment from "@/components/pay-pal";
@@ -19,7 +18,6 @@ export default function ProfileActions({
 }: {
   collaborator: Collaborator;
 }) {
-  const escort = escorts[0];
   const router = useRouter();
 
   const { user } = useUser();
