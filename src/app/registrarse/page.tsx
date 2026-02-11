@@ -15,6 +15,7 @@ import { registerFormSchema } from "./schema";
 import { useUser } from "@/context/user-context";
 import { useRouter } from "next/navigation";
 import { onSubmitRegisterGmailUser, onSubmitRegisterUser } from "./handler";
+import { useUpdateLocalUser } from "@/hooks/useUserProfile";
 
 export default function LoginPage() {
   const form = useForm<z.infer<typeof registerFormSchema>>({
@@ -29,7 +30,8 @@ export default function LoginPage() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [loadingForm, setLoadingForm] = useState(true);
-  const { user, setUser, loading } = useUser();
+  const { user, loading } = useUser();
+  const updateLocalUser = useUpdateLocalUser();
 
   const router = useRouter();
 
@@ -53,7 +55,7 @@ export default function LoginPage() {
 
     if (res.success && res.data) {
       toast.success(res.message);
-      setUser(res.data);
+      updateLocalUser(res.data);
     } else {
       toast.error(res.message);
     }
@@ -72,7 +74,7 @@ export default function LoginPage() {
 
     if (res.success && res.data) {
       toast.success(res.message);
-      setUser(res.data);
+      updateLocalUser(res.data);
     } else {
       toast.error(res.message);
     }

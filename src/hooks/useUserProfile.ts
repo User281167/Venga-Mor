@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getUserProfile } from "@/handlers/getUserProfile";
 import { BusinessError } from "@/errors/errors";
+import { AppUser } from "@/types/user";
 
 export function useUserProfile(firebaseUid: string | null) {
   return useQuery({
@@ -29,5 +30,13 @@ export function useInvalidateUserProfile() {
     queryClient.invalidateQueries({
       queryKey: ["user", "profile", firebaseUid],
     });
+  };
+}
+
+export function useUpdateLocalUser() {
+  const queryClient = useQueryClient();
+
+  return (user: AppUser) => {
+    queryClient.setQueryData(["user", "profile", user.uid], user);
   };
 }
