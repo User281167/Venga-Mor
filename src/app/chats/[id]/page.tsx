@@ -9,11 +9,11 @@ import {
   TextField,
   Button,
 } from "@radix-ui/themes";
-import { Send, ArrowLeft } from "lucide-react";
+import { Send, ArrowLeft, CircleX } from "lucide-react";
 import SectionImg from "@/components/section-img";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 
-import { useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 
@@ -21,6 +21,7 @@ import { useUser } from "@/context/user-context";
 import { useChat } from "./chat-message.hook";
 import { ChatItem } from "./chat-item";
 import { toast } from "sonner";
+import { Message } from "@/types/chat.type";
 
 export default function ChatPage() {
   const params = useParams<{ id: string }>();
@@ -39,10 +40,30 @@ export default function ChatPage() {
     handleKeyPress,
     handleSend,
     errorMessage,
+    replyingTo,
+    setReplyingTo,
   } = useChat(params.id);
 
-  const chatEndRef = useRef<HTMLDivElement>(null);
   const bgImage = PlaceHolderImages.find((p) => p.id === "chat-bg");
+  const chatEndRef = useRef<HTMLDivElement>(null);
+  const messageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
+  // Scroll automático al final
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const handleReply = useCallback((msg: Message) => {
+    setReplyingTo(msg);
+  }, []);
+
+  const handleScrollToMessage = useCallback((messageId: string) => {
+    const messageElement = messageRefs.current.get(messageId);
+
+    if (messageElement) {
+      messageElement.scrollIntoView({ behavior: "smooth" });
+    }
+  }, []);
 
   if (errorMessage) {
     toast.error(errorMessage);
@@ -83,6 +104,19 @@ export default function ChatPage() {
       </SectionImg>
     );
   }
+
+  // Scroll a un mensaje específico
+  const scrollToMessage = (messageId: string) => {
+    const element = messageRefs.current.get(messageId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "center" });
+      // Highlight temporal
+      element.classList.add("bg-accent/30");
+      setTimeout(() => {
+        element.classList.remove("bg-accent/30");
+      }, 2000);
+    }
+  };
 
   return (
     <SectionImg
@@ -141,7 +175,20 @@ export default function ChatPage() {
               const isMyMessage = msg.senderId === user?.uid;
 
               return (
-                <ChatItem key={msg.id} msg={msg} isMyMessage={isMyMessage} />
+                <ChatItem
+                  ref={(el) => {
+                    if (el) {
+                      messageRefs.current.set(msg.id, el);
+                    } else {
+                      messageRefs.current.delete(msg.id);
+                    }
+                  }}
+                  key={msg.id}
+                  msg={msg}
+                  isMyMessage={isMyMessage}
+                  onReply={handleReply}
+                  onClickReply={handleScrollToMessage}
+                />
               );
             })
           )}
@@ -150,17 +197,37 @@ export default function ChatPage() {
         </Flex>
 
         {/* Input de Mensaje */}
-        <Flex p="4" gap="3" align="center" className="border-t border-border">
-          <TextField.Root
-            className="flex-grow"
-            placeholder="Escribe un mensaje..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-          />
-          <Button onClick={handleSend} disabled={!message.trim()}>
-            <Send className="h-4 w-4" />
-          </Button>
+        <Flex direction="column" gap="2">
+          {replyingTo && (
+            <Card className="flex justify-between items-center">
+              <Text as="p">{replyingTo.text.slice(0, 100)}</Text>
+
+              <Button
+                size="2"
+                color="red"
+                variant="ghost"
+                onClick={() => setReplyingTo(null)}
+              >
+                <CircleX className="h-4 w-4" />
+              </Button>
+            </Card>
+          )}
+
+          <Flex p="4" gap="3" align="center" className="border-t border-border">
+            <TextField.Root
+              className="flex-grow"
+              placeholder={
+                replyingTo ? `Respondiendo...` : "Escribe un mensaje..."
+              }
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+            />
+
+            <Button onClick={handleSend} disabled={!message.trim()}>
+              <Send className="h-4 w-4" />
+            </Button>
+          </Flex>
         </Flex>
       </Card>
     </SectionImg>

@@ -13,6 +13,13 @@ export interface ParticipantInfo {
   photoURL: string | null;
 }
 
+/* ============================ REPLY INFO ============================ */
+export interface ReplyInfo {
+  messageId: string; // ID del mensaje original (para scroll)
+  text: string; // Preview del texto
+  senderId: string; // ID del remitente original
+}
+
 export type Participants = Record<string, ParticipantInfo>;
 
 /* ============================
@@ -24,6 +31,7 @@ export interface MessageDB {
   senderId: string;
   timestamp: number | ServerTimestamp;
   status: MessageStatus;
+  replyTo?: ReplyInfo;
 }
 
 export interface LastMessageDB {

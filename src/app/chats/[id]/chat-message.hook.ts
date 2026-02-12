@@ -2,9 +2,8 @@ import { useUser } from "@/context/user-context";
 import { useCallback, useEffect, useState } from "react";
 
 import { ChatService } from "@/services/chat";
-import { Message } from "./message";
 import { PresenceService } from "@/services/presence";
-import { ChatInfo } from "@/types/chat.type";
+import { ChatInfo, Message } from "@/types/chat.type";
 
 export const useChat = (chatId: string | undefined) => {
   const { user } = useUser();
@@ -19,6 +18,8 @@ export const useChat = (chatId: string | undefined) => {
     "offline",
   );
 
+  const [replyingTo, setReplyingTo] = useState<Message | null>(null); // Estado de reply
+
   // limpiar error despues de 3 segundos
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -30,6 +31,7 @@ export const useChat = (chatId: string | undefined) => {
 
   useEffect(() => {
     if (!user?.uid || !chatId) return;
+    setMessages([]);
 
     let unsubscribeMessages: (() => void) | undefined;
     let unsubscribePresence: (() => void) | undefined;
@@ -76,7 +78,7 @@ export const useChat = (chatId: string | undefined) => {
       unsubscribeMessages?.();
       unsubscribePresence?.();
     };
-  }, [user?.uid, chatId, setErrorMessage]);
+  }, [user?.uid, chatId]);
 
   const handleSend = useCallback(async () => {
     if (!message.trim() || !user || !chatId || !chatInfo) return;
@@ -94,13 +96,15 @@ export const useChat = (chatId: string | undefined) => {
         `${user.nombre} ${user.apellido}`,
         otherUserId,
         message,
+        replyingTo || undefined, // Pasar mensaje al que responde
       );
 
       setMessage("");
+      setReplyingTo(null);
     } catch (error) {
       setErrorMessage("Failed to send message");
     }
-  }, [message, user, chatId, chatInfo, setErrorMessage]);
+  }, [message, user, chatId, chatInfo, replyingTo]);
 
   const handleKeyPress = useCallback(
     (e: React.KeyboardEvent) => {
@@ -124,5 +128,7 @@ export const useChat = (chatId: string | undefined) => {
     handleSend,
     handleKeyPress,
     errorMessage,
+    replyingTo,
+    setReplyingTo,
   };
 };

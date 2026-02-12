@@ -1,4 +1,5 @@
 import { realtimeDb } from "@/lib/firebase";
+
 import {
   Chat,
   ChatDB,
@@ -7,6 +8,7 @@ import {
   Message,
   MessageDB,
 } from "@/types/chat.type";
+
 import {
   ref,
   push,
@@ -17,6 +19,9 @@ import {
   update,
   get,
   serverTimestamp,
+  onChildAdded,
+  onChildChanged,
+  onChildRemoved,
 } from "firebase/database";
 
 interface UserInfo {
@@ -72,6 +77,7 @@ export class ChatService {
     senderName: string,
     receiverId: string,
     message: string,
+    replyTo?: Message, // Mensaje al que responde
   ) {
     const messagesRef = ref(realtimeDb, `chats/${chatId}/messages`);
 
@@ -81,6 +87,15 @@ export class ChatService {
       timestamp: serverTimestamp(),
       status: "sent",
     };
+
+    // Si hay reply, agregar la info desnormalizada
+    if (replyTo) {
+      newMessage.replyTo = {
+        messageId: replyTo.id,
+        text: replyTo.text.substring(0, 100), // Limitar a 100 chars
+        senderId: replyTo.senderId,
+      };
+    }
 
     await push(messagesRef, newMessage);
 
@@ -117,24 +132,59 @@ export class ChatService {
   // ESCUCHAR MENSAJES
   static subscribeToMessages(
     chatId: string,
-    callback: (messages: Message[]) => void,
+    // callback: (messages: Message[]) => void,
+    setMessages: React.Dispatch<React.SetStateAction<Message[]>>,
   ) {
+    // Firebase elimina automáticamente el más viejo del query (por el limitToLast(50)).
+    // Eso dispara:
+    // onChildRemoved
+    // Si NO estás escuchando onChildRemoved…
+    // Estado local tendrá 51 mensajes
+    // Firebase solo tiene 50 en el query
+    // Se desincroniza
+
     const messagesQuery = query(
       ref(realtimeDb, `chats/${chatId}/messages`),
       limitToLast(50),
     );
 
-    return onValue(messagesQuery, (snapshot) => {
-      const messages: Message[] = [];
+    // Mensajes existentes + nuevos
+    const unsubscribeAdded = onChildAdded(messagesQuery, (snapshot) => {
+      const newMessage: Message = {
+        id: snapshot.key!,
+        ...snapshot.val(),
+      };
 
-      snapshot.forEach((child) => {
-        messages.push({
-          id: child.key,
-          ...child.val(),
-        });
+      setMessages((prev) => {
+        // evitar duplicados (importante en reconexiones)
+        if (prev.some((m) => m.id === newMessage.id)) return prev;
+        return [...prev, newMessage];
       });
-      callback(messages);
     });
+
+    // Mensaje editado (ej: status read)
+    const unsubscribeChanged = onChildChanged(messagesQuery, (snapshot) => {
+      const updatedMessage: Message = {
+        id: snapshot.key!,
+        ...snapshot.val(),
+      };
+
+      setMessages((prev) =>
+        prev.map((m) => (m.id === updatedMessage.id ? updatedMessage : m)),
+      );
+    });
+
+    // Mensaje eliminado (cuando limitToLast saca el más viejo)
+    const unsubscribeRemoved = onChildRemoved(messagesQuery, (snapshot) => {
+      setMessages((prev) => prev.filter((m) => m.id !== snapshot.key));
+    });
+
+    // Cleanup
+    return () => {
+      unsubscribeAdded();
+      unsubscribeChanged();
+      unsubscribeRemoved();
+    };
   }
 
   // MARCAR COMO LEÍDO
