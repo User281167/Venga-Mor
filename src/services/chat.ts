@@ -22,6 +22,8 @@ import {
   onChildAdded,
   onChildChanged,
   onChildRemoved,
+  orderByKey,
+  endBefore,
 } from "firebase/database";
 
 interface UserInfo {
@@ -132,8 +134,8 @@ export class ChatService {
   // ESCUCHAR MENSAJES
   static subscribeToMessages(
     chatId: string,
-    // callback: (messages: Message[]) => void,
     setMessages: React.Dispatch<React.SetStateAction<Message[]>>,
+    limit: number = 10,
   ) {
     // Firebase elimina automáticamente el más viejo del query (por el limitToLast(50)).
     // Eso dispara:
@@ -145,7 +147,7 @@ export class ChatService {
 
     const messagesQuery = query(
       ref(realtimeDb, `chats/${chatId}/messages`),
-      limitToLast(50),
+      limitToLast(limit),
     );
 
     // Mensajes existentes + nuevos
@@ -185,6 +187,48 @@ export class ChatService {
       unsubscribeChanged();
       unsubscribeRemoved();
     };
+  }
+
+  // CARGAR MENSAJES ANTERIORES (PAGINACIÓN)
+  static async loadOlderMessages(
+    chatId: string,
+    oldestMessageId: string,
+    limit: number = 10,
+  ): Promise<Message[]> {
+    const messagesQuery = query(
+      ref(realtimeDb, `chats/${chatId}/messages`),
+      orderByKey(),
+      endBefore(oldestMessageId),
+      limitToLast(limit),
+    );
+
+    const snapshot = await get(messagesQuery);
+    const messages: Message[] = [];
+
+    snapshot.forEach((child) => {
+      messages.push({
+        id: child.key!,
+        ...child.val(),
+      });
+    });
+
+    return messages;
+  }
+
+  // VERIFICAR SI HAY MÁS MENSAJES
+  static async hasMoreMessages(
+    chatId: string,
+    oldestMessageId: string,
+  ): Promise<boolean> {
+    const messagesQuery = query(
+      ref(realtimeDb, `chats/${chatId}/messages`),
+      orderByKey(),
+      endBefore(oldestMessageId),
+      limitToLast(1),
+    );
+
+    const snapshot = await get(messagesQuery);
+    return snapshot.exists();
   }
 
   // MARCAR COMO LEÍDO

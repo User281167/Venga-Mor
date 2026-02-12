@@ -8,12 +8,13 @@ import {
   Text,
   TextField,
   Button,
+  Spinner,
 } from "@radix-ui/themes";
 import { Send, ArrowLeft, CircleX } from "lucide-react";
 import SectionImg from "@/components/section-img";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 
@@ -42,26 +43,43 @@ export default function ChatPage() {
     errorMessage,
     replyingTo,
     setReplyingTo,
+    hasMore,
+    loadingOlder,
+    loadMoreTriggerRef,
+    messagesContainerRef,
+    shouldScrollToBottom,
   } = useChat(params.id);
 
   const bgImage = PlaceHolderImages.find((p) => p.id === "chat-bg");
   const chatEndRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
-  // Scroll automático al final
+  // SCROLL INTELIGENTE - Solo cuando shouldScrollToBottom es true
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (shouldScrollToBottom) {
+      // Usar scrollIntoView sin smooth para evitar conflictos
+      chatEndRef.current?.scrollIntoView({ behavior: "auto" });
+    }
+  }, [messages, shouldScrollToBottom]);
 
-  const handleReply = useCallback((msg: Message) => {
-    setReplyingTo(msg);
-  }, []);
+  const handleReply = useCallback(
+    (msg: Message) => {
+      setReplyingTo(msg);
+    },
+    [setReplyingTo],
+  );
 
   const handleScrollToMessage = useCallback((messageId: string) => {
     const messageElement = messageRefs.current.get(messageId);
 
     if (messageElement) {
-      messageElement.scrollIntoView({ behavior: "smooth" });
+      messageElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      // Highlight temporal
+      messageElement.classList.add("bg-accent/30");
+
+      setTimeout(() => {
+        messageElement.classList.remove("bg-accent/30");
+      }, 2000);
     }
   }, []);
 
@@ -76,7 +94,7 @@ export default function ChatPage() {
         alt={bgImage?.description}
         imageHint={bgImage?.imageHint}
       >
-        <Text>Cargando chat...</Text>
+        <Spinner />
       </SectionImg>
     );
   }
@@ -104,19 +122,6 @@ export default function ChatPage() {
       </SectionImg>
     );
   }
-
-  // Scroll a un mensaje específico
-  const scrollToMessage = (messageId: string) => {
-    const element = messageRefs.current.get(messageId);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "center" });
-      // Highlight temporal
-      element.classList.add("bg-accent/30");
-      setTimeout(() => {
-        element.classList.remove("bg-accent/30");
-      }, 2000);
-    }
-  };
 
   return (
     <SectionImg
@@ -158,10 +163,32 @@ export default function ChatPage() {
 
         {/* Mensajes */}
         <Flex
+          ref={messagesContainerRef}
           direction="column"
           gap="3"
           className="p-4 flex-grow overflow-y-auto"
         >
+          {/* Trigger para cargar más (invisible) */}
+          {hasMore && messages.length > 0 && (
+            <div ref={loadMoreTriggerRef} className="h-1" />
+          )}
+
+          {/* Indicador de carga */}
+          {loadingOlder && (
+            <Flex justify="center" py="2">
+              <Spinner size="2" />
+            </Flex>
+          )}
+
+          {/* Mensaje de "inicio de chat" */}
+          {!hasMore && messages.length > 0 && (
+            <Flex justify="center" py="3">
+              <Text size="1" className="text-muted-foreground">
+                🎉 Inicio de la conversación
+              </Text>
+            </Flex>
+          )}
+
           {messages.length === 0 ? (
             <div className="flex-grow flex items-center justify-center">
               <Text className="text-muted-foreground text-center">
