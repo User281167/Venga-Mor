@@ -208,7 +208,7 @@ export const useChat = (chatId: string | undefined) => {
         }
       }, 0);
     } catch (error) {
-      console.error("Error loading older messages:", error);
+      setErrorMessage("Error loading older messages");
     } finally {
       setLoadingOlder(false);
     }
