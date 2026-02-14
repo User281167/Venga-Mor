@@ -13,6 +13,7 @@ import { getImageDimensions } from "@/utils/imageHelper";
 import { getAudioDuration } from "@/utils/audioHelper";
 
 import { ChatMediaMetadata, MessageType } from "@/types/chat.type";
+import { BusinessError } from "@/errors/errors";
 
 export interface UploadResult {
   url: string;
@@ -28,7 +29,7 @@ export class StorageService {
   ): Promise<UploadResult> {
     // Validar tamaño (max 10MB antes de comprimir)
     if (file.size > 10 * 1024 * 1024) {
-      throw new Error("La imagen no puede superar 10MB");
+      throw new BusinessError("La imagen no puede superar 10MB");
     }
 
     // ej image/jpeg
@@ -77,7 +78,7 @@ export class StorageService {
   ): Promise<UploadResult> {
     // Validar tamaño (max 50MB)
     if (file.size > 50 * 1024 * 1024) {
-      throw new Error("El video no puede superar 50MB");
+      throw new BusinessError("El video no puede superar 50MB");
     }
 
     const timestamp = Date.now();
@@ -129,7 +130,7 @@ export class StorageService {
   ): Promise<UploadResult> {
     // Validar tamaño (max 20MB)
     if (file.size > 20 * 1024 * 1024) {
-      throw new Error("El audio no puede superar 20MB");
+      throw new BusinessError("El audio no puede superar 20MB");
     }
 
     let uploadBlob: Blob = file;
@@ -183,7 +184,7 @@ export class StorageService {
   ): Promise<UploadResult> {
     // Validar tamaño (max 25MB)
     if (file.size > 25 * 1024 * 1024) {
-      throw new Error("El archivo no puede superar 25MB");
+      throw new BusinessError("El archivo no puede superar 25MB");
     }
 
     const timestamp = Date.now();
