@@ -83,7 +83,7 @@ const ChatItemComponent = forwardRef<HTMLDivElement, Props>(
           direction="column"
           justify="between"
           gap="3"
-          className="p-3 rounded-lg w-full max-w-[80%]"
+          className="rounded-lg w-full max-w-[80%]"
         >
           {msg.type === "audio" && msg.mediaUrl && (
             <audio src={msg.mediaUrl} className="w-full" controls />
@@ -170,10 +170,10 @@ const ChatItemComponent = forwardRef<HTMLDivElement, Props>(
             justify="between"
             align="center"
             gap="3"
-            className={`${
+            className={`p-3 rounded-lg ${
               isMyMessage
-                ? "p-3 rounded-lg bg-primary text-primary-foreground"
-                : "bg-secondary"
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary text-white"
             }`}
           >
             <Text>{msg.text}</Text>
