@@ -10,7 +10,7 @@ import {
   Button,
   Spinner,
 } from "@radix-ui/themes";
-import { Send, ArrowLeft, CircleX } from "lucide-react";
+import { Send, ArrowLeft, CircleX, HardDrive } from "lucide-react";
 import SectionImg from "@/components/section-img";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 
@@ -23,6 +23,7 @@ import { useChat } from "./chat-message.hook";
 import { ChatItem } from "./chat-item";
 import { toast } from "sonner";
 import { Message } from "@/types/chat.type";
+import ProgressBar from "@/components/ProgressBar";
 
 export default function ChatPage() {
   const params = useParams<{ id: string }>();
@@ -39,7 +40,6 @@ export default function ChatPage() {
     chatNotFound,
     chatError,
     handleKeyPress,
-    handleSend,
     errorMessage,
     replyingTo,
     setReplyingTo,
@@ -48,11 +48,17 @@ export default function ChatPage() {
     loadMoreTriggerRef,
     messagesContainerRef,
     shouldScrollToBottom,
+    uploadingMedia,
+    uploadProgress,
+    file,
+    setFile,
+    handleSendMessageWithType,
   } = useChat(params.id);
 
   const bgImage = PlaceHolderImages.find((p) => p.id === "chat-bg");
   const chatEndRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const fileRef = useRef<HTMLInputElement>(null);
 
   // SCROLL INTELIGENTE - Solo cuando shouldScrollToBottom es true
   useEffect(() => {
@@ -224,10 +230,19 @@ export default function ChatPage() {
         </Flex>
 
         {/* Input de Mensaje */}
-        <Flex direction="column" gap="2">
+        <Flex direction="column" gap="2" className="w-full">
           {replyingTo && (
             <Card className="flex justify-between items-center">
-              <Text as="p">{replyingTo.text.slice(0, 100)}</Text>
+              <Flex direction="column" gap="2" className="w-full">
+                {replyingTo.type === "image" && replyingTo.mediaUrl && (
+                  <img
+                    className="max-h-40 w-full object-cover rounded-md"
+                    src={replyingTo.mediaUrl}
+                  />
+                )}
+
+                <Text as="p">{replyingTo.text.slice(0, 100)}</Text>
+              </Flex>
 
               <Button
                 size="2"
@@ -240,6 +255,28 @@ export default function ChatPage() {
             </Card>
           )}
 
+          {file && (
+            <Card className="flex justify-between items-center">
+              <Text as="p">{file.name}</Text>
+
+              <Button
+                size="2"
+                color="red"
+                variant="ghost"
+                onClick={() => setFile(null)}
+              >
+                <CircleX className="h-4 w-4" />
+              </Button>
+            </Card>
+          )}
+
+          {uploadingMedia && (
+            <Card className="flex justify-between items-center">
+              <Text as="p">Subiendo...</Text>
+              <ProgressBar value={uploadProgress} />
+            </Card>
+          )}
+
           <Flex p="4" gap="3" align="center" className="border-t border-border">
             <TextField.Root
               className="flex-grow"
@@ -249,9 +286,26 @@ export default function ChatPage() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
+              disabled={uploadingMedia}
             />
 
-            <Button onClick={handleSend} disabled={!message.trim()}>
+            <Button
+              onClick={() => fileRef.current?.click()}
+              disabled={uploadingMedia}
+            >
+              <HardDrive className="h-4 w-4" />
+              <input
+                type="file"
+                ref={fileRef}
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                style={{ display: "none" }}
+              />
+            </Button>
+
+            <Button
+              onClick={handleSendMessageWithType}
+              disabled={(!message.trim() && !file) || uploadingMedia}
+            >
               <Send className="h-4 w-4" />
             </Button>
           </Flex>

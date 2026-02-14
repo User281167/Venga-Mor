@@ -4,19 +4,25 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ChatService } from "@/services/chat";
 import { PresenceService } from "@/services/presence";
 import { ChatInfo, Message } from "@/types/chat.type";
+import { StorageService } from "@/services/storage";
+import { BusinessError } from "@/errors/errors";
 
 export const useChat = (chatId: string | undefined) => {
   const { user } = useUser();
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [chatInfo, setChatInfo] = useState<ChatInfo | null>(null);
   const [chatNotFound, setChatNotFound] = useState(false);
+
   const [chatError, setChatError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const [otherUserStatus, setOtherUserStatus] = useState<"online" | "offline">(
     "offline",
   );
+
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
 
   const [loadingOlder, setLoadingOlder] = useState(false);
@@ -25,8 +31,14 @@ export const useChat = (chatId: string | undefined) => {
   // Flag para controlar cuándo hacer scroll al final
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
 
+  const [uploadingMedia, setUploadingMedia] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
   // Referencia al número de mensajes anterior
   const prevMessagesLengthRef = useRef(0);
+
+  // archivo
+  const [file, setFile] = useState<File | null>(null);
 
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreTriggerRef = useRef<HTMLDivElement>(null);
@@ -151,19 +163,9 @@ export const useChat = (chatId: string | undefined) => {
       setMessage("");
       setReplyingTo(null);
     } catch (error) {
-      setErrorMessage("Failed to send message");
+      setErrorMessage("Error al enviar el mensaje" + error.message);
     }
   }, [message, user, chatId, chatInfo, replyingTo]);
-
-  const handleKeyPress = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        handleSend();
-      }
-    },
-    [handleSend],
-  );
 
   // Cargar mensajes antiguos
   const loadOlderMessages = useCallback(async () => {
@@ -241,6 +243,68 @@ export const useChat = (chatId: string | undefined) => {
     };
   }, [loadOlderMessages, loadingOlder, hasMore]);
 
+  // Enviar media
+  const handleSendMedia = useCallback(
+    async (file: File) => {
+      if (!user || !chatId || !chatInfo) return;
+
+      const otherUserId = Object.keys(chatInfo.participants).find(
+        (id) => id !== user.uid,
+      );
+
+      if (!otherUserId) return;
+
+      const messageType = StorageService.detectFileType(file);
+
+      setUploadingMedia(true);
+      setShouldScrollToBottom(true);
+
+      try {
+        await ChatService.sendMediaMessage(
+          chatId,
+          user.uid,
+          `${user.nombre} ${user.apellido}`,
+          file,
+          messageType,
+          message,
+          replyingTo || undefined,
+        );
+
+        setReplyingTo(null);
+        setMessage("");
+      } catch (error: any) {
+        if (error instanceof BusinessError) {
+          setErrorMessage(error.message);
+        } else {
+          setErrorMessage("Error al enviar archivo");
+        }
+      } finally {
+        setUploadingMedia(false);
+        setUploadProgress(0);
+      }
+    },
+    [user, chatId, chatInfo, replyingTo, message],
+  );
+
+  const handleSendMessageWithType = useCallback(() => {
+    if (file !== null) {
+      handleSendMedia(file);
+      setFile(null);
+    } else {
+      handleSend();
+    }
+  }, [handleSend, handleSendMedia, file]);
+
+  const handleKeyPress = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSendMessageWithType();
+      }
+    },
+    [handleSendMessageWithType],
+  );
+
   return {
     message,
     setMessage,
@@ -261,5 +325,11 @@ export const useChat = (chatId: string | undefined) => {
     loadMoreTriggerRef,
     messagesContainerRef,
     shouldScrollToBottom,
+    handleSendMedia,
+    uploadingMedia,
+    uploadProgress,
+    file,
+    setFile,
+    handleSendMessageWithType,
   };
 };

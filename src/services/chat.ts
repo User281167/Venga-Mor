@@ -2,11 +2,11 @@ import { realtimeDb } from "@/lib/firebase";
 
 import {
   Chat,
-  ChatDB,
   ChatInfo,
   LastMessageDB,
   Message,
   MessageDB,
+  MessageType,
 } from "@/types/chat.type";
 
 import {
@@ -25,6 +25,9 @@ import {
   orderByKey,
   endBefore,
 } from "firebase/database";
+import { StorageService, UploadResult } from "./storage";
+import { BusinessError } from "@/errors/errors";
+import { api } from "@/lib/apiHelper";
 
 interface UserInfo {
   displayName: string;
@@ -44,32 +47,15 @@ export class ChatService {
     user2Id: string,
     user2Info: UserInfo,
   ): Promise<string> {
-    const chatId = this.getChatId(user1Id, user2Id);
-    const chatRef = ref(realtimeDb, `chats/${chatId}`);
+    const res = await api.post<string>(
+      `/api/chat/create/?receiverId=${user2Id}`,
+    );
 
-    // Verificar si ya existe
-    const snapshot = await get(chatRef);
-    if (snapshot.exists()) {
-      return chatId;
+    if (!res.success || !res.data) {
+      throw new BusinessError("Error creando el chat");
     }
 
-    // Crear chat con información desnormalizada
-    const newChat: ChatDB = {
-      participants: {
-        [user1Id]: user1Info,
-        [user2Id]: user2Info,
-      },
-      createdAt: serverTimestamp(),
-      lastMessage: null,
-    };
-
-    await set(chatRef, newChat);
-
-    // Añadir referencias en ambos usuarios
-    await set(ref(realtimeDb, `users/${user1Id}/chats/${chatId}`), true);
-    await set(ref(realtimeDb, `users/${user2Id}/chats/${chatId}`), true);
-
-    return chatId;
+    return res.data;
   }
 
   // ENVIAR MENSAJE (asegurando que el chat existe)
@@ -84,18 +70,25 @@ export class ChatService {
     const messagesRef = ref(realtimeDb, `chats/${chatId}/messages`);
 
     const newMessage: MessageDB = {
+      type: "text",
       text: message,
       senderId,
       timestamp: serverTimestamp(),
       status: "sent",
+      replyTo: null,
+      mediaMetadata: null,
+      mediaUrl: null,
     };
 
     // Si hay reply, agregar la info desnormalizada
     if (replyTo) {
       newMessage.replyTo = {
         messageId: replyTo.id,
-        text: replyTo.text.substring(0, 100), // Limitar a 100 chars
+        text: replyTo.text.substring(0, 100),
         senderId: replyTo.senderId,
+        type: replyTo.type,
+        mediaUrl: replyTo.mediaUrl,
+        thumbnailUrl: replyTo.mediaMetadata?.thumbnailUrl ?? null,
       };
     }
 
@@ -110,6 +103,104 @@ export class ChatService {
     };
 
     await set(ref(realtimeDb, `chats/${chatId}/lastMessage`), lastMessage);
+  }
+
+  // ENVIAR MENSAJE MULTIMEDIA GENÉRICO
+  static async sendMediaMessage(
+    chatId: string,
+    senderId: string,
+    senderName: string,
+    file: File,
+    messageType: MessageType,
+    caption?: string,
+    replyTo?: Message,
+  ) {
+    const messagesRef = ref(realtimeDb, `chats/${chatId}/messages`);
+    const tempMessageRef = push(messagesRef);
+    const messageId = tempMessageRef.key!;
+
+    try {
+      let uploadResult: UploadResult;
+
+      // Subir según el tipo
+      switch (messageType) {
+        case "image":
+          uploadResult = await StorageService.uploadImage(
+            chatId,
+            messageId,
+            file,
+          );
+          break;
+        case "video":
+          uploadResult = await StorageService.uploadVideo(
+            chatId,
+            messageId,
+            file,
+          );
+          break;
+        case "audio":
+          uploadResult = await StorageService.uploadAudio(
+            chatId,
+            messageId,
+            file,
+          );
+          break;
+        case "file":
+          uploadResult = await StorageService.uploadFile(
+            chatId,
+            messageId,
+            file,
+          );
+          break;
+        default:
+          throw new BusinessError("Tipo de archivo no soportado");
+      }
+
+      // Crear mensaje
+      const newMessage: MessageDB = {
+        type: messageType,
+        text: caption || "",
+        senderId,
+        timestamp: serverTimestamp(),
+        status: "sent",
+        mediaUrl: uploadResult.url,
+        mediaMetadata: uploadResult.metadata ?? null,
+        replyTo: null,
+      };
+
+      if (replyTo) {
+        newMessage.replyTo = {
+          messageId: replyTo.id,
+          text: replyTo.text.substring(0, 100),
+          senderId: replyTo.senderId,
+          type: replyTo.type,
+          mediaUrl: replyTo.mediaUrl,
+          thumbnailUrl: replyTo.mediaMetadata?.thumbnailUrl ?? null,
+        };
+      }
+
+      await set(tempMessageRef, newMessage);
+
+      // Actualizar último mensaje
+      const emojiMap = {
+        image: "📷",
+        video: "🎥",
+        audio: "🎵",
+        file: "📎",
+      };
+
+      const lastMessage: LastMessageDB = {
+        text: caption || `${emojiMap[messageType]} ${messageType}`,
+        senderId,
+        senderName,
+        timestamp: serverTimestamp(),
+      };
+
+      await set(ref(realtimeDb, `chats/${chatId}/lastMessage`), lastMessage);
+    } catch (error) {
+      await set(tempMessageRef, null);
+      throw error;
+    }
   }
 
   // OBTENER O CREAR CHAT (helper importante)
