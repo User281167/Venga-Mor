@@ -1,9 +1,16 @@
-import { Star, MapPin, Heart, MessageCircle, Share2 } from "lucide-react";
-import { Text, Flex, Grid, Button, Badge } from "@radix-ui/themes";
+import {
+  Star,
+  MapPin,
+  Heart,
+  MessageCircle,
+  Diamond,
+} from "lucide-react";
+import { Text, Flex, Grid, Button, Badge, Dialog } from "@radix-ui/themes";
 import Link from "next/link";
 import { Collaborator } from "@/types/collaborator";
 import React from "react";
 import Image from "next/image";
+import PayPalPayment from "@/components/pay-pal";
 
 interface CollaboratorCardProps {
   collaborator: Collaborator;
@@ -60,9 +67,25 @@ export const CollaboratorCard = React.memo(function CollaboratorCard({
             <MessageCircle size={32} />
             <Text size="1">345</Text>
           </Button>
-          <Button variant="ghost" className="text-white p-0 h-auto">
-            <Share2 size={32} />
-          </Button>
+          <Dialog.Root>
+            <Dialog.Trigger>
+              <Button variant="ghost" className="text-white p-0 h-auto">
+                <Diamond size={32} />
+              </Button>
+            </Dialog.Trigger>
+            <Dialog.Content style={{ maxWidth: 450 }}>
+              <Dialog.Title>Comprar Joyas</Dialog.Title>
+              <Dialog.Description size="2" mb="4">
+                Apoya a {collaborator?.nombre} enviándole joyas.
+              </Dialog.Description>
+              <PayPalPayment />
+              <Flex mt="4" justify="end">
+                <Dialog.Close>
+                  <Button variant="soft">Cerrar</Button>
+                </Dialog.Close>
+              </Flex>
+            </Dialog.Content>
+          </Dialog.Root>
         </Flex>
 
         {/* Content (Bottom) */}

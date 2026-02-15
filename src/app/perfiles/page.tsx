@@ -27,6 +27,7 @@ import {
   TextField,
 } from "@radix-ui/themes";
 import Link from "next/link";
+import Image from "next/image";
 
 import { WhatsappIcon } from "@/components/icons";
 import PayPalPayment from "@/components/pay-pal";
@@ -42,7 +43,7 @@ import { useTheme } from "@/context/theme-context";
 import { useEffect, useRef } from "react";
 import { CollaboratorCard } from "./profile-card";
 import { Loader2 } from "lucide-react";
-import { motion, useInView } from "framer-motion"; // <-- Import framer-motion
+import { motion, useInView } from "framer-motion";
 
 // Create a new component to handle the animation and layout of each profile block
 function ProfileBlock({
@@ -99,7 +100,7 @@ function ProfilesPageContent() {
     error,
   } = useProfilesList(ageRange, selectedCategories, selectedStar, locationData);
 
-  const { exploreBackground } = useTheme();
+  const { exploreBackground, bgOpacity } = useTheme();
   const profiles = data?.pages.flatMap((page) => page?.data || []) ?? [];
 
   useEffect(() => {
@@ -160,6 +161,16 @@ function ProfilesPageContent() {
 
   return (
     <>
+      <Image
+        src={exploreBackground}
+        alt="Explorer Background"
+        layout="fill"
+        objectFit="cover"
+        className="absolute inset-0 z-0 transition-opacity duration-500"
+        style={{ opacity: bgOpacity / 100 }}
+        unoptimized
+        priority
+      />
       <header className="fixed top-0 left-0 right-0 z-20 p-4 flex items-center justify-between bg-gradient-to-b from-black/50 to-transparent">
         <Heading className="text-2xl md:text-4xl font-bold font-headline text-primary">
           VENGA MOR
