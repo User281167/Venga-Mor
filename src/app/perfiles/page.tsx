@@ -401,14 +401,20 @@ function ProfilesPageContent() {
               </div>
             ))}
 
-          {hasNextPage && !isFetchingNextPage &&(
-            <div className="scroll-snap-center w-full h-screen flex items-center justify-center">
-                <Text color="gray">Cargando más perfiles...</Text>
+          {hasNextPage && !isFetchingNextPage && (
+            <div
+              key="loader"
+              className="scroll-snap-center w-full h-screen flex items-center justify-center"
+            >
+              <Text color="gray">Cargando más perfiles...</Text>
             </div>
           )}
 
           {!isLoading && profiles.length === 0 && (
-            <div className="scroll-snap-center w-full h-screen flex items-center justify-center p-4">
+            <div
+              key="not-found"
+              className="scroll-snap-center w-full h-screen flex items-center justify-center p-4"
+            >
               <Card className="bg-card/80">
                 <Text color="gray">
                   No se encontraron perfiles con esos criterios. Prueba con
