@@ -10,6 +10,8 @@ import {
   Skeleton,
   Text,
 } from "@radix-ui/themes";
+import { CheckCircle2, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 
 import FormUserInfo from "./user-form";
 import CollaboratorForm from "./collaborator/collaborator-form";
@@ -39,11 +41,16 @@ export default function PerfilPage() {
             fallback={user?.nombre?.charAt(0) || "U"}
           />
 
-          <Skeleton loading={loading} width="180px" height="1.75rem">
-            <Heading as="h2" className="text-2xl font-bold">
-              {user?.nombre} {user?.apellido}
-            </Heading>
-          </Skeleton>
+          <Flex align="center" gap="2">
+            <Skeleton loading={loading} width="180px" height="1.75rem">
+              <Heading as="h2" className="text-2xl font-bold">
+                {user?.nombre} {user?.apellido}
+              </Heading>
+            </Skeleton>
+            {user?.verificado && (
+              <CheckCircle2 className="h-6 w-6 text-green-400" />
+            )}
+          </Flex>
 
           <Skeleton loading={loading} width="260px" height="1.25rem">
             <Text as="p" className="text-muted-foreground">
@@ -76,6 +83,18 @@ export default function PerfilPage() {
               <FollowersList colaboradorId={user.uid} />
             )}
           </Skeleton>
+
+          {!loading && !user?.verificado && (
+            <Button
+              asChild
+              variant="solid"
+              className="w-full bg-yellow-500 hover:bg-yellow-600"
+            >
+              <Link href="/verificar">
+                <ShieldCheck className="mr-2 h-4 w-4" /> Verificar Perfil
+              </Link>
+            </Button>
+          )}
 
           <Button
             variant="outline"

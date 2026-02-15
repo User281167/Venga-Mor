@@ -7,4 +7,5 @@ export interface AppUser {
   tipo: "cliente" | "colaborador";
   creado: number; // timestamp en ms
   descripcion?: string;
+  verificado?: boolean;
 }

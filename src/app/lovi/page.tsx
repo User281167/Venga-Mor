@@ -27,19 +27,19 @@ export default function LoviPage() {
         </Text>
         <Flex direction="column" gap="3" mt="4" className="w-full max-w-xs">
             <Button asChild size="3" variant="soft">
-                <Link href="#" className="flex items-center justify-center gap-3">
+                <Link href="https://youtube.com/shorts/fBCA7sUDATo?si=pH09_oLtIPLpl4W1" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3">
                     <Youtube />
                     Canal de YouTube
                 </Link>
             </Button>
             <Button asChild size="3" variant="soft">
-                <Link href="#" className="flex items-center justify-center gap-3">
+                <Link href="https://www.instagram.com/venga_sex?igsh=MTV2Z3ZubWFqamtrMg==" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3">
                     <Instagram />
                     Tienda en Instagram
                 </Link>
             </Button>
              <Button asChild size="3" variant="soft">
-                <Link href="#" className="flex items-center justify-center gap-3">
+                <Link href="https://o720rb8u.forms.app/mi-impresionante-formulario" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3">
                     <FileText />
                     Quejas y Reclamos
                 </Link>

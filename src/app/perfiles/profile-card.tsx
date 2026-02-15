@@ -4,6 +4,7 @@ import {
   Heart,
   MessageCircle,
   Diamond,
+  CheckCircle2,
 } from "lucide-react";
 import { Text, Flex, Grid, Button, Badge, Dialog } from "@radix-ui/themes";
 import Link from "next/link";
@@ -23,7 +24,7 @@ export const CollaboratorCard = React.memo(function CollaboratorCard({
     [collaborator.direccion?.ciudad_localidad, collaborator.direccion?.pais]
       .filter(Boolean)
       .join(", ") || "Ubicación no disponible";
-  const isVerified = (collaborator.estrellas || 0) > 4.5;
+  const isVerified = collaborator.verificado;
 
   return (
     <div className="relative w-full h-full group">
@@ -91,9 +92,14 @@ export const CollaboratorCard = React.memo(function CollaboratorCard({
         {/* Content (Bottom) */}
         <div className="absolute bottom-0 left-0 right-0 p-6 text-white z-20">
           <div>
-            <h3 className="text-4xl font-bold font-headline text-white">
-              {collaborator.nombre} {collaborator.apellido}
-            </h3>
+            <Flex align="center" gap="2">
+              <h3 className="text-4xl font-bold font-headline text-white">
+                {collaborator.nombre} {collaborator.apellido}
+              </h3>
+              {isVerified && (
+                <CheckCircle2 className="h-6 w-6 text-green-400" />
+              )}
+            </Flex>
             {isVerified && (
               <div className="w-24 h-1 bg-cyan-400 mt-1 rounded-full"></div>
             )}
