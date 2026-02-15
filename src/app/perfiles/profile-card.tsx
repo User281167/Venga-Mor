@@ -70,7 +70,7 @@ export const CollaboratorCard = React.memo(function CollaboratorCard({
           </Button>
           <Dialog.Root>
             <Dialog.Trigger>
-              <Button variant="ghost" className="text-white p-0 h-auto">
+              <Button variant="ghost" className="text-white p-0 h-auto z-30">
                 <Diamond size={32} />
               </Button>
             </Dialog.Trigger>
@@ -92,17 +92,22 @@ export const CollaboratorCard = React.memo(function CollaboratorCard({
         {/* Content (Bottom) */}
         <div className="absolute bottom-0 left-0 right-0 p-6 text-white z-20">
           <div>
-            <Flex align="center" gap="2">
+            <Flex align="center" gap="3">
               <h3 className="text-4xl font-bold font-headline text-white">
                 {collaborator.nombre} {collaborator.apellido}
               </h3>
               {isVerified && (
-                <CheckCircle2 className="h-6 w-6 text-green-400" />
+                <Flex direction="column" align="start">
+                  <Flex align="center" gap="1">
+                    <CheckCircle2 className="h-5 w-5 text-cyan-400" />
+                    <Text size="2" weight="bold" className="text-cyan-400">
+                      Oficial
+                    </Text>
+                  </Flex>
+                  <div className="w-full h-[2px] bg-cyan-400 mt-1 rounded-full"></div>
+                </Flex>
               )}
             </Flex>
-            {isVerified && (
-              <div className="w-24 h-1 bg-cyan-400 mt-1 rounded-full"></div>
-            )}
           </div>
 
           <p className="text-white/90 text-md mt-3 mb-5 italic line-clamp-2">

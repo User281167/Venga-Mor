@@ -24,12 +24,20 @@ export default function ProfileHeader({ collaborator }: ProfileHeaderProps) {
       />
 
       <Flex direction="column" gap="1">
-        <Flex align="center" gap="2">
+        <Flex align="center" gap="3">
           <Heading as="h1" className="text-4xl">
             {collaborator.nombre} {collaborator.apellido}
           </Heading>
           {collaborator.verificado && (
-            <CheckCircle2 className="h-6 w-6 text-green-400" />
+            <Flex direction="column" align="start">
+              <Flex align="center" gap="1">
+                <CheckCircle2 className="h-5 w-5 text-cyan-400" />
+                <Text size="3" weight="bold" className="text-cyan-400">
+                  Oficial
+                </Text>
+              </Flex>
+              <div className="w-full h-[2px] bg-cyan-400 mt-1 rounded-full"></div>
+            </Flex>
           )}
         </Flex>
 
