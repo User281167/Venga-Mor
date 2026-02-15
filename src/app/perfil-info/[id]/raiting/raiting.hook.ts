@@ -1,7 +1,7 @@
 import { BusinessError } from "@/errors/errors";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import getMyRaiting from "./getMyRaiting";
-import { api } from "@/lib/apiHelper";
+import { ApiResponse } from "@/lib/api-response";
 import { Raiting } from "@/app/models/raiting.model";
 
 // Obtener Mi calificación actual del colaborador
@@ -12,7 +12,6 @@ export function useRaitingCollaborator(collaboratorId?: string) {
       if (!collaboratorId || !collaboratorId.trim()) {
         throw new BusinessError("Error colaborador no encontrado");
       }
-
       return await getMyRaiting(collaboratorId);
     },
     enabled: !!collaboratorId,
@@ -37,11 +36,22 @@ export function useSendRaiting() {
         throw new BusinessError("El valor debe estar entre 1 y 5");
       }
 
-      const res = await api.put<Raiting>(`/api/me/raiting/${collaboratorId}`, {
-        valor: value,
+      const response = await fetch(`/api/me/raiting/${collaboratorId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ valor: value }),
+        credentials: "same-origin",
       });
 
-      return res.data;
+      const json = (await response.json()) as ApiResponse<Raiting>;
+
+      if (!response.ok || !json.success) {
+        throw new BusinessError(
+          json.message || "Error al enviar calificación",
+        );
+      }
+
+      return json.data;
     },
     onMutate: async ({ collaboratorId, value }) => {
       await queryClient.cancelQueries({
@@ -91,7 +101,17 @@ export function useDeleteRaiting() {
         throw new BusinessError("Error colaborador no encontrado");
       }
 
-      await api.del(`/api/me/raiting/${collaboratorId}`);
+      const response = await fetch(`/api/me/raiting/${collaboratorId}`, {
+        method: "DELETE",
+        credentials: "same-origin",
+      });
+
+      if (!response.ok) {
+        const json = await response.json();
+        throw new BusinessError(
+          json.message || "Error al eliminar calificación",
+        );
+      }
     },
     onMutate: async ({ collaboratorId }) => {
       await queryClient.cancelQueries({
