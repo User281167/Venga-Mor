@@ -27,7 +27,7 @@ export async function GET(
 
     const ratingId = `${colaboradorId}_${uid}`;
 
-    const ratingRef = adminDb.collection("ratings").doc(ratingId);
+    const ratingRef = adminDb.collection("calificaciones").doc(ratingId);
     const snap = await ratingRef.get();
 
     if (!snap.exists) {
@@ -87,7 +87,7 @@ export async function PUT(
     }
 
     const ratingId = `${colaboradorId}_${uid}`;
-    const ratingRef = adminDb.collection("ratings").doc(ratingId);
+    const ratingRef = adminDb.collection("calificaciones").doc(ratingId);
 
     const snap = await ratingRef.get();
     const now = new Date();
@@ -177,7 +177,7 @@ export async function DELETE(
     }
 
     const ratingId = `${colaboradorId}_${uid}`;
-    const ratingRef = adminDb.collection("ratings").doc(ratingId);
+    const ratingRef = adminDb.collection("calificaciones").doc(ratingId);
 
     const snap = await ratingRef.get();
 

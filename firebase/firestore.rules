@@ -37,6 +37,15 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // Calificaciones: el usuario solo puede modificar su propia calificación.
+    match /calificaciones/{ratingId} {
+      allow get: if isSignedIn() && get(/databases/$(database)/documents/calificaciones/$(ratingId)).data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid && request.resource.data.valor >= 1 && request.resource.data.valor <= 5;
+      allow update: if isSignedIn() && get(/databases/$(database)/documents/calificaciones/$(ratingId)).data.userId == request.auth.uid && request.resource.data.valor >= 1 && request.resource.data.valor <= 5;
+      allow delete: if isSignedIn() && get(/databases/$(database)/documents/calificaciones/$(ratingId)).data.userId == request.auth.uid;
+      allow list: if false;
+    }
+
     // ========================================
     // CHAT - TODO PERMITIDO (TEMPORAL)
     // ========================================
