@@ -49,6 +49,8 @@ const defaultExploreBg = PlaceHolderImages.find(
 export const availableExploreBgs: ImagePlaceholder[] = [
   defaultExploreBg,
   PlaceHolderImages.find((p) => p.id === "intro-gif-2")!,
+  PlaceHolderImages.find((p) => p.id === "explore-bg-3")!,
+  PlaceHolderImages.find((p) => p.id === "explore-bg-4")!,
   PlaceHolderImages.find((p) => p.id === "explore-bg-5")!,
   PlaceHolderImages.find((p) => p.id === "explore-bg-6")!,
   PlaceHolderImages.find((p) => p.id === "explore-bg-7")!,

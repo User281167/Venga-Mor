@@ -38,10 +38,11 @@ export async function GET(req: Request) {
     const limitNum = 20;
 
     let query: admin.firestore.Query = adminDb.collection("colaboradores");
-    query = query.where("edad", ">=", minAge).where("edad", "<=", maxAge);
 
-    // Ordenamiento obligatorio para que funcione el cursor y la edad
-    query = query.orderBy("edad", "asc").orderBy("__name__", "asc");
+    // Se elimina el filtro de edad (.where) para evitar que la consulta falle
+    // si un documento no tiene el campo 'edad'. El filtrado robusto se debe
+    // hacer en memoria si es necesario.
+    query = query.orderBy("__name__", "asc");
 
     // Aplicar el Cursor
     if (lastId) {

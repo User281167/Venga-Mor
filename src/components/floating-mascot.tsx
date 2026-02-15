@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState, useRef } from "react";
@@ -63,28 +62,39 @@ export function FloatingMascot() {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    let messageLoop: NodeJS.Timeout;
+    let visibilityToggle: NodeJS.Timeout;
+
     const startLoop = () => {
-      timeoutRef.current = setTimeout(() => {
+      // 1. Update message and make it visible
+      setMessageIndex((prev) => (prev + 1) % messages.length);
+      setIsVisible(true);
+
+      // 2. Set a timer to hide it after a while
+      visibilityToggle = setTimeout(() => {
         setIsVisible(false);
-      }, 5500);
+      }, 5500); // Keep message on screen for 5.5 seconds
+
+      // 3. Schedule the next cycle
+      messageLoop = setTimeout(startLoop, 10000); // Total cycle time is 10 seconds
     };
 
     if (shouldShowMascot && !popoverOpen) {
-      setIsVisible(true);
-      startLoop();
+      const initialTimeout = setTimeout(startLoop, 2000); // Start after 2 seconds
+      // Cleanup function
+      return () => {
+        clearTimeout(initialTimeout);
+        clearTimeout(visibilityToggle);
+        clearTimeout(messageLoop);
+      };
     } else {
+      // If it shouldn't show, ensure it's not visible
       setIsVisible(false);
     }
+  }, [shouldShowMascot, popoverOpen]);
 
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, [shouldShowMascot, popoverOpen, messageIndex]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -214,7 +224,7 @@ export function FloatingMascot() {
         </Popover.Content>
       </Popover.Root>
 
-      <AnimatePresence onExitComplete={() => setMessageIndex((prev) => (prev + 1) % messages.length)}>
+      <AnimatePresence>
         {isVisible && !popoverOpen && (
           <motion.div
             key={messageIndex}
@@ -222,7 +232,8 @@ export function FloatingMascot() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20, transition: { duration: 0.4 } }}
             transition={{ duration: 0.5 }}
-            className="bg-black/70 p-3 rounded-xl backdrop-blur-sm"
+            className="bg-black/60 p-3 rounded-xl backdrop-blur-sm"
+            style={{ textShadow: "1px 1px 3px rgba(0,0,0,0.5)" }}
           >
             <Text as="p" size="2" weight="bold" className="text-white italic">
               "{messages[messageIndex]}"
