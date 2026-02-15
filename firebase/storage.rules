@@ -1,12 +1,18 @@
 rules_version = '2';
 service firebase.storage {
-  match /b/studio-7857394445-e1558.firebasestorage.app/o {
+  match /b/{bucket}/o {
 
     // Función centralizada para validar al colaborador
     function esColaboradorAutenticado(userId) {
       return request.auth != null
              && request.auth.uid == userId
-             && request.auth.token.tipo == "colaborador";
+             && request.auth.token.role == "admin";
+    }
+
+    // Perfiles: cada usuario solo puede escribir su propia foto
+    match /perfiles/{userId}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId && request.resource.size < 2 * 1024 * 1024; // 2MB limit
     }
 
     // --- SECCIÓN DE IMÁGENES ---

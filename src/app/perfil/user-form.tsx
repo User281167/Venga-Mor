@@ -21,7 +21,8 @@ import { setInfoFormSchema } from "./schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useUpdateUser } from "@/hooks/useUpdateUser";
-import { useUpdateProfilePhoto } from "@/hooks/useUpdateProfilePhoto";
+import { storage } from "@/lib/firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export default function FormUserInfo({ user }: { user: AppUser | null }) {
   const form = useForm<z.infer<typeof setInfoFormSchema>>({
@@ -34,10 +35,9 @@ export default function FormUserInfo({ user }: { user: AppUser | null }) {
   });
 
   const updateUserMutation = useUpdateUser();
-  const uploadPhoto = useUpdateProfilePhoto();
-
   const [file, setFile] = useState<File | null>(null);
   const isSubmittingRef = useRef(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -60,9 +60,7 @@ export default function FormUserInfo({ user }: { user: AppUser | null }) {
 
     try {
       await updateUserMutation.mutateAsync({
-        nombre: data.nombre.trim(),
-        apellido: data.apellido?.trim() || "",
-        descripcion: data.descripcion?.trim() || "",
+        ...data,
         foto: user?.foto || undefined, // Mantener foto actual
       });
 
@@ -89,22 +87,46 @@ export default function FormUserInfo({ user }: { user: AppUser | null }) {
   }
 
   async function handleImageUpload() {
-    if (!file) return;
+    if (!file || !user) {
+      toast.error("Selecciona un archivo y asegúrate de haber iniciado sesión.");
+      return;
+    }
+    if (updateUserMutation.isPending || isUploading) {
+      toast.warning("Ya hay una operación en curso.");
+      return;
+    }
+
+    setIsUploading(true);
+    toast.message("Subiendo imagen...");
 
     try {
-      toast.message("Subiendo imagen...");
+      // 1. Upload to Firebase Storage
+      const storageRef = ref(storage, `perfiles/${user.uid}/${file.name}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
 
-      await uploadPhoto.mutateAsync(file);
+      // 2. Update user profile with the new URL
+      const currentData = form.getValues();
+      await updateUserMutation.mutateAsync({
+        ...currentData,
+        foto: downloadURL,
+      });
 
       toast.success("Imagen actualizada correctamente.");
-      setFile(null);
-    } catch (error) {
-      console.error("Error al subir imagen:", error);
-      toast.error("Error al actualizar la imagen.");
+      setFile(null); // Clear the selected file
+    } catch (error: any) {
+      console.error("Error al actualizar la imagen:", error);
+      const errorMessage =
+        error.code === "storage/unauthorized"
+          ? "No tienes permiso para subir archivos."
+          : "Error al actualizar la imagen. Inténtalo de nuevo.";
+      toast.error(errorMessage);
+    } finally {
+      setIsUploading(false);
     }
   }
 
-  const isLoading = updateUserMutation.isPending || uploadPhoto.isPending;
+  const isLoading = updateUserMutation.isPending || isUploading;
 
   return (
     <Dialog.Root>
@@ -154,8 +176,9 @@ export default function FormUserInfo({ user }: { user: AppUser | null }) {
               disabled={isLoading || !file}
               className="w-full md:w-fit"
               onClick={handleImageUpload}
+              loading={isUploading}
             >
-              {uploadPhoto.isPending ? "Subiendo..." : "Actualizar Imagen"}
+              {isUploading ? "Subiendo..." : "Actualizar Imagen"}
             </Button>
           </Flex>
 
