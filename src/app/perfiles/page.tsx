@@ -54,7 +54,6 @@ function ProfilesPageContent() {
     locationData,
     setLocationData,
     toggleCategory,
-    scrollContainerRef,
   } = useProfilesFilters();
 
   const {
@@ -108,25 +107,20 @@ function ProfilesPageContent() {
       container.addEventListener("keydown", handler);
     }
   }, []);
-
+  
+  // Infinite scroll listener
   useEffect(() => {
     const handleScroll = () => {
-      if (!scrollContainerRef.current) return;
-      const { scrollTop, scrollHeight, clientHeight } =
-        scrollContainerRef.current;
-      if (
-        scrollTop + clientHeight >= scrollHeight - 10 &&
-        hasNextPage &&
-        !isFetchingNextPage
-      ) {
-        fetchNextPage();
+      if (window.innerHeight + document.documentElement.scrollTop < document.documentElement.offsetHeight - 500 || !hasNextPage || isFetchingNextPage) {
+        return;
       }
+      fetchNextPage();
     };
 
-    const container = scrollContainerRef.current;
-    container?.addEventListener("scroll", handleScroll);
-    return () => container?.removeEventListener("scroll", handleScroll);
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage, scrollContainerRef]);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
 
   if (isError) {
     toast.error(error.message);
@@ -378,68 +372,37 @@ function ProfilesPageContent() {
           </Flex>
         </header>
 
-        <div
-          id="profiles-scroll-container"
-          ref={scrollContainerRef}
-          className="w-full h-screen overflow-y-auto scroll-snap-y-mandatory"
-        >
-          {isLoading &&
-            Array.from({ length: 2 }).map((_, index) => (
-              <div
-                key={index}
-                className="scroll-snap-center w-full h-screen flex items-center justify-center p-4"
-              >
-                <div className="w-full max-w-md h-[80vh]">
-                  <ProfileCardSkeleton />
-                </div>
-              </div>
-            ))}
-
-          {!isLoading &&
-            profiles.length > 0 &&
-            profiles.map((profile, index) => (
-              <div
-                key={`${profile.uid}-${index}`}
-                className="scroll-snap-center w-full h-screen flex items-center justify-center p-4"
-              >
-                <div className="w-full max-w-md h-[80vh]">
-                  <CollaboratorCard collaborator={profile} />
-                </div>
-              </div>
-            ))}
-          
-          {isFetchingNextPage && (
-             <div
-                key="loader"
-                className="scroll-snap-center w-full h-screen flex items-center justify-center"
-              >
-                <Text color="gray">Cargando más perfiles...</Text>
-              </div>
-          )}
-
-          {!isLoading && !hasNextPage && profiles.length > 0 && (
-             <div
-                key="end"
-                className="scroll-snap-center w-full h-screen flex items-center justify-center"
-              >
-                <Text color="gray">Has llegado al final.</Text>
-              </div>
-          )}
-
-          {!isLoading && profiles.length === 0 && (
-            <div
-              key="not-found"
-              className="scroll-snap-center w-full h-screen flex items-center justify-center p-4"
-            >
-              <Card className="bg-card/80">
-                <Text color="gray">
-                  No se encontraron perfiles con esos criterios. Prueba con
-                  otros filtros.
-                </Text>
+        <Grid columns={{ initial: "1", sm: "2", lg: "3" }} gap="6" width="auto" className="pt-24 pb-12">
+            {isLoading && !profiles.length ? (
+                Array.from({ length: 6 }).map((_, index) => (
+                    <ProfileCardSkeleton key={index} />
+                ))
+            ) : profiles.length > 0 ? (
+                profiles.map((profile, index) => (
+                    <CollaboratorCard key={`${profile.uid}-${index}`} collaborator={profile} />
+                ))
+            ) : (
+                 <Card className="bg-card/80 col-span-full">
+                    <Text color="gray">
+                    No se encontraron perfiles con esos criterios. Prueba con
+                    otros filtros.
+                    </Text>
               </Card>
-            </div>
-          )}
-        </div>
+            )}
+        </Grid>
+        
+        {isFetchingNextPage && (
+            <Flex justify="center" p="4">
+                <Text color="gray">Cargando más perfiles...</Text>
+            </Flex>
+        )}
+
+        {!hasNextPage && profiles.length > 0 && (
+             <Flex justify="center" p="4">
+                <Text color="gray">Has llegado al final.</Text>
+            </Flex>
+        )}
+
       </SectionImg>
     </>
   );

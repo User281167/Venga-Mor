@@ -52,6 +52,7 @@ export const availableExploreBgs: ImagePlaceholder[] = [
   PlaceHolderImages.find((p) => p.id === "chat-bg")!,
   PlaceHolderImages.find((p) => p.id === "explore-bg-3")!,
   PlaceHolderImages.find((p) => p.id === "explore-bg-4")!,
+  PlaceHolderImages.find((p) => p.id === "info-bg")!,
 ].filter(Boolean);
 
 

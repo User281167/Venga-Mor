@@ -1,5 +1,5 @@
 import { Star, MapPin } from "lucide-react";
-import { Text, Flex, Grid, Button } from "@radix-ui/themes";
+import { Text, Flex, Grid, Button, Badge } from "@radix-ui/themes";
 import Link from "next/link";
 import { Collaborator } from "@/types/collaborator";
 import React from "react";
@@ -14,15 +14,15 @@ export const CollaboratorCard = React.memo(function CollaboratorCard({ collabora
   const isVerified = (collaborator.estrellas || 0) > 4.5;
 
   return (
-    <Link href={`/perfil-info/${collaborator.uid}`} className="block w-full h-full">
-      <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl bg-black cursor-pointer">
+    <Link href={`/perfil-info/${collaborator.uid}`} className="block w-full h-[70vh] group">
+      <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl bg-black cursor-pointer transition-transform duration-300 group-hover:scale-105">
         {/* Background Image */}
         <Image
           src={collaborator.foto || "https://picsum.photos/seed/1/600/900"}
-          alt={collaborator.nombre || 'Imagen de perfil del colaborador'}
+          alt={collaborator.nombre || 'Imagen de perfil'}
           layout="fill"
           objectFit="cover"
-          className="z-0"
+          className="z-0 transition-transform duration-300 group-hover:scale-110"
           data-ai-hint="woman portrait"
         />
 
@@ -40,9 +40,13 @@ export const CollaboratorCard = React.memo(function CollaboratorCard({ collabora
             )}
           </div>
         
-          <p className="text-white/90 text-md mt-3 mb-5 italic">
+          <p className="text-white/90 text-md mt-3 mb-5 italic line-clamp-2">
             {collaborator.descripcion ? `"${collaborator.descripcion}"` : ""}
           </p>
+
+           <Flex wrap="wrap" gap="2" mb="4">
+              {collaborator.categorias?.map(cat => <Badge key={cat} variant="soft">{cat}</Badge>)}
+            </Flex>
 
           <div className="border-t border-white/20 pt-4">
               <Grid columns="2" gapX="6" gapY="3">

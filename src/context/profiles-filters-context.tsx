@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useState, useRef, RefObject } from "react";
+import { createContext, useContext, useState } from "react";
 import { LocationData } from "@/types/location-data";
 
 type FiltersContextType = {
@@ -11,7 +11,6 @@ type FiltersContextType = {
   setLocationData: (v: LocationData) => void;
   setSelectedStar: (v: number) => void;
   toggleCategory: (c: string) => void;
-  scrollContainerRef: RefObject<HTMLDivElement>;
 };
 
 const FiltersContext = createContext<FiltersContextType | null>(null);
@@ -25,7 +24,6 @@ export function ProfilesFiltersProvider({
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedStar, setSelectedStar] = useState(0);
   const [locationData, setLocationData] = useState<LocationData>({});
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const toggleCategory = (category: string) => {
     setSelectedCategories((prev) =>
@@ -46,7 +44,6 @@ export function ProfilesFiltersProvider({
         setLocationData,
         setSelectedStar,
         toggleCategory,
-        scrollContainerRef,
       }}
     >
       {children}
