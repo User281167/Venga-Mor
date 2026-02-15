@@ -4,7 +4,6 @@ import { ApiResponse } from "@/lib/api-response";
 import { AppUser } from "@/types/user";
 import { UpdateUserInfoSchema } from "@/dtos/user.dto";
 import { cookies } from "next/headers";
-import { supabaseAdmin } from "@/lib/supabase";
 import { getZodErrors } from "../utils";
 import { UserCookieService } from "../services/user-cookie.service";
 
@@ -52,23 +51,31 @@ export async function POST(req: Request) {
     }
 
     // Crear documento de usuario
-    const userDoc = {
+    const userDocForDb = {
       uid: uid,
       email: email.trim(),
       nombre: nombre.trim(),
-      apellido: apellido?.trim(),
+      apellido: apellido?.trim() ?? "",
       foto: user.foto ?? null,
       tipo: "cliente" as const,
-      creado: user.creado ?? new Date(),
+      creado: user.creado ? new Date(user.creado) : new Date(),
       descripcion: "",
-    } as AppUser;
+      verificado: false,
+    };
 
+    await adminDb.collection("usuarios").doc(uid).set(userDocForDb);
+
+    const createdUser: AppUser = {
+      ...userDocForDb,
+      uid: uid,
+      creado: userDocForDb.creado.getTime(),
+    };
+    
     // guardar en cookies
-    await UserCookieService.setName(user.nombre + " " + user.apellido);
-    await adminDb.collection("usuarios").doc(uid).set(userDoc);
+    await UserCookieService.setName(createdUser.nombre + " " + (createdUser.apellido || ''));
 
     return Response.json(
-      ApiResponse.success(userDoc, "Usuario registrado correctamente"),
+      ApiResponse.success(createdUser, "Usuario registrado correctamente"),
     );
   } catch (error) {
     console.error(error);
@@ -146,23 +153,24 @@ export async function PUT(req: Request) {
       );
     }
 
-    const updatedUserData = updatedUserDoc.data();
+    const updatedUserData = updatedUserDoc.data()!;
 
     // Construir el objeto AppUser con los datos actualizados
     const updatedUser: AppUser = {
       uid: uid,
-      email: updatedUserData?.email || decoded.email || "",
-      nombre: updatedUserData?.nombre || "",
-      apellido: updatedUserData?.apellido || "",
-      foto: updatedUserData?.foto || null,
-      tipo: decoded.tipo || "cliente",
-      creado: updatedUserData?.creado || Date.now(),
-      descripcion: updatedUserData?.descripcion || null,
+      email: updatedUserData.email || decoded.email || "",
+      nombre: updatedUserData.nombre || "",
+      apellido: updatedUserData.apellido || "",
+      foto: updatedUserData.foto || null,
+      tipo: updatedUserData.tipo || "cliente",
+      creado: updatedUserData.creado?.toMillis ? updatedUserData.creado.toMillis() : (updatedUserData.creado as number),
+      descripcion: updatedUserData.descripcion || null,
+      verificado: updatedUserData.verificado || false,
     };
 
     // cookie
     await UserCookieService.setName(
-      updatedUser.nombre + " " + updatedUser.apellido,
+      updatedUser.nombre + " " + (updatedUser.apellido || ""),
     );
 
     return new Response(
@@ -197,8 +205,6 @@ export async function GET() {
     // Obtenemos el documento de Firestore del usuario
     const userDoc = await adminDb.collection("usuarios").doc(uid).get();
 
-    const user: AppUser = userDoc.data() as AppUser;
-
     if (!userDoc.exists) {
       return new Response(
         ApiResponse.failure("Usuario no encontrado").toJSON(),
@@ -206,22 +212,21 @@ export async function GET() {
       );
     }
 
-    // buscar en supabase
-    if (user.foto === "bucket") {
-      const { data: signedUrl } = await supabaseAdmin.storage
-        .from("perfiles")
-        .createSignedUrl(uid, 60);
-
-      if (signedUrl) {
-        user.foto = signedUrl.signedUrl;
-      } else {
-        user.foto =
-          "https://pixabay.com/images/download/false-2061132_1920.png";
-      }
-    }
+    const userData = userDoc.data()!;
+    const user: AppUser = {
+      uid: uid,
+      email: userData.email,
+      nombre: userData.nombre,
+      apellido: userData.apellido,
+      foto: userData.foto,
+      tipo: userData.tipo,
+      descripcion: userData.descripcion,
+      verificado: userData.verificado,
+      creado: userData.creado?.toMillis ? userData.creado.toMillis() : (userData.creado as number),
+    };
 
     // guardar en cookies
-    await UserCookieService.setName(user.nombre + " " + user.apellido);
+    await UserCookieService.setName(user.nombre + " " + (user.apellido || ""));
 
     return new Response(ApiResponse.success(user, "Usuario obtenido").toJSON(), {
       status: 200,
