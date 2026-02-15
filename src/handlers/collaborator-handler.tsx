@@ -10,6 +10,7 @@ async function requestCollaborator(
       method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ data }),
+      credentials: "include", // Incluir credenciales (cookies)
     });
 
     const json = await res.json();
@@ -33,6 +34,7 @@ export async function getCollaborator(): Promise<
   try {
     const res = await fetch("/api/colaborador", {
       method: "GET",
+      credentials: "include", // Incluir credenciales (cookies)
     });
 
     const resData = await res.json();

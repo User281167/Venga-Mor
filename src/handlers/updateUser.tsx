@@ -12,6 +12,7 @@ export async function updateUser(
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
+      credentials: "include", // Incluir credenciales (cookies)
     });
 
     return (await res.json()) as ApiResponse<AppUser>;
@@ -28,6 +29,7 @@ export async function updateImage(file: File): Promise<ApiResponse<string>> {
     const res = await fetch("/api/usuarios/imagen", {
       method: "POST",
       body: formData,
+      credentials: "include", // Incluir credenciales (cookies)
     });
 
     return (await res.json()) as ApiResponse<string>;
