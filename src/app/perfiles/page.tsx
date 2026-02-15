@@ -1,4 +1,3 @@
-
 "use client";
 import {
   ChevronDown,
@@ -43,6 +42,40 @@ import { useTheme } from "@/context/theme-context";
 import { useEffect, useRef } from "react";
 import { CollaboratorCard } from "./profile-card";
 import { Loader2 } from "lucide-react";
+import { motion, useInView } from "framer-motion"; // <-- Import framer-motion
+
+// Create a new component to handle the animation and layout of each profile block
+function ProfileBlock({
+  collaborator,
+  index,
+}: {
+  collaborator: any;
+  index: number;
+}) {
+  const ref = useRef(null);
+  // Trigger animation when the block is 50% in view.
+  // `once: false` ensures the animation can run every time it enters/leaves view.
+  const isInView = useInView(ref, { amount: 0.5, once: false });
+
+  return (
+    <div
+      ref={ref}
+      key={`${collaborator.uid}-${index}`}
+      // This container defines the snap area and adds padding for separation
+      className="relative h-full w-full flex-shrink-0 scroll-snap-start flex items-center justify-center p-4"
+    >
+      <motion.div
+        className="w-full h-full"
+        // Animate the scale based on visibility
+        initial={{ scale: 0.95 }}
+        animate={{ scale: isInView ? 1 : 0.95 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+      >
+        <CollaboratorCard collaborator={collaborator} />
+      </motion.div>
+    </div>
+  );
+}
 
 function ProfilesPageContent() {
   const {
@@ -368,47 +401,47 @@ function ProfilesPageContent() {
 
       <Section
         id="profiles-container"
-        className="relative h-screen w-full overflow-y-auto scroll-snap-y-mandatory bg-black/30"
+        className="relative h-screen w-full overflow-y-auto scroll-snap-y-mandatory"
         style={{
-          height: "calc(100vh - 64px)",
-          marginTop: "64px",
-          paddingBottom: "64px",
+          height: "calc(100vh - 0px)", // Adjusted to take full viewport height
+          paddingTop: "64px", // Add padding to avoid content being under the header
+          paddingBottom: "64px", // Add padding to avoid content being under the footer
+          backgroundColor: "transparent", // Make section background transparent
         }}
       >
-        <div className="relative z-10 flex flex-col h-full w-full max-w-md mx-auto">
+        <div className="relative z-10 h-full w-full max-w-md mx-auto">
           {profiles.map((profile, index) => (
-            <div
+            <ProfileBlock
+              collaborator={profile}
+              index={index}
               key={`${profile.uid}-${index}`}
-              className="relative h-full w-full flex-shrink-0 scroll-snap-start flex items-center justify-center"
-            >
-              <CollaboratorCard collaborator={profile} />
-            </div>
+            />
           ))}
-
-          {(isLoading || isFetchingNextPage) && (
-            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-center justify-center text-white bg-black/50 rounded-full p-2 z-30">
-              <Loader2 className="animate-spin mr-2" />
-              <Text>Cargando perfiles...</Text>
-            </div>
-          )}
-
-          {!hasNextPage && profiles.length > 0 && (
-            <div className="relative h-full w-full flex-shrink-0 scroll-snap-start flex items-center justify-center text-white">
-              <Text>Fin de los perfiles.</Text>
-            </div>
-          )}
-
-          {profiles.length === 0 && !isLoading && (
-            <div className="relative h-full w-full flex-shrink-0 scroll-snap-start flex items-center justify-center text-white text-center p-4">
-              <div>
-                <Heading>No hay perfiles.</Heading>
-                <Text as="p" color="gray">
-                  No se encontraron perfiles con esos criterios.
-                </Text>
-              </div>
-            </div>
-          )}
         </div>
+
+        {(isLoading || isFetchingNextPage) && (
+          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-center justify-center text-white bg-black/50 rounded-full p-2 z-30">
+            <Loader2 className="animate-spin mr-2" />
+            <Text>Cargando perfiles...</Text>
+          </div>
+        )}
+
+        {!hasNextPage && profiles.length > 0 && (
+          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-center justify-center text-white bg-black/50 rounded-full p-2 z-30">
+            <Text>Fin de los perfiles.</Text>
+          </div>
+        )}
+
+        {profiles.length === 0 && !isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center text-white text-center p-4">
+            <div>
+              <Heading>No hay perfiles.</Heading>
+              <Text as="p" color="gray">
+                No se encontraron perfiles con esos criterios.
+              </Text>
+            </div>
+          </div>
+        )}
       </Section>
     </>
   );
