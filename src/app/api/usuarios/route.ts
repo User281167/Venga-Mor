@@ -2,7 +2,7 @@ import { registerFormSchemaWithoutPassword } from "@/app/registrarse/schema";
 import { adminAuth, adminDb } from "@/lib/firebase-admin-connection";
 import { ApiResponse } from "@/lib/api-response";
 import { AppUser } from "@/types/user";
-import { UpdateUserInfoSchema, UserDto } from "@/dtos/user.dto";
+import { UpdateUserInfoSchema } from "@/dtos/user.dto";
 import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase";
 import { getZodErrors } from "../utils";
@@ -197,7 +197,7 @@ export async function GET() {
     // Obtenemos el documento de Firestore del usuario
     const userDoc = await adminDb.collection("usuarios").doc(uid).get();
 
-    const user: UserDto = userDoc.data() as UserDto;
+    const user: AppUser = userDoc.data() as AppUser;
 
     if (!userDoc.exists) {
       return new Response(
@@ -223,10 +223,9 @@ export async function GET() {
     // guardar en cookies
     await UserCookieService.setName(user.nombre + " " + user.apellido);
 
-    return new Response(
-      ApiResponse.success(user, "Usuario obtenido").toJSON(),
-      { status: 200 },
-    );
+    return new Response(ApiResponse.success(user, "Usuario obtenido").toJSON(), {
+      status: 200,
+    });
   } catch (error: any) {
     return new Response(
       ApiResponse.failure(error.message || "Error inesperado").toJSON(),

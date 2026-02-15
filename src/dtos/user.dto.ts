@@ -8,11 +8,3 @@ export const UpdateUserInfoSchema = z.object({
 });
 
 export type UpdateUserInfo = z.infer<typeof UpdateUserInfoSchema>;
-
-export type UserDto = {
-  uid: string;
-  nombre: string;
-  apellido?: string;
-  foto?: string;
-  descripcion?: string;
-};

@@ -12,6 +12,7 @@ import {
 } from "@radix-ui/themes";
 import { CheckCircle2, ShieldCheck } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 import FormUserInfo from "./user-form";
 import CollaboratorForm from "./collaborator/collaborator-form";
@@ -23,6 +24,13 @@ import SectionImg from "@/components/section-img";
 export default function PerfilPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "profile-bg");
   const { user, loading, logout } = useUser();
+  const [registeredDate, setRegisteredDate] = useState("");
+
+  useEffect(() => {
+    if (user?.creado) {
+      setRegisteredDate(new Date(user.creado).toLocaleDateString());
+    }
+  }, [user?.creado]);
 
   return (
     <SectionImg imageUrl={bgImage?.imageUrl} imageHint={bgImage?.description}>
@@ -60,8 +68,7 @@ export default function PerfilPage() {
 
           <Skeleton loading={loading} width="260px" height="1.25rem">
             <Text as="p" className="text-muted-foreground">
-              Registrado el{" "}
-              {new Date(user?.creado ?? new Date()).toLocaleDateString()}
+              Registrado el {registeredDate}
             </Text>
           </Skeleton>
 
