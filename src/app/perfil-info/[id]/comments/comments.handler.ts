@@ -13,7 +13,7 @@ async function fetchApi<T>(
       "Content-Type": "application/json",
       ...options.headers,
     },
-    credentials: "same-origin",
+    credentials: "include",
   });
 
   const json = (await response.json()) as ApiResponse<T>;

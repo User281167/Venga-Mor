@@ -40,7 +40,7 @@ export function useSendRaiting() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ valor: value }),
-        credentials: "same-origin",
+        credentials: "include",
       });
 
       const json = (await response.json()) as ApiResponse<Raiting>;
@@ -103,7 +103,7 @@ export function useDeleteRaiting() {
 
       const response = await fetch(`/api/me/raiting/${collaboratorId}`, {
         method: "DELETE",
-        credentials: "same-origin",
+        credentials: "include",
       });
 
       if (!response.ok) {
