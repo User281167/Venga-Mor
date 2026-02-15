@@ -2,6 +2,7 @@ import { realtimeDb } from "@/lib/firebase";
 
 import {
   Chat,
+  ChatDB,
   ChatInfo,
   LastMessageDB,
   Message,
@@ -27,7 +28,6 @@ import {
 } from "firebase/database";
 import { StorageService, UploadResult } from "./storage";
 import { BusinessError } from "@/errors/errors";
-import { api } from "@/lib/apiHelper";
 
 interface UserInfo {
   displayName: string;
@@ -47,15 +47,25 @@ export class ChatService {
     user2Id: string,
     user2Info: UserInfo,
   ): Promise<string> {
-    const res = await api.post<string>(
-      `/api/chat/create/?receiverId=${user2Id}`,
-    );
+    const chatId = this.getChatId(user1Id, user2Id);
+    const chatRef = ref(realtimeDb, `chats/${chatId}`);
 
-    if (!res.success || !res.data) {
-      throw new BusinessError("Error creando el chat");
-    }
+    const newChat: ChatDB = {
+      createdAt: serverTimestamp(),
+      participants: {
+        [user1Id]: user1Info,
+        [user2Id]: user2Info,
+      },
+      lastMessage: null,
+    };
 
-    return res.data;
+    await set(chatRef, newChat);
+
+    // Add chat to each user's list
+    await update(ref(realtimeDb, `users/${user1Id}/chats`), { [chatId]: true });
+    await update(ref(realtimeDb, `users/${user2Id}/chats`), { [chatId]: true });
+
+    return chatId;
   }
 
   // ENVIAR MENSAJE (asegurando que el chat existe)
@@ -216,7 +226,7 @@ export class ChatService {
     const snapshot = await get(chatRef);
 
     if (!snapshot.exists()) {
-      await this.createNewChat(user1Id, user1Info, user2Id, user2Info);
+      return this.createNewChat(user1Id, user1Info, user2Id, user2Info);
     }
 
     return chatId;

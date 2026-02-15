@@ -19,7 +19,7 @@ export const CollaboratorCard = React.memo(function CollaboratorCard({ collabora
         {/* Background Image */}
         <Image
           src={collaborator.foto || "https://picsum.photos/seed/1/600/900"}
-          alt={collaborator.nombre}
+          alt={collaborator.nombre || 'Imagen de perfil del colaborador'}
           layout="fill"
           objectFit="cover"
           className="z-0"
