@@ -1,35 +1,71 @@
-import { Star, MapPin } from "lucide-react";
+import { Star, MapPin, Heart, MessageCircle, Share2 } from "lucide-react";
 import { Text, Flex, Grid, Button, Badge } from "@radix-ui/themes";
 import Link from "next/link";
 import { Collaborator } from "@/types/collaborator";
 import React from "react";
-import Image from 'next/image';
+import Image from "next/image";
 
 interface CollaboratorCardProps {
   collaborator: Collaborator;
 }
 
-export const CollaboratorCard = React.memo(function CollaboratorCard({ collaborator }: CollaboratorCardProps) {
-  const locationLabel = [collaborator.direccion?.ciudad_localidad, collaborator.direccion?.pais].filter(Boolean).join(", ") || "Ubicación no disponible";
+export const CollaboratorCard = React.memo(function CollaboratorCard({
+  collaborator,
+}: CollaboratorCardProps) {
+  const locationLabel =
+    [collaborator.direccion?.ciudad_localidad, collaborator.direccion?.pais]
+      .filter(Boolean)
+      .join(", ") || "Ubicación no disponible";
   const isVerified = (collaborator.estrellas || 0) > 4.5;
 
   return (
-    <Link href={`/perfil-info/${collaborator.uid}`} className="block w-full h-[70vh] group">
-      <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl bg-black cursor-pointer transition-transform duration-300 group-hover:scale-105">
+    <div className="relative w-full h-full group">
+      <Link
+        href={`/perfil-info/${collaborator.uid}`}
+        className="absolute inset-0 z-20"
+        aria-label={`Ver perfil de ${collaborator.nombre}`}
+      />
+      <div className="relative w-full h-full overflow-hidden bg-black">
         {/* Background Image */}
         <Image
           src={collaborator.foto || "https://picsum.photos/seed/1/600/900"}
-          alt={collaborator.nombre || 'Imagen de perfil'}
+          alt={collaborator.nombre || "Imagen de perfil"}
           layout="fill"
           objectFit="cover"
-          className="z-0 transition-transform duration-300 group-hover:scale-110"
+          className="z-0 transition-transform duration-500 group-hover:scale-110"
           data-ai-hint="woman portrait"
         />
 
         {/* Overlay Gradient */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10"></div>
 
-        {/* Content */}
+        {/* Action Buttons (Right) */}
+        <Flex
+          direction="column"
+          gap="4"
+          align="center"
+          className="absolute bottom-24 right-4 text-white z-30"
+        >
+          <Button
+            variant="ghost"
+            className="text-white p-0 h-auto flex flex-col items-center"
+          >
+            <Heart size={32} />
+            <Text size="1">1.2k</Text>
+          </Button>
+          <Button
+            variant="ghost"
+            className="text-white p-0 h-auto flex flex-col items-center"
+          >
+            <MessageCircle size={32} />
+            <Text size="1">345</Text>
+          </Button>
+          <Button variant="ghost" className="text-white p-0 h-auto">
+            <Share2 size={32} />
+          </Button>
+        </Flex>
+
+        {/* Content (Bottom) */}
         <div className="absolute bottom-0 left-0 right-0 p-6 text-white z-20">
           <div>
             <h3 className="text-4xl font-bold font-headline text-white">
@@ -39,43 +75,63 @@ export const CollaboratorCard = React.memo(function CollaboratorCard({ collabora
               <div className="w-24 h-1 bg-cyan-400 mt-1 rounded-full"></div>
             )}
           </div>
-        
+
           <p className="text-white/90 text-md mt-3 mb-5 italic line-clamp-2">
             {collaborator.descripcion ? `"${collaborator.descripcion}"` : ""}
           </p>
 
-           <Flex wrap="wrap" gap="2" mb="4">
-              {collaborator.categorias?.map(cat => <Badge key={cat} variant="soft">{cat}</Badge>)}
-            </Flex>
+          <Flex wrap="wrap" gap="2" mb="4">
+            {collaborator.categorias?.map((cat) => (
+              <Badge key={cat} variant="soft">
+                {cat}
+              </Badge>
+            ))}
+          </Flex>
 
           <div className="border-t border-white/20 pt-4">
-              <Grid columns="2" gapX="6" gapY="3">
-                  <Flex direction="column">
-                      <Text size="2" className="text-white/70">Edad</Text>
-                      <Text size="4" weight="bold">{collaborator.edad}</Text>
-                  </Flex>
-                  <Flex direction="column">
-                      <Text size="2" className="text-white/70">Profesión</Text>
-                      <Text size="4" weight="bold">{collaborator.profesion}</Text>
-                  </Flex>
-                  <Flex direction="column">
-                      <Text size="2" className="text-white/70">Calificación</Text>
-                      <Flex align="center" gap="1">
-                          <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
-                          <Text size="4" weight="bold">{collaborator.estrellas?.toFixed(1) ?? "N/A"}</Text>
-                      </Flex>
-                  </Flex>
-                  <Flex direction="column">
-                      <Text size="2" className="text-white/70">Ubicación</Text>
-                      <Flex align="center" gap="1">
-                          <MapPin className="h-5 w-5 text-white/80" />
-                          <Text size="3" className="truncate">{locationLabel}</Text>
-                      </Flex>
-                  </Flex>
-              </Grid>
+            <Grid columns="2" gapX="6" gapY="3">
+              <Flex direction="column">
+                <Text size="2" className="text-white/70">
+                  Edad
+                </Text>
+                <Text size="4" weight="bold">
+                  {collaborator.edad}
+                </Text>
+              </Flex>
+              <Flex direction="column">
+                <Text size="2" className="text-white/70">
+                  Profesión
+                </Text>
+                <Text size="4" weight="bold">
+                  {collaborator.profesion}
+                </Text>
+              </Flex>
+              <Flex direction="column">
+                <Text size="2" className="text-white/70">
+                  Calificación
+                </Text>
+                <Flex align="center" gap="1">
+                  <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
+                  <Text size="4" weight="bold">
+                    {collaborator.estrellas?.toFixed(1) ?? "N/A"}
+                  </Text>
+                </Flex>
+              </Flex>
+              <Flex direction="column">
+                <Text size="2" className="text-white/70">
+                  Ubicación
+                </Text>
+                <Flex align="center" gap="1">
+                  <MapPin className="h-5 w-5 text-white/80" />
+                  <Text size="3" className="truncate">
+                    {locationLabel}
+                  </Text>
+                </Flex>
+              </Flex>
+            </Grid>
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 });
