@@ -46,7 +46,7 @@ export default function VerificationPayPalButton({ userId }: Props) {
     return (
         <PayPalScriptProvider
             options={{
-                clientId: ENV.PAYPAL_CLIENT_ID,
+                clientId: "test",
                 intent: "capture",
                 currency: "USD"
             }}

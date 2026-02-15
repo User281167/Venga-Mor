@@ -12,7 +12,7 @@ export default function PayPalPayment({
     <div className={className}>
       <PayPalScriptProvider
         options={{
-          clientId: ENV.PAYPAL_CLIENT_ID,
+          clientId: "test",
           vault: true,
           intent: "subscription",
         }}
