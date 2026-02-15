@@ -1,22 +1,16 @@
 import { ApiResponse } from "@/lib/api-response";
 import { CollaboratorInfo } from "@/schema/collaborator";
+import { api } from "@/lib/apiHelper";
 
 async function requestCollaborator(
   method: "POST" | "PUT",
   data: CollaboratorInfo,
 ): Promise<ApiResponse<CollaboratorInfo>> {
-  try {
-    const res = await fetch("/api/colaborador", {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ data }),
-      credentials: "include", // Incluir credenciales (cookies)
-    });
-
-    const json = await res.json();
-    return json as ApiResponse<CollaboratorInfo>;
-  } catch {
-    return ApiResponse.failure("Error inesperado al procesar el colaborador.");
+  const body = { data };
+  if (method === "POST") {
+    return api.post<CollaboratorInfo>("/api/colaborador", body);
+  } else {
+    return api.put<CollaboratorInfo>("/api/colaborador", body);
   }
 }
 
@@ -31,15 +25,5 @@ export function updateCollaborator(data: CollaboratorInfo) {
 export async function getCollaborator(): Promise<
   ApiResponse<CollaboratorInfo>
 > {
-  try {
-    const res = await fetch("/api/colaborador", {
-      method: "GET",
-      credentials: "include", // Incluir credenciales (cookies)
-    });
-
-    const resData = await res.json();
-    return resData as ApiResponse<CollaboratorInfo>;
-  } catch (error) {
-    return ApiResponse.failure("Error inesperado al obtener el colaborador.");
-  }
+  return api.get<CollaboratorInfo>("/api/colaborador");
 }
