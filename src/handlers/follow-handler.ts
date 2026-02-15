@@ -1,7 +1,29 @@
 import { FollowerModel, FollowingModel } from "@/app/models/follow.model";
 import { PaginationDto } from "@/dtos/pagination.dto";
+import { BusinessError } from "@/errors/errors";
 import { ApiResponse } from "@/lib/api-response";
-import { api } from "@/lib/apiHelper";
+
+// --- Local fetchApi con credenciales ---
+async function fetchApi<T>(
+  url: string,
+  options: RequestInit = {},
+): Promise<ApiResponse<T>> {
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+    credentials: "include", // Siempre incluir credenciales
+  });
+
+  const json = (await response.json()) as ApiResponse<T>;
+  if (!response.ok || !json.success) {
+    throw new BusinessError(json.message || "Ocurrió un error en la petición.");
+  }
+  return json;
+}
+// --- Fin de local fetchApi ---
 
 // Verificar si sigo a un colaborador
 export async function getMyFollowStatus(
@@ -11,7 +33,9 @@ export async function getMyFollowStatus(
     return ApiResponse.failure("ID de colaborador requerido");
   }
 
-  return api.get<FollowingModel>(`/api/me/following/${colaboradorId}`);
+  return fetchApi<FollowingModel>(`/api/me/following/${colaboradorId}`, {
+    method: "GET",
+  });
 }
 
 // Seguir a un colaborador
@@ -22,7 +46,9 @@ export async function followCollaborator(
     return ApiResponse.failure("ID de colaborador requerido");
   }
 
-  return api.post<null>(`/api/colaboradores/${colaboradorId}/follow/me`);
+  return fetchApi<null>(`/api/colaboradores/${colaboradorId}/follow/me`, {
+    method: "POST",
+  });
 }
 
 // Dejar de seguir a un colaborador
@@ -33,7 +59,9 @@ export async function unfollowCollaborator(
     return ApiResponse.failure("ID de colaborador requerido");
   }
 
-  return api.del(`/api/colaboradores/${colaboradorId}/follow/me`);
+  return fetchApi(`/api/colaboradores/${colaboradorId}/follow/me`, {
+    method: "DELETE",
+  });
 }
 
 // Obtener mis seguidos (con paginación)
@@ -46,7 +74,9 @@ export async function getMyFollowing(
     url.searchParams.set("lastId", lastId);
   }
 
-  return api.get<PaginationDto<FollowingModel>>(url.toString());
+  return fetchApi<PaginationDto<FollowingModel>>(url.toString(), {
+    method: "GET",
+  });
 }
 
 // Obtener seguidores de un colaborador (con paginación)
@@ -67,5 +97,7 @@ export async function getCollaboratorFollowers(
     url.searchParams.set("lastId", lastId);
   }
 
-  return api.get<PaginationDto<FollowerModel>>(url.toString());
+  return fetchApi<PaginationDto<FollowerModel>>(url.toString(), {
+    method: "GET",
+  });
 }
