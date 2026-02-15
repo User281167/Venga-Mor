@@ -9,14 +9,14 @@ export async function getProfiles(
   location: LocationData,
   lastId: string | null,
 ): Promise<ApiResponse<CollaboratorResDto>> {
-  const pais = location.pais || "";
-  const estado = location.estado_region || "";
-  const ciudad = location.ciudad_localidad || "";
-
   try {
-    const response = await fetch(
-      `/api/colaboradores/?minAge=${minAge}&maxAge=${maxAge}&categories=${categories.join(",")}&location=${pais},${estado},${ciudad}${lastId ? `&lastId=${lastId}` : ""}`,
-    );
+    // Simplify the URL to only include pagination, ensuring profiles are loaded.
+    let url = "/api/colaboradores";
+    if (lastId) {
+      url += `?lastId=${lastId}`;
+    }
+
+    const response = await fetch(url);
     const data = await response.json();
     return data as ApiResponse<CollaboratorResDto>;
   } catch (error) {

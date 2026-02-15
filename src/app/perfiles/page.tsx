@@ -69,58 +69,53 @@ function ProfilesPageContent() {
   const { exploreBackground } = useTheme();
   const profiles = data?.pages.flatMap((page) => page?.data || []) ?? [];
 
-  const playCountRef = useRef(
-    typeof window !== "undefined"
-      ? parseInt(sessionStorage.getItem("audioPlayCount") || "0")
-      : 0,
-  );
-
   useEffect(() => {
     if (typeof window === "undefined") return;
+
+    const playCount = parseInt(sessionStorage.getItem("audioPlayCount") || "0");
+
+    if (playCount >= 3) return;
 
     const audio = new Audio(
       "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/WhatsApp%20Audio%202026-02-12%20at%2012.16.10%20AM.mp3?alt=media&token=53ba1088-1204-4cfb-8248-990223950a90",
     );
     audio.preload = "auto";
 
-    const playAudioLimited = () => {
-      if (playCountRef.current < 3) {
-        audio.play().catch((error) => {
-          // Fail silently
-        });
-        playCountRef.current++;
-        sessionStorage.setItem(
-          "audioPlayCount",
-          playCountRef.current.toString(),
-        );
-      }
+    const playAudioOnce = () => {
+      audio.play().catch((error) => {
+        // Autoplay was prevented.
+        console.log("Audio playback failed:", error);
+      });
+      sessionStorage.setItem("audioPlayCount", (playCount + 1).toString());
     };
 
-    const container = document.getElementById("profiles-page-container");
-    if (container && playCountRef.current < 3) {
-      const handler = () => {
-        playAudioLimited();
-        container.removeEventListener("click", handler);
-        container.removeEventListener("keydown", handler);
-      };
-      container.addEventListener("click", handler);
-      container.addEventListener("keydown", handler);
-    }
+    // Use a more reliable event listener, that fires only once.
+    document.body.addEventListener("click", playAudioOnce, { once: true });
+    document.body.addEventListener("keydown", playAudioOnce, { once: true });
+
+    return () => {
+      document.body.removeEventListener("click", playAudioOnce);
+      document.body.removeEventListener("keydown", playAudioOnce);
+    };
   }, []);
-  
+
   // Infinite scroll listener
   useEffect(() => {
     const handleScroll = () => {
-      if (window.innerHeight + document.documentElement.scrollTop < document.documentElement.offsetHeight - 500 || !hasNextPage || isFetchingNextPage) {
+      if (
+        window.innerHeight + document.documentElement.scrollTop <
+          document.documentElement.offsetHeight - 500 ||
+        !hasNextPage ||
+        isFetchingNextPage
+      ) {
         return;
       }
       fetchNextPage();
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
-
 
   if (isError) {
     toast.error(error.message);
@@ -372,37 +367,44 @@ function ProfilesPageContent() {
           </Flex>
         </header>
 
-        <Grid columns={{ initial: "1", sm: "2", lg: "3" }} gap="6" width="auto" className="pt-24 pb-12">
-            {isLoading && !profiles.length ? (
-                Array.from({ length: 6 }).map((_, index) => (
-                    <ProfileCardSkeleton key={index} />
+        <Grid
+          columns={{ initial: "1", sm: "2", lg: "3" }}
+          gap="6"
+          width="auto"
+          className="pt-24 pb-12"
+        >
+          {isLoading && !profiles.length
+            ? Array.from({ length: 6 }).map((_, index) => (
+                <ProfileCardSkeleton key={index} />
+              ))
+            : profiles.length > 0
+              ? profiles.map((profile, index) => (
+                  <CollaboratorCard
+                    key={`${profile.uid}-${index}`}
+                    collaborator={profile}
+                  />
                 ))
-            ) : profiles.length > 0 ? (
-                profiles.map((profile, index) => (
-                    <CollaboratorCard key={`${profile.uid}-${index}`} collaborator={profile} />
-                ))
-            ) : (
-                 <Card className="bg-card/80 col-span-full">
+              : !isLoading && (
+                  <Card className="bg-card/80 col-span-full">
                     <Text color="gray">
-                    No se encontraron perfiles con esos criterios. Prueba con
-                    otros filtros.
+                      No se encontraron perfiles con esos criterios. Prueba con
+                      otros filtros.
                     </Text>
-              </Card>
-            )}
+                  </Card>
+                )}
         </Grid>
-        
+
         {isFetchingNextPage && (
-            <Flex justify="center" p="4">
-                <Text color="gray">Cargando más perfiles...</Text>
-            </Flex>
+          <Flex justify="center" p="4">
+            <Text color="gray">Cargando más perfiles...</Text>
+          </Flex>
         )}
 
         {!hasNextPage && profiles.length > 0 && (
-             <Flex justify="center" p="4">
-                <Text color="gray">Has llegado al final.</Text>
-            </Flex>
+          <Flex justify="center" p="4">
+            <Text color="gray">Has llegado al final.</Text>
+          </Flex>
         )}
-
       </SectionImg>
     </>
   );
