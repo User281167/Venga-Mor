@@ -14,6 +14,7 @@ export async function apiFetch<T>(
         ...init.headers,
       },
       ...init,
+      credentials: "same-origin", // Asegura que las cookies se envíen
     });
   } catch {
     throw new NetworkError("Error de red, inténtalo de nuevo más tarde");

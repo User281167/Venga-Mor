@@ -15,6 +15,7 @@ export default async function getMyRaiting(
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "same-origin", // Asegura que las cookies se envíen
       cache: "no-store",
     });
 
