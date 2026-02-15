@@ -1,3 +1,4 @@
+
 "use client";
 import {
   ChevronDown,
@@ -32,7 +33,10 @@ import PayPalPayment from "@/components/pay-pal";
 import SectionImg from "@/components/section-img";
 
 import { categorias } from "@/types/categorias";
-import { ProfilesFiltersProvider, useProfilesFilters } from "@/context/profiles-filters-context";
+import {
+  ProfilesFiltersProvider,
+  useProfilesFilters,
+} from "@/context/profiles-filters-context";
 import { useProfilesList } from "@/context/use-profiles-data";
 import { toast } from "sonner";
 import ProfileCardSkeleton from "./profileCardSkeleton";
@@ -105,21 +109,24 @@ function ProfilesPageContent() {
     }
   }, []);
 
-
   useEffect(() => {
     const handleScroll = () => {
-        if (!scrollContainerRef.current) return;
-        const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
-        if (scrollTop + clientHeight >= scrollHeight - 10 && hasNextPage && !isFetchingNextPage) {
-            fetchNextPage();
-        }
+      if (!scrollContainerRef.current) return;
+      const { scrollTop, scrollHeight, clientHeight } =
+        scrollContainerRef.current;
+      if (
+        scrollTop + clientHeight >= scrollHeight - 10 &&
+        hasNextPage &&
+        !isFetchingNextPage
+      ) {
+        fetchNextPage();
+      }
     };
 
     const container = scrollContainerRef.current;
-    container?.addEventListener('scroll', handleScroll);
-    return () => container?.removeEventListener('scroll', handleScroll);
+    container?.addEventListener("scroll", handleScroll);
+    return () => container?.removeEventListener("scroll", handleScroll);
   }, [hasNextPage, isFetchingNextPage, fetchNextPage, scrollContainerRef]);
-
 
   if (isError) {
     toast.error(error.message);
@@ -390,9 +397,9 @@ function ProfilesPageContent() {
 
           {!isLoading &&
             profiles.length > 0 &&
-            profiles.map((profile) => (
+            profiles.map((profile, index) => (
               <div
-                key={profile.uid}
+                key={`${profile.uid}-${index}`}
                 className="scroll-snap-center w-full h-screen flex items-center justify-center p-4"
               >
                 <div className="w-full max-w-md h-[80vh]">
