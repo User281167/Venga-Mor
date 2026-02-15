@@ -91,7 +91,7 @@ export async function PUT(req: Request) {
 
     const decoded = await adminAuth.verifyIdToken(token);
     const uid = decoded.uid;
-    const esColab = decoded.tipo === "colaborador"; // Verificamos el Claim
+    const esColab = decoded.role === "admin"; // Verificamos el Claim
 
     const body = await req.json();
     const errors = getZodErrors(UpdateUserInfoSchema, body);

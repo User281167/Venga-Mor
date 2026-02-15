@@ -23,7 +23,7 @@ export async function isCollaborator(): Promise<boolean> {
   }
 
   const decoded = await adminAuth.verifyIdToken(token);
-  return decoded.tipo === "colaborador";
+  return decoded.role === "admin";
 }
 
 export async function isVerified(): Promise<boolean> {
