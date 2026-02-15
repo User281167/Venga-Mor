@@ -17,4 +17,5 @@ export interface Collaborator {
   categorias: string[];
   redes: string[];
   estrellas: number;
+  verificado?: boolean;
 }

@@ -8,6 +8,8 @@ import {
   User,
   HelpCircle,
   Diamond,
+  FilterIcon,
+  Trophy,
 } from "lucide-react";
 import {
   Button,
@@ -23,7 +25,6 @@ import {
   Text,
   TextField,
 } from "@radix-ui/themes";
-import { Label } from "radix-ui";
 import Link from "next/link";
 
 import { WhatsappIcon } from "@/components/icons";
@@ -31,15 +32,15 @@ import PayPalPayment from "@/components/pay-pal";
 import SectionImg from "@/components/section-img";
 
 import { categorias } from "@/types/categorias";
-
-import { CollaboratorCard } from "./profile-card";
-import { useProfilesFilters } from "@/context/profiles-filters-context";
+import { ProfilesFiltersProvider, useProfilesFilters } from "@/context/profiles-filters-context";
 import { useProfilesList } from "@/context/use-profiles-data";
 import { toast } from "sonner";
 import ProfileCardSkeleton from "./profileCardSkeleton";
 import { useTheme } from "@/context/theme-context";
+import { useEffect, useRef } from "react";
+import { CollaboratorCard } from "./profile-card";
 
-export default function ProfilesPage() {
+function ProfilesPageContent() {
   const {
     ageRange,
     setAgeRange,
@@ -49,6 +50,7 @@ export default function ProfilesPage() {
     locationData,
     setLocationData,
     toggleCategory,
+    scrollContainerRef,
   } = useProfilesFilters();
 
   const {
@@ -64,19 +66,219 @@ export default function ProfilesPage() {
   const { exploreBackground } = useTheme();
   const profiles = data?.pages.flatMap((page) => page?.data || []) ?? [];
 
+  const playCountRef = useRef(
+    typeof window !== "undefined"
+      ? parseInt(sessionStorage.getItem("audioPlayCount") || "0")
+      : 0,
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const audio = new Audio(
+      "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/WhatsApp%20Audio%202026-02-12%20at%2012.16.10%20AM.mp3?alt=media&token=53ba1088-1204-4cfb-8248-990223950a90",
+    );
+    audio.preload = "auto";
+
+    const playAudioLimited = () => {
+      if (playCountRef.current < 3) {
+        audio.play().catch((error) => {
+          // Fail silently
+        });
+        playCountRef.current++;
+        sessionStorage.setItem(
+          "audioPlayCount",
+          playCountRef.current.toString(),
+        );
+      }
+    };
+
+    const container = document.getElementById("profiles-page-container");
+    if (container && playCountRef.current < 3) {
+      const handler = () => {
+        playAudioLimited();
+        container.removeEventListener("click", handler);
+        container.removeEventListener("keydown", handler);
+      };
+      container.addEventListener("click", handler);
+      container.addEventListener("keydown", handler);
+    }
+  }, []);
+
+
+  useEffect(() => {
+    const handleScroll = () => {
+        if (!scrollContainerRef.current) return;
+        const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+        if (scrollTop + clientHeight >= scrollHeight - 10 && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+        }
+    };
+
+    const container = scrollContainerRef.current;
+    container?.addEventListener('scroll', handleScroll);
+    return () => container?.removeEventListener('scroll', handleScroll);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, scrollContainerRef]);
+
+
   if (isError) {
     toast.error(error.message);
   }
 
   return (
-    <SectionImg imageUrl={exploreBackground} imageHint="woman neon">
-      <Flex direction="column" gap="4" className="mx-auto w-11/12 max-w-3xl">
-        <header className="flex items-center justify-between">
-          <Heading className="text-4xl font-bold font-headline text-primary">
+    <>
+      <SectionImg
+        id="profiles-page-container"
+        imageUrl={exploreBackground}
+        imageHint="woman neon"
+      >
+        <header className="fixed top-0 left-0 right-0 z-20 p-4 flex items-center justify-between bg-gradient-to-b from-black/50 to-transparent">
+          <Heading className="text-2xl md:text-4xl font-bold font-headline text-primary">
             VENGA MOR
           </Heading>
 
-          <Flex gap="2">
+          <Flex gap="2" align="center">
+            <Dialog.Root>
+              <Dialog.Trigger>
+                <Button variant="soft">
+                  <FilterIcon className="h-4 w-4" /> Filtros
+                </Button>
+              </Dialog.Trigger>
+              <Dialog.Content style={{ maxWidth: 450 }}>
+                <Dialog.Title>Filtros</Dialog.Title>
+                <Dialog.Description size="2" mb="4">
+                  Encuentra tu perfil ideal.
+                </Dialog.Description>
+                <Flex direction="column" gap="4">
+                  <div>
+                    <Text
+                      as="label"
+                      htmlFor="age-range"
+                      className="text-lg font-semibold text-primary mb-3 block"
+                    >
+                      Rango de Edad:{" "}
+                      <span className="text-white">
+                        {ageRange[0]} - {ageRange[1]}
+                      </span>
+                    </Text>
+                    <Slider
+                      id="age-range"
+                      min={18}
+                      max={60}
+                      step={1}
+                      value={ageRange}
+                      onValueChange={(value) => setAgeRange(value)}
+                      className="[&>span:first-child]:h-2 [&>span>span]:bg-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <Text
+                      as="label"
+                      className="text-lg font-semibold text-primary mb-3 block"
+                    >
+                      Categorías
+                    </Text>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {categorias.map((category) => (
+                        <Flex asChild key={category} align="center" gap="2">
+                          <label>
+                            <Checkbox
+                              checked={selectedCategories.includes(category)}
+                              onCheckedChange={() => toggleCategory(category)}
+                            />
+                            <Text size="2" className="capitalize">
+                              {category}
+                            </Text>
+                          </label>
+                        </Flex>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Popover.Root>
+                    <Popover.Trigger>
+                      <Button
+                        variant="outline"
+                        className="bg-card border-primary text-white"
+                      >
+                        <MapPin className="mr-2 h-4 w-4" /> Ciudad
+                      </Button>
+                    </Popover.Trigger>
+                    <Popover.Content maxWidth="90%" width="360px">
+                      <Grid columns={{ sm: "1" }} gap="2">
+                        <Text as="label">País</Text>
+                        <TextField.Root
+                          type="text"
+                          value={locationData?.pais || ""}
+                          onChange={(e) =>
+                            setLocationData({
+                              ...locationData,
+                              pais: e.target.value,
+                            })
+                          }
+                        />
+                        <Text as="label">Estado / Región</Text>
+                        <TextField.Root
+                          type="text"
+                          value={locationData?.estado_region || ""}
+                          onChange={(e) =>
+                            setLocationData({
+                              ...locationData,
+                              estado_region: e.target.value,
+                            })
+                          }
+                        />
+                        <Text as="label">Ciudad / Localidad</Text>
+                        <TextField.Root
+                          type="text"
+                          value={locationData?.ciudad_localidad || ""}
+                          onChange={(e) =>
+                            setLocationData({
+                              ...locationData,
+                              ciudad_localidad: e.target.value,
+                            })
+                          }
+                        />
+                      </Grid>
+                    </Popover.Content>
+                  </Popover.Root>
+
+                  <DropdownMenu.Root>
+                    <DropdownMenu.Trigger>
+                      <Button
+                        variant="outline"
+                        className="bg-card border-primary text-white "
+                      >
+                        <Star className="mr-2 h-4 w-4" /> Calificación{" "}
+                        {selectedStar === 0 ? "" : selectedStar}
+                        <ChevronDown className="ml-2 h-4 w-4" />
+                      </Button>
+                    </DropdownMenu.Trigger>
+                    <DropdownMenu.Content className="bg-card border-primary text-white">
+                      {[0, 5, 4, 3, 2, 1].map((starValue) => (
+                        <DropdownMenu.Item
+                          key={starValue}
+                          onClick={() => setSelectedStar(starValue)}
+                        >
+                          {starValue === 0
+                            ? "Cualquiera"
+                            : `${starValue} Estrella(s)`}
+                        </DropdownMenu.Item>
+                      ))}
+                    </DropdownMenu.Content>
+                  </DropdownMenu.Root>
+                </Flex>
+                <Flex gap="3" mt="4" justify="end">
+                  <Dialog.Close>
+                    <Button variant="soft" color="gray">
+                      Cerrar
+                    </Button>
+                  </Dialog.Close>
+                </Flex>
+              </Dialog.Content>
+            </Dialog.Root>
+
             <Link href="/suscripcion">
               <Crown className="h-8 w-8 text-yellow-400" />
             </Link>
@@ -89,6 +291,11 @@ export default function ProfilesPage() {
               </DropdownMenu.Trigger>
 
               <DropdownMenu.Content>
+                <DropdownMenu.Item>
+                  <Link href="/ranking" className="flex items-center gap-2">
+                    <Trophy className="h-4 w-4" /> Top Global
+                  </Link>
+                </DropdownMenu.Item>
                 <DropdownMenu.Item>
                   <Link href="/lovi" className="flex items-center gap-2">
                     <User className="h-4 w-4" /> Lovi Venga Mor
@@ -164,178 +371,62 @@ export default function ProfilesPage() {
           </Flex>
         </header>
 
-        <Card className="bg-transparent border-0 text-center">
-          <Text as="p" className="text-lg text-white/90">
-            Bienvenido a Venga Mor, tu espacio exclusivo para conectar con
-            acompañantes de élite en un ambiente de total privacidad y
-            discreción
-          </Text>
-        </Card>
-
-        <Card className="bg-card/80 border-0 grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
-          <div>
-            <Label.Root
-              htmlFor="age-range"
-              className="text-lg font-semibold text-primary mb-3 block"
-            >
-              Rango de Edad:{" "}
-              <span className="text-white">
-                {ageRange[0]} - {ageRange[1]}
-              </span>
-            </Label.Root>
-
-            <Slider
-              id="age-range"
-              min={18}
-              max={60}
-              step={1}
-              value={ageRange}
-              onValueChange={(value) => setAgeRange(value)}
-              className="[&>span:first-child]:h-2 [&>span>span]:bg-primary"
-            />
-          </div>
-
-          <div>
-            <Label.Root className="text-lg font-semibold text-primary mb-3 block">
-              Categorías
-            </Label.Root>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {categorias.map((category) => (
-                <div key={category} className="flex items-center space-x-2">
-                  <Checkbox
-                    onClick={(e) => {
-                      toggleCategory(category);
-                    }}
-                    id={category}
-                    className="border-primary data-[state=checked]:bg-primary"
-                  />
-
-                  <Label.Root
-                    htmlFor={category}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize text-white"
-                  >
-                    {category}
-                  </Label.Root>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Card>
-
-        <Flex wrap="wrap" gap="2" align="center">
-          <Popover.Root>
-            <Popover.Trigger>
-              <Button
-                variant="outline"
-                className="bg-card border-primary text-white"
-              >
-                <MapPin className="mr-2 h-4 w-4" /> Ciudad
-              </Button>
-            </Popover.Trigger>
-
-            <Popover.Content maxWidth="90%" width="360px">
-              <Grid columns={{ sm: "1", md: "2" }} gap="2">
-                <Label.Root>País</Label.Root>
-
-                <TextField.Root
-                  type="text"
-                  value={locationData?.pais || ""}
-                  onChange={(e) =>
-                    setLocationData({
-                      ...locationData,
-                      pais: e.target.value,
-                    })
-                  }
-                />
-
-                <Label.Root>Estado / Región</Label.Root>
-
-                <TextField.Root
-                  type="text"
-                  value={locationData?.estado_region || ""}
-                  onChange={(e) =>
-                    setLocationData({
-                      ...locationData,
-                      estado_region: e.target.value,
-                    })
-                  }
-                />
-
-                <Label.Root>Ciudad / Localidad</Label.Root>
-
-                <TextField.Root
-                  type="text"
-                  value={locationData?.ciudad_localidad || ""}
-                  onChange={(e) =>
-                    setLocationData({
-                      ...locationData,
-                      ciudad_localidad: e.target.value,
-                    })
-                  }
-                />
-              </Grid>
-            </Popover.Content>
-          </Popover.Root>
-
-          <DropdownMenu.Root>
-            <DropdownMenu.Trigger>
-              <Button
-                variant="outline"
-                className="bg-card border-primary text-white "
-              >
-                <Star className="mr-2 h-4 w-4" /> Calificación{" "}
-                {selectedStar === 0 ? "" : selectedStar}
-                <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenu.Trigger>
-
-            <DropdownMenu.Content className="bg-card border-primary text-white">
-              <DropdownMenu.Item onClick={() => setSelectedStar(0)}>
-                Cualquiera
-              </DropdownMenu.Item>
-              <DropdownMenu.Item onClick={() => setSelectedStar(5)}>
-                5 Estrellas
-              </DropdownMenu.Item>
-              <DropdownMenu.Item onClick={() => setSelectedStar(4)}>
-                4 Estrellas
-              </DropdownMenu.Item>
-              <DropdownMenu.Item onClick={() => setSelectedStar(3)}>
-                3 Estrellas
-              </DropdownMenu.Item>
-              <DropdownMenu.Item onClick={() => setSelectedStar(2)}>
-                2 Estrellas
-              </DropdownMenu.Item>
-              <DropdownMenu.Item onClick={() => setSelectedStar(1)}>
-                1 Estrellas
-              </DropdownMenu.Item>
-            </DropdownMenu.Content>
-          </DropdownMenu.Root>
-        </Flex>
-
-        <Flex direction="column" gap="4">
+        <div
+          id="profiles-scroll-container"
+          ref={scrollContainerRef}
+          className="w-full h-screen overflow-y-auto scroll-snap-y-mandatory"
+        >
           {isLoading &&
             Array.from({ length: 2 }).map((_, index) => (
-              <ProfileCardSkeleton key={index} />
+              <div
+                key={index}
+                className="scroll-snap-center w-full h-screen flex items-center justify-center p-4"
+              >
+                <div className="w-full max-w-md h-[80vh]">
+                  <ProfileCardSkeleton />
+                </div>
+              </div>
             ))}
 
-          {profiles.map((profile) => (
-            <CollaboratorCard
-              key={profile.uid + profile.nombre}
-              collaborator={profile}
-            />
-          ))}
-        </Flex>
+          {!isLoading &&
+            profiles.length > 0 &&
+            profiles.map((profile) => (
+              <div
+                key={profile.uid}
+                className="scroll-snap-center w-full h-screen flex items-center justify-center p-4"
+              >
+                <div className="w-full max-w-md h-[80vh]">
+                  <CollaboratorCard collaborator={profile} />
+                </div>
+              </div>
+            ))}
 
-        <Button
-          hidden={!hasNextPage}
-          disabled={isFetchingNextPage}
-          loading={isLoading || isFetchingNextPage}
-          onClick={() => fetchNextPage()}
-        >
-          Cargar más
-        </Button>
-      </Flex>
-    </SectionImg>
+          {hasNextPage && !isFetchingNextPage &&(
+            <div className="scroll-snap-center w-full h-screen flex items-center justify-center">
+                <Text color="gray">Cargando más perfiles...</Text>
+            </div>
+          )}
+
+          {!isLoading && profiles.length === 0 && (
+            <div className="scroll-snap-center w-full h-screen flex items-center justify-center p-4">
+              <Card className="bg-card/80">
+                <Text color="gray">
+                  No se encontraron perfiles con esos criterios. Prueba con
+                  otros filtros.
+                </Text>
+              </Card>
+            </div>
+          )}
+        </div>
+      </SectionImg>
+    </>
+  );
+}
+
+export default function ProfilesPage() {
+  return (
+    <ProfilesFiltersProvider>
+      <ProfilesPageContent />
+    </ProfilesFiltersProvider>
   );
 }

@@ -6,7 +6,7 @@ import {
   ReactNode,
   useEffect,
 } from "react";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { PlaceHolderImages, ImagePlaceholder } from "@/lib/placeholder-images";
 
 const THEME_COLOR_KEY = "theme-color";
 const THEME_OPACITY_KEY = "theme-opacity";
@@ -44,7 +44,14 @@ function getThemeColor(name: string): ThemeColor {
 
 const defaultExploreBg = PlaceHolderImages.find(
   (p) => p.id === "explore-bg-default",
-);
+)!;
+
+export const availableExploreBgs: ImagePlaceholder[] = [
+  defaultExploreBg,
+  PlaceHolderImages.find((p) => p.id === "intro-gif-2")!,
+  PlaceHolderImages.find((p) => p.id === "chat-bg")!,
+].filter(Boolean);
+
 
 type ThemeContextType = {
   exploreBackground: string;
@@ -53,6 +60,7 @@ type ThemeContextType = {
   setThemeColor: (color: string) => void;
   bgOpacity: number;
   setBgOpacity: (opacity: number) => void;
+  availableExploreBgs: ImagePlaceholder[];
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -118,6 +126,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
         setThemeColor,
         bgOpacity,
         setBgOpacity,
+        availableExploreBgs,
       }}
     >
       {children}
