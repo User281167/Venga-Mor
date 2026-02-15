@@ -2,12 +2,11 @@
 import { PostData } from "@/types/post";
 import { AppUser } from "@/types/user";
 import { Avatar, Box, Button, Flex, Text } from "@radix-ui/themes";
-import { Heart, MessageCircle, Share2, MoreVertical } from "lucide-react";
+import { Heart, MessageCircle, Share2, MoreVertical, HeartHandshake } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Carousel } from "react-responsive-carousel";
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import Link from "next/link";
 import { Skeleton } from "@radix-ui/themes/components/skeleton";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +19,9 @@ export function ClipItem({ post }: ClipItemProps) {
     const [loadingAuthor, setLoadingAuthor] = useState(true);
     const [isLiked, setIsLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 1000) + 200); // Dummy number
+
+    // Simulating the "seeking partner" status
+    const isSeekingPartner = post.autorId.charCodeAt(5) % 3 === 0;
 
     useEffect(() => {
         const fetchAuthor = async () => {
@@ -49,6 +51,14 @@ export function ClipItem({ post }: ClipItemProps) {
 
     return (
         <div className="relative h-full w-full bg-black">
+            {/* Seeking Partner Badge */}
+            {isSeekingPartner && (
+                <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/50 text-white p-2 rounded-full backdrop-blur-sm">
+                    <HeartHandshake className="h-5 w-5 text-pink-400" />
+                    <Text size="1" weight="bold">Busca Pareja</Text>
+                </div>
+            )}
+
             {/* Media */}
             <Box className="absolute inset-0 flex items-center justify-center">
                 {mediaItems.length > 1 && !post.media.video ? (
@@ -71,7 +81,7 @@ export function ClipItem({ post }: ClipItemProps) {
             </Box>
 
             {/* Overlay with Info & Actions */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-10">
                 <Flex justify="between" align="end">
                     {/* Left side: User Info & Description */}
                     <Box className="max-w-[calc(100%-60px)]">
