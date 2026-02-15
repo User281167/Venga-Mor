@@ -25,6 +25,20 @@ export default function RaitingCollaborator({
   const send = useSendRaiting();
   const deleteRaiting = useDeleteRaiting();
 
+  useEffect(() => {
+    if (send.isError && send.error) {
+      toast.error(`Error al enviar la calificación: ${send.error.message}`);
+    }
+  }, [send.isError, send.error]);
+
+  useEffect(() => {
+    if (deleteRaiting.isError && deleteRaiting.error) {
+      toast.error(
+        `Error al eliminar la calificación: ${deleteRaiting.error.message}`,
+      );
+    }
+  }, [deleteRaiting.isError, deleteRaiting.error]);
+
   const handleRating = useCallback(
     (value: number) => {
       if (isFetching || send.isPending) return;
@@ -53,20 +67,6 @@ export default function RaitingCollaborator({
       </Text>
     );
   }
-
-  useEffect(() => {
-    if (send.isError && send.error) {
-      toast.error(`Error al enviar la calificación: ${send.error.message}`);
-    }
-  }, [send.isError, send.error]);
-
-  useEffect(() => {
-    if (deleteRaiting.isError && deleteRaiting.error) {
-      toast.error(
-        `Error al eliminar la calificación: ${deleteRaiting.error.message}`,
-      );
-    }
-  }, [deleteRaiting.isError, deleteRaiting.error]);
 
   const raiting = hoverRating || data?.valor || 0;
   const isLoading = isFetching || send.isPending;
