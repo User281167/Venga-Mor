@@ -1,8 +1,9 @@
+"use client";
 import { Card, Flex, Heading, Section, Text, Avatar } from "@radix-ui/themes";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 export default function LoviPage() {
-  const loviImage = PlaceHolderImages.find(p => p.id === 'floating-mascot');
+  const loviImage = PlaceHolderImages.find(p => p.id === 'subscription-bg');
 
   return (
     <Section className="flex flex-col gap-6 p-4">

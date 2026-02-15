@@ -407,14 +407,23 @@ function ProfilesPageContent() {
                 </div>
               </div>
             ))}
+          
+          {isFetchingNextPage && (
+             <div
+                key="loader"
+                className="scroll-snap-center w-full h-screen flex items-center justify-center"
+              >
+                <Text color="gray">Cargando más perfiles...</Text>
+              </div>
+          )}
 
-          {hasNextPage && !isFetchingNextPage && (
-            <div
-              key="loader"
-              className="scroll-snap-center w-full h-screen flex items-center justify-center"
-            >
-              <Text color="gray">Cargando más perfiles...</Text>
-            </div>
+          {!isLoading && !hasNextPage && profiles.length > 0 && (
+             <div
+                key="end"
+                className="scroll-snap-center w-full h-screen flex items-center justify-center"
+              >
+                <Text color="gray">Has llegado al final.</Text>
+              </div>
           )}
 
           {!isLoading && profiles.length === 0 && (

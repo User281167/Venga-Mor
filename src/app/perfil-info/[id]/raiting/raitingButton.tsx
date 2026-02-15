@@ -9,6 +9,7 @@ import {
   useSendRaiting,
 } from "./raiting.hook";
 import { toast } from "sonner";
+import { useUser } from "@/context/user-context";
 
 interface RaitingCollaboratorProps {
   collaboratorId: string;
@@ -24,6 +25,7 @@ export default function RaitingCollaborator({
 
   const send = useSendRaiting();
   const deleteRaiting = useDeleteRaiting();
+  const { user } = useUser();
 
   useEffect(() => {
     if (send.isError && send.error) {
@@ -58,6 +60,10 @@ export default function RaitingCollaborator({
     deleteRaiting.mutate({ collaboratorId });
     setHoverRating(0);
   }, [collaboratorId, data, isFetching, deleteRaiting, setHoverRating]);
+
+  if (user?.uid === collaboratorId) {
+    return null;
+  }
 
   if (isError) {
     return (
