@@ -35,7 +35,7 @@ export async function GET(req: Request) {
         .map((v) => clean(v)) ?? [];
 
     const lastId = searchParams.get("lastId");
-    const limitNum = country && state ? 100 : 20;
+    const limitNum = 20;
 
     let query: admin.firestore.Query = adminDb.collection("colaboradores");
     query = query.where("edad", ">=", minAge).where("edad", "<=", maxAge);
@@ -60,40 +60,6 @@ export async function GET(req: Request) {
     let profiles = snapshot.docs.map((doc) => ({
       ...doc.data(),
     })) as Collaborator[];
-
-    if (country) {
-      const normalizedCountry = normalize(country);
-
-      profiles = profiles.filter(
-        (p) =>
-          p.direccion?.pais &&
-          normalize(p.direccion.pais) === normalizedCountry,
-      );
-    }
-    if (state) {
-      const normalizedState = normalize(state);
-
-      profiles = profiles.filter(
-        (p) =>
-          p.direccion?.estado_region &&
-          normalize(p.direccion.estado_region) === normalizedState,
-      );
-    }
-    if (city) {
-      const normalizedCity = normalize(city);
-
-      profiles = profiles.filter(
-        (p) =>
-          p.direccion?.ciudad_localidad &&
-          normalize(p.direccion.ciudad_localidad) === normalizedCity,
-      );
-    }
-
-    if (categories.length > 0) {
-      profiles = profiles.filter((p) =>
-        p.categorias?.some((cat: string) => categories.includes(cat)),
-      );
-    }
 
     const lastVisible =
       snapshot.docs.length > 0

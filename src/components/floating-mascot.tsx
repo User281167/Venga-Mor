@@ -63,25 +63,28 @@ export function FloatingMascot() {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (shouldShowMascot) {
-      const initialTimeout = setTimeout(() => {
-        setIsVisible(true);
-      }, 2000); // Show after 2 seconds
-
-      const messageInterval = setInterval(() => {
-          setMessageIndex((prev) => (prev + 1) % messages.length);
-      }, 8000); // Change message every 8 seconds
-
-      return () => {
-        clearTimeout(initialTimeout);
-        clearInterval(messageInterval);
-      };
-    } else {
+    const startLoop = () => {
+      timeoutRef.current = setTimeout(() => {
         setIsVisible(false);
+      }, 5500);
+    };
+
+    if (shouldShowMascot && !popoverOpen) {
+      setIsVisible(true);
+      startLoop();
+    } else {
+      setIsVisible(false);
     }
-  }, [shouldShowMascot]);
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [shouldShowMascot, popoverOpen, messageIndex]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -103,7 +106,7 @@ export function FloatingMascot() {
     }
   }, [selectedSong]);
 
-  if (!mascotImage || !shouldShowMascot) {
+  if (!mascotImage) {
     return null;
   }
 
@@ -125,20 +128,15 @@ export function FloatingMascot() {
     <div className="fixed top-24 left-4 z-[100] w-auto max-w-xs flex items-center gap-3 justify-start">
       <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
         <Popover.Trigger>
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: isVisible ? 1 : 0, x: isVisible ? 0 : -50 }}
-            transition={{ duration: 0.5 }}
-            className="cursor-pointer"
-          >
+          <div className="cursor-pointer">
             <Image
               src={mascotImage.imageUrl}
               alt={mascotImage.description}
               width={64}
               height={64}
-              className="rounded-full object-cover shadow-lg border-2 border-primary"
+              className="rounded-full object-cover shadow-lg"
             />
-          </motion.div>
+          </div>
         </Popover.Trigger>
         <Popover.Content>
           <Flex direction="column" gap="3" className="max-w-56 sm:max-w-96">
@@ -216,16 +214,15 @@ export function FloatingMascot() {
         </Popover.Content>
       </Popover.Root>
 
-      <AnimatePresence>
+      <AnimatePresence onExitComplete={() => setMessageIndex((prev) => (prev + 1) % messages.length)}>
         {isVisible && !popoverOpen && (
           <motion.div
             key={messageIndex}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
+            exit={{ opacity: 0, x: 20, transition: { duration: 0.4 } }}
             transition={{ duration: 0.5 }}
-            className="bg-black/60 p-3 rounded-xl backdrop-blur-sm"
-            style={{ textShadow: "1px 1px 3px rgba(0,0,0,0.5)" }}
+            className="bg-black/70 p-3 rounded-xl backdrop-blur-sm"
           >
             <Text as="p" size="2" weight="bold" className="text-white italic">
               "{messages[messageIndex]}"
