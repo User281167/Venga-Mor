@@ -9,6 +9,8 @@ import { registerFormSchema } from "../registrarse/schema";
 import z from "zod";
 import { AppUser } from "@/types/user";
 import { updateFirabaseIdToken } from "@/handlers/postIdToken";
+import { QueryClient } from "@tanstack/react-query";
+import { api } from "@/lib/apiHelper";
 
 async function registerUser(
   token: string,
@@ -126,7 +128,15 @@ export async function onSubmitRegisterGmailUser(): Promise<
       creado: createdAtDate ? createdAtDate.getTime() : Date.now(),
     };
 
-    return await registerUser(token, user);
+    // limpiar cache
+    const query = new QueryClient();
+    query.clear();
+
+    // puede que el usuario exista en AUTH pero no en firebase
+    return await api.post<AppUser>("/api/usuarios/get-create", {
+      idToken: token,
+      userData: user,
+    });
   } catch (error: any) {
     return ApiResponse.failure(getGoogleSignInErrorMessage(error.code));
   }

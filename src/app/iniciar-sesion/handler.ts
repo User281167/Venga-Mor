@@ -9,6 +9,8 @@ import {
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { updateFirabaseIdToken } from "@/handlers/postIdToken";
+import { api } from "@/lib/apiHelper";
+import { QueryClient } from "@tanstack/react-query";
 
 function getFirebaseLoginErrorMessage(code: string) {
   switch (code) {
@@ -109,9 +111,15 @@ export async function onSubmitLoginGmailUser(): Promise<ApiResponse<AppUser>> {
       creado: createdAtDate ? createdAtDate.getTime() : Date.now(),
     };
 
-    await updateFirabaseIdToken(token);
+    // limpiar cache
+    const query = new QueryClient();
+    query.clear();
 
-    return ApiResponse.success(user, "Inicio de sesión exitoso.");
+    // puede que el usuario exista en AUTH pero no en firebase
+    return await api.post<AppUser>("/api/usuarios/get-create", {
+      idToken: token,
+      userData: user,
+    });
   } catch (error: any) {
     return ApiResponse.failure(getGoogleSignInErrorMessage(error.code));
   }
