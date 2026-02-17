@@ -3,5 +3,5 @@ export type MediaSlide = {
   type: "video" | "image";
   url: string;
   description: string;
-  publicado: number;
+  publicado: string;
 };
