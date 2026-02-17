@@ -1,0 +1,48 @@
+/* styles/feed.css
+   Importar en el layout o page que use FeedList:
+   import "@/styles/feed.css";
+*/
+
+/* ── Swiper vertical: contenedor y slides full height ────────────────────── */
+.swiper-vertical {
+  touch-action: pan-y;
+}
+
+.swiper-vertical > .swiper-wrapper {
+  flex-direction: column;
+}
+
+.swiper-vertical .swiper-slide {
+  height: 100% !important;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+/* ── Sub-swiper horizontal (imágenes múltiples) ──────────────────────────── */
+.inner-image-swiper {
+  /* Paginación de puntos centrada abajo */
+  --swiper-pagination-bullet-inactive-color: rgba(255, 255, 255, 0.3);
+  --swiper-pagination-color: rgba(255, 255, 255, 0.9);
+  --swiper-pagination-bullet-size: 5px;
+  --swiper-pagination-bottom: 10px;
+}
+
+/* ── Flechas de navegación: ocultar en mobile, mostrar en desktop ────────── */
+.swiper-button-next,
+.swiper-button-prev {
+  color: rgba(255, 255, 255, 0.7) !important;
+  --swiper-navigation-size: 28px;
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .swiper-button-next,
+  .swiper-button-prev {
+    display: flex;
+  }
+}
+
+/* ── Quitar outline en navegación por teclado dentro del swiper ──────────── */
+.swiper:focus-visible {
+  outline: none;
+}
