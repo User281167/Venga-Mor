@@ -1,5 +1,6 @@
 import imageCompression from "browser-image-compression";
 import lamejs from "lamejs";
+import { convertFloat32ToInt16 } from "./convert";
 
 export async function compressImage(
   file: File,
@@ -49,7 +50,7 @@ export async function compressAudio(file: File): Promise<Blob> {
         for (let i = 0; i < samples; i += sampleBlockSize) {
           const sampleChunk = channelData.subarray(i, i + sampleBlockSize);
           const mp3buf = mp3encoder.encodeBuffer(
-            this.convertFloat32ToInt16(sampleChunk),
+            convertFloat32ToInt16(sampleChunk),
           );
           if (mp3buf.length > 0) {
             mp3Data.push(mp3buf);

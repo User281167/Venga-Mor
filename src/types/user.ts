@@ -5,6 +5,7 @@ export interface AppUser {
   apellido: string;
   foto?: string | null;
   tipo: "cliente" | "colaborador";
-  creado: number; // timestamp en ms
+  creado: string; // ISO string de la fecha de creación
   descripcion?: string;
+  verificado?: boolean;
 }

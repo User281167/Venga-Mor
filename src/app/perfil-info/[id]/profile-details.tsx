@@ -15,6 +15,7 @@ import ProfileAbout from "./profile-about";
 
 import { Collaborator } from "@/types/collaborator";
 import { useUser } from "@/context/user-context";
+import ProfileSocials from "./profile-socials";
 
 export default function ProfileDetail({
   collaborator,
@@ -34,6 +35,9 @@ export default function ProfileDetail({
         <Separator size="4" />
 
         <ProfileAbout collaborator={collaborator} />
+        <Separator size="4" />
+
+        <ProfileSocials redes={collaborator.redes} />
         <Separator size="4" />
 
         <PostCarousel id={collaborator.uid} />

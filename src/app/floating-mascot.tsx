@@ -62,39 +62,28 @@ export function FloatingMascot() {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    let messageLoop: NodeJS.Timeout;
-    let visibilityToggle: NodeJS.Timeout;
-
     const startLoop = () => {
-      // 1. Update message and make it visible
-      setMessageIndex((prev) => (prev + 1) % messages.length);
-      setIsVisible(true);
-
-      // 2. Set a timer to hide it after a while
-      visibilityToggle = setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         setIsVisible(false);
-      }, 5500); // Keep message on screen for 5.5 seconds
-
-      // 3. Schedule the next cycle
-      messageLoop = setTimeout(startLoop, 10000); // Total cycle time is 10 seconds
+      }, 5500);
     };
 
     if (shouldShowMascot && !popoverOpen) {
-      const initialTimeout = setTimeout(startLoop, 2000); // Start after 2 seconds
-      // Cleanup function
-      return () => {
-        clearTimeout(initialTimeout);
-        clearTimeout(visibilityToggle);
-        clearTimeout(messageLoop);
-      };
+      setIsVisible(true);
+      startLoop();
     } else {
-      // If it shouldn't show, ensure it's not visible
       setIsVisible(false);
     }
-  }, [shouldShowMascot, popoverOpen]);
 
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [shouldShowMascot, popoverOpen, messageIndex]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -144,7 +133,7 @@ export function FloatingMascot() {
               alt={mascotImage.description}
               width={64}
               height={64}
-              className="rounded-full object-cover shadow-lg"
+              className="rounded-full object-cover shadow-lg border-2 border-primary"
             />
           </div>
         </Popover.Trigger>
@@ -224,7 +213,7 @@ export function FloatingMascot() {
         </Popover.Content>
       </Popover.Root>
 
-      <AnimatePresence>
+      <AnimatePresence onExitComplete={() => setMessageIndex((prev) => (prev + 1) % messages.length)}>
         {isVisible && !popoverOpen && (
           <motion.div
             key={messageIndex}

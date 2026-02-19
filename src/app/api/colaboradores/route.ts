@@ -25,6 +25,19 @@ export async function GET(req: Request) {
     const minAge = parseInt(searchParams.get("minAge") || "18");
     const maxAge = parseInt(searchParams.get("maxAge") || "60");
 
+    if (
+      isNaN(minAge) ||
+      isNaN(maxAge) ||
+      minAge < 18 ||
+      maxAge > 100 ||
+      minAge > maxAge
+    ) {
+      return new Response(
+        ApiResponse.failure("Rango de edad inválido").toJSON(),
+        { status: 400 },
+      );
+    }
+
     const categories =
       searchParams.get("categories")?.split(",").filter(Boolean) || [];
 

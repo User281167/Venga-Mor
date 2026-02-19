@@ -8,6 +8,8 @@ import {
   User,
   HelpCircle,
   Diamond,
+  FilterIcon,
+  Trophy,
 } from "lucide-react";
 import {
   Button,
@@ -19,27 +21,64 @@ import {
   Grid,
   Heading,
   Popover,
+  Section,
   Slider,
   Text,
   TextField,
 } from "@radix-ui/themes";
-import { Label } from "radix-ui";
 import Link from "next/link";
+import Image from "next/image";
 
 import { WhatsappIcon } from "@/components/icons";
 import PayPalPayment from "@/components/pay-pal";
-import SectionImg from "@/components/section-img";
 
 import { categorias } from "@/types/categorias";
-
-import { CollaboratorCard } from "./profile-card";
-import { useProfilesFilters } from "@/context/profiles-filters-context";
+import {
+  ProfilesFiltersProvider,
+  useProfilesFilters,
+} from "@/context/profiles-filters-context";
 import { useProfilesList } from "@/context/use-profiles-data";
 import { toast } from "sonner";
-import ProfileCardSkeleton from "./profileCardSkeleton";
 import { useTheme } from "@/context/theme-context";
+import { useEffect, useRef } from "react";
+import { CollaboratorCard } from "./profile-card";
+import { Loader2 } from "lucide-react";
+import { motion, useInView } from "framer-motion";
 
-export default function ProfilesPage() {
+// Create a new component to handle the animation and layout of each profile block
+function ProfileBlock({
+  collaborator,
+  index,
+}: {
+  collaborator: any;
+  index: number;
+}) {
+  const ref = useRef(null);
+  // Trigger animation when the block is 50% in view.
+  // `once: false` ensures the animation can run every time it enters/leaves view.
+  const isInView = useInView(ref, { amount: 0.5, once: false });
+
+  return (
+    <div
+      ref={ref}
+      key={`${collaborator.uid}-${index}`}
+      // This container defines the snap area and adds padding for separation
+      className="relative h-full w-full flex-shrink-0 scroll-snap-start flex items-center justify-center p-4"
+    >
+      <motion.div
+        className="w-full h-full"
+        // Animate the scale based on visibility
+        initial={{ scale: 0.95 }}
+        animate={{ scale: isInView ? 1 : 0.95 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+      >
+        <CollaboratorCard collaborator={collaborator} />
+      </motion.div>
+    </div>
+  );
+}
+
+function ProfilesPageContent() {
   const {
     ageRange,
     setAgeRange,
@@ -61,281 +100,368 @@ export default function ProfilesPage() {
     error,
   } = useProfilesList(ageRange, selectedCategories, selectedStar, locationData);
 
-  const { exploreBackground } = useTheme();
+  const { exploreBackground, bgOpacity } = useTheme();
   const profiles = data?.pages.flatMap((page) => page?.data || []) ?? [];
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const playCount = parseInt(sessionStorage.getItem("audioPlayCount") || "0");
+
+    if (playCount >= 3) return;
+
+    const audio = new Audio(
+      "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/WhatsApp%20Audio%202026-02-12%20at%2012.16.10%20AM.mp3?alt=media&token=53ba1088-1204-4cfb-8248-990223950a90",
+    );
+    audio.preload = "auto";
+
+    const playAudioOnce = () => {
+      audio.play().catch((error) => {
+        // Autoplay was prevented.
+        console.log("Audio playback failed:", error);
+      });
+      sessionStorage.setItem("audioPlayCount", (playCount + 1).toString());
+    };
+
+    // Use a more reliable event listener, that fires only once.
+    document.body.addEventListener("click", playAudioOnce, { once: true });
+    document.body.addEventListener("keydown", playAudioOnce, { once: true });
+
+    return () => {
+      document.body.removeEventListener("click", playAudioOnce);
+      document.body.removeEventListener("keydown", playAudioOnce);
+    };
+  }, []);
+
+  // Infinite scroll listener
+  useEffect(() => {
+    const handleScroll = () => {
+      const container = document.getElementById("profiles-container");
+      if (container) {
+        const { scrollTop, scrollHeight, clientHeight } = container;
+
+        if (
+          scrollTop + clientHeight >= scrollHeight - 5 &&
+          hasNextPage &&
+          !isLoading
+        ) {
+          fetchNextPage();
+        }
+      }
+    };
+
+    const container = document.getElementById("profiles-container");
+    container?.addEventListener("scroll", handleScroll);
+    return () => container?.removeEventListener("scroll", handleScroll);
+  }, [hasNextPage, isLoading, fetchNextPage]);
 
   if (isError) {
     toast.error(error.message);
   }
 
   return (
-    <SectionImg imageUrl={exploreBackground} imageHint="woman neon">
-      <Flex direction="column" gap="4" className="mx-auto w-11/12 max-w-3xl">
-        <header className="flex items-center justify-between">
-          <Heading className="text-4xl font-bold font-headline text-primary">
-            VENGA MOR
-          </Heading>
+    <>
+      <Image
+        src={exploreBackground}
+        alt="Explorer Background"
+        layout="fill"
+        objectFit="cover"
+        className="absolute inset-0 z-0 transition-opacity duration-500"
+        style={{ opacity: bgOpacity / 100 }}
+        unoptimized
+        priority
+      />
+      <header className="fixed top-0 left-0 right-0 z-20 p-4 flex items-center justify-between bg-gradient-to-b from-black/50 to-transparent">
+        <Heading className="text-2xl md:text-4xl font-bold font-headline text-primary">
+          VENGA MOR
+        </Heading>
 
-          <Flex gap="2">
-            <Link href="/suscripcion">
-              <Crown className="h-8 w-8 text-yellow-400" />
-            </Link>
-
-            <DropdownMenu.Root>
-              <DropdownMenu.Trigger>
-                <Button variant="ghost" size="1">
-                  <Menu className="h-8 w-8 text-white" />
-                </Button>
-              </DropdownMenu.Trigger>
-
-              <DropdownMenu.Content>
-                <DropdownMenu.Item>
-                  <Link href="/lovi" className="flex items-center gap-2">
-                    <User className="h-4 w-4" /> Lovi Venga Mor
-                  </Link>
-                </DropdownMenu.Item>
-
-                <DropdownMenu.Separator />
-
-                <Dialog.Root>
-                  <Dialog.Trigger>
-                    <div className="flex items-center gap-2 w-full px-2 py-1 text-sm rounded-md hover:bg-white/10 cursor-pointer">
-                      <HelpCircle className="h-4 w-4" />
-                      <span>¿Por qué Venga Mor?</span>
-                    </div>
-                  </Dialog.Trigger>
-
-                  <Dialog.Content style={{ maxWidth: 450 }}>
-                    <Dialog.Title>¿Por qué Venga Mor?</Dialog.Title>
-
-                    <Dialog.Description size="2" mb="4">
-                      Para acercar personas, para la soledad individual y el
-                      calor del amor. Servicios intensos con consentimiento y
-                      profesionales del amor.
-                    </Dialog.Description>
-
-                    <Flex justify="end">
-                      <Dialog.Close>
-                        <Button variant="soft">Cerrar</Button>
-                      </Dialog.Close>
-                    </Flex>
-                  </Dialog.Content>
-                </Dialog.Root>
-
-                <Dialog.Root>
-                  <Dialog.Trigger>
-                    <div className="flex items-center gap-2 w-full px-2 py-1 text-sm rounded-md hover:bg-white/10 cursor-pointer">
-                      <Diamond className="h-4 w-4" />
-                      <span>Comprar Joyas</span>
-                    </div>
-                  </Dialog.Trigger>
-
-                  <Dialog.Content style={{ maxWidth: 450 }}>
-                    <Dialog.Title>Comprar Joyas</Dialog.Title>
-
-                    <Dialog.Description size="2" mb="4">
-                      Apoya a tus perfiles favoritos enviándoles joyas.
-                    </Dialog.Description>
-
-                    <PayPalPayment />
-
-                    <Flex mt="4" justify="end">
-                      <Dialog.Close>
-                        <Button variant="soft">Cerrar</Button>
-                      </Dialog.Close>
-                    </Flex>
-                  </Dialog.Content>
-                </Dialog.Root>
-
-                <DropdownMenu.Separator />
-
-                <DropdownMenu.Item asChild>
-                  <a
-                    href="https://wa.me/573117744704?text=necesito%20soporte"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2"
-                  >
-                    <WhatsappIcon className="h-4 w-4" /> Soporte
-                  </a>
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </DropdownMenu.Root>
-          </Flex>
-        </header>
-
-        <Card className="bg-transparent border-0 text-center">
-          <Text as="p" className="text-lg text-white/90">
-            Bienvenido a Venga Mor, tu espacio exclusivo para conectar con
-            acompañantes de élite en un ambiente de total privacidad y
-            discreción
-          </Text>
-        </Card>
-
-        <Card className="bg-card/80 border-0 grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
-          <div>
-            <Label.Root
-              htmlFor="age-range"
-              className="text-lg font-semibold text-primary mb-3 block"
-            >
-              Rango de Edad:{" "}
-              <span className="text-white">
-                {ageRange[0]} - {ageRange[1]}
-              </span>
-            </Label.Root>
-
-            <Slider
-              id="age-range"
-              min={18}
-              max={60}
-              step={1}
-              value={ageRange}
-              onValueChange={(value) => setAgeRange(value)}
-              className="[&>span:first-child]:h-2 [&>span>span]:bg-primary"
-            />
-          </div>
-
-          <div>
-            <Label.Root className="text-lg font-semibold text-primary mb-3 block">
-              Categorías
-            </Label.Root>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {categorias.map((category) => (
-                <div key={category} className="flex items-center space-x-2">
-                  <Checkbox
-                    onClick={(e) => {
-                      toggleCategory(category);
-                    }}
-                    id={category}
-                    className="border-primary data-[state=checked]:bg-primary"
-                  />
-
-                  <Label.Root
-                    htmlFor={category}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize text-white"
-                  >
-                    {category}
-                  </Label.Root>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Card>
-
-        <Flex wrap="wrap" gap="2" align="center">
-          <Popover.Root>
-            <Popover.Trigger>
-              <Button
-                variant="outline"
-                className="bg-card border-primary text-white"
-              >
-                <MapPin className="mr-2 h-4 w-4" /> Ciudad
+        <Flex gap="2" align="center">
+          <Dialog.Root>
+            <Dialog.Trigger>
+              <Button variant="soft">
+                <FilterIcon className="h-4 w-4" /> Filtros
               </Button>
-            </Popover.Trigger>
+            </Dialog.Trigger>
+            <Dialog.Content style={{ maxWidth: 450 }}>
+              <Dialog.Title>Filtros</Dialog.Title>
+              <Dialog.Description size="2" mb="4">
+                Encuentra tu perfil ideal.
+              </Dialog.Description>
+              <Flex direction="column" gap="4">
+                <div>
+                  <Text
+                    as="label"
+                    htmlFor="age-range"
+                    className="text-lg font-semibold text-primary mb-3 block"
+                  >
+                    Rango de Edad:{" "}
+                    <span className="text-white">
+                      {ageRange[0]} - {ageRange[1]}
+                    </span>
+                  </Text>
+                  <Slider
+                    id="age-range"
+                    min={18}
+                    max={60}
+                    step={1}
+                    value={ageRange}
+                    onValueChange={(value) => setAgeRange(value)}
+                    className="[&>span:first-child]:h-2 [&>span>span]:bg-primary"
+                  />
+                </div>
 
-            <Popover.Content maxWidth="90%" width="360px">
-              <Grid columns={{ sm: "1", md: "2" }} gap="2">
-                <Label.Root>País</Label.Root>
+                <div>
+                  <Text
+                    as="label"
+                    className="text-lg font-semibold text-primary mb-3 block"
+                  >
+                    Categorías
+                  </Text>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {categorias.map((category) => (
+                      <Flex asChild key={category} align="center" gap="2">
+                        <label>
+                          <Checkbox
+                            checked={selectedCategories.includes(category)}
+                            onCheckedChange={() => toggleCategory(category)}
+                          />
+                          <Text size="2" className="capitalize">
+                            {category}
+                          </Text>
+                        </label>
+                      </Flex>
+                    ))}
+                  </div>
+                </div>
 
-                <TextField.Root
-                  type="text"
-                  value={locationData?.pais || ""}
-                  onChange={(e) =>
-                    setLocationData({
-                      ...locationData,
-                      pais: e.target.value,
-                    })
-                  }
-                />
+                <Popover.Root>
+                  <Popover.Trigger>
+                    <Button
+                      variant="outline"
+                      className="bg-card border-primary text-white"
+                    >
+                      <MapPin className="mr-2 h-4 w-4" /> Ciudad
+                    </Button>
+                  </Popover.Trigger>
+                  <Popover.Content maxWidth="90%" width="360px">
+                    <Grid columns={{ sm: "1" }} gap="2">
+                      <Text as="label">País</Text>
+                      <TextField.Root
+                        type="text"
+                        value={locationData?.pais || ""}
+                        onChange={(e) =>
+                          setLocationData({
+                            ...locationData,
+                            pais: e.target.value,
+                          })
+                        }
+                      />
+                      <Text as="label">Estado / Región</Text>
+                      <TextField.Root
+                        type="text"
+                        value={locationData?.estado_region || ""}
+                        onChange={(e) =>
+                          setLocationData({
+                            ...locationData,
+                            estado_region: e.target.value,
+                          })
+                        }
+                      />
+                      <Text as="label">Ciudad / Localidad</Text>
+                      <TextField.Root
+                        type="text"
+                        value={locationData?.ciudad_localidad || ""}
+                        onChange={(e) =>
+                          setLocationData({
+                            ...locationData,
+                            ciudad_localidad: e.target.value,
+                          })
+                        }
+                      />
+                    </Grid>
+                  </Popover.Content>
+                </Popover.Root>
 
-                <Label.Root>Estado / Región</Label.Root>
+                <DropdownMenu.Root>
+                  <DropdownMenu.Trigger>
+                    <Button
+                      variant="outline"
+                      className="bg-card border-primary text-white "
+                    >
+                      <Star className="mr-2 h-4 w-4" /> Calificación{" "}
+                      {selectedStar === 0 ? "" : selectedStar}
+                      <ChevronDown className="ml-2 h-4 w-4" />
+                    </Button>
+                  </DropdownMenu.Trigger>
+                  <DropdownMenu.Content className="bg-card border-primary text-white">
+                    {[0, 5, 4, 3, 2, 1].map((starValue) => (
+                      <DropdownMenu.Item
+                        key={starValue}
+                        onClick={() => setSelectedStar(starValue)}
+                      >
+                        {starValue === 0
+                          ? "Cualquiera"
+                          : `${starValue} Estrella(s)`}
+                      </DropdownMenu.Item>
+                    ))}
+                  </DropdownMenu.Content>
+                </DropdownMenu.Root>
+              </Flex>
+              <Flex gap="3" mt="4" justify="end">
+                <Dialog.Close>
+                  <Button variant="soft" color="gray">
+                    Cerrar
+                  </Button>
+                </Dialog.Close>
+              </Flex>
+            </Dialog.Content>
+          </Dialog.Root>
 
-                <TextField.Root
-                  type="text"
-                  value={locationData?.estado_region || ""}
-                  onChange={(e) =>
-                    setLocationData({
-                      ...locationData,
-                      estado_region: e.target.value,
-                    })
-                  }
-                />
-
-                <Label.Root>Ciudad / Localidad</Label.Root>
-
-                <TextField.Root
-                  type="text"
-                  value={locationData?.ciudad_localidad || ""}
-                  onChange={(e) =>
-                    setLocationData({
-                      ...locationData,
-                      ciudad_localidad: e.target.value,
-                    })
-                  }
-                />
-              </Grid>
-            </Popover.Content>
-          </Popover.Root>
+          <Link href="/suscripcion">
+            <Crown className="h-8 w-8 text-yellow-400" />
+          </Link>
 
           <DropdownMenu.Root>
             <DropdownMenu.Trigger>
-              <Button
-                variant="outline"
-                className="bg-card border-primary text-white "
-              >
-                <Star className="mr-2 h-4 w-4" /> Calificación{" "}
-                {selectedStar === 0 ? "" : selectedStar}
-                <ChevronDown className="ml-2 h-4 w-4" />
+              <Button variant="ghost" size="1">
+                <Menu className="h-8 w-8 text-white" />
               </Button>
             </DropdownMenu.Trigger>
 
-            <DropdownMenu.Content className="bg-card border-primary text-white">
-              <DropdownMenu.Item onClick={() => setSelectedStar(0)}>
-                Cualquiera
+            <DropdownMenu.Content>
+              <DropdownMenu.Item>
+                <Link href="/ranking" className="flex items-center gap-2">
+                  <Trophy className="h-4 w-4" /> Top Global
+                </Link>
               </DropdownMenu.Item>
-              <DropdownMenu.Item onClick={() => setSelectedStar(5)}>
-                5 Estrellas
+              <DropdownMenu.Item>
+                <Link href="/lovi" className="flex items-center gap-2">
+                  <User className="h-4 w-4" /> Lovi Venga Mor
+                </Link>
               </DropdownMenu.Item>
-              <DropdownMenu.Item onClick={() => setSelectedStar(4)}>
-                4 Estrellas
-              </DropdownMenu.Item>
-              <DropdownMenu.Item onClick={() => setSelectedStar(3)}>
-                3 Estrellas
-              </DropdownMenu.Item>
-              <DropdownMenu.Item onClick={() => setSelectedStar(2)}>
-                2 Estrellas
-              </DropdownMenu.Item>
-              <DropdownMenu.Item onClick={() => setSelectedStar(1)}>
-                1 Estrellas
+
+              <DropdownMenu.Separator />
+
+              <Dialog.Root>
+                <Dialog.Trigger>
+                  <div className="flex items-center gap-2 w-full px-2 py-1 text-sm rounded-md hover:bg-white/10 cursor-pointer">
+                    <HelpCircle className="h-4 w-4" />
+                    <span>¿Por qué Venga Mor?</span>
+                  </div>
+                </Dialog.Trigger>
+
+                <Dialog.Content style={{ maxWidth: 450 }}>
+                  <Dialog.Title>¿Por qué Venga Mor?</Dialog.Title>
+
+                  <Dialog.Description size="2" mb="4">
+                    Para acercar personas, para la soledad individual y el calor
+                    del amor. Servicios intensos con consentimiento y
+                    profesionales del amor.
+                  </Dialog.Description>
+
+                  <Flex justify="end">
+                    <Dialog.Close>
+                      <Button variant="soft">Cerrar</Button>
+                    </Dialog.Close>
+                  </Flex>
+                </Dialog.Content>
+              </Dialog.Root>
+
+              <Dialog.Root>
+                <Dialog.Trigger>
+                  <div className="flex items-center gap-2 w-full px-2 py-1 text-sm rounded-md hover:bg-white/10 cursor-pointer">
+                    <Diamond className="h-4 w-4" />
+                    <span>Comprar Joyas</span>
+                  </div>
+                </Dialog.Trigger>
+
+                <Dialog.Content style={{ maxWidth: 450 }}>
+                  <Dialog.Title>Comprar Joyas</Dialog.Title>
+
+                  <Dialog.Description size="2" mb="4">
+                    Apoya a tus perfiles favoritos enviándoles joyas.
+                  </Dialog.Description>
+
+                  <PayPalPayment />
+
+                  <Flex mt="4" justify="end">
+                    <Dialog.Close>
+                      <Button variant="soft">Cerrar</Button>
+                    </Dialog.Close>
+                  </Flex>
+                </Dialog.Content>
+              </Dialog.Root>
+
+              <DropdownMenu.Separator />
+
+              <DropdownMenu.Item asChild>
+                <a
+                  href="https://wa.me/573117744704?text=necesito%20soporte"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2"
+                >
+                  <WhatsappIcon className="h-4 w-4" /> Soporte
+                </a>
               </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu.Root>
         </Flex>
+      </header>
 
-        <Flex direction="column" gap="4">
-          {isLoading &&
-            Array.from({ length: 2 }).map((_, index) => (
-              <ProfileCardSkeleton key={index} />
-            ))}
-
-          {profiles.map((profile) => (
-            <CollaboratorCard
-              key={profile.uid + profile.nombre}
+      <Section
+        id="profiles-container"
+        className="relative h-screen w-full overflow-y-auto scroll-snap-y-mandatory"
+        style={{
+          height: "calc(100vh - 0px)", // Adjusted to take full viewport height
+          paddingTop: "64px", // Add padding to avoid content being under the header
+          paddingBottom: "64px", // Add padding to avoid content being under the footer
+          backgroundColor: "transparent", // Make section background transparent
+        }}
+      >
+        <div className="relative z-10 h-full w-full max-w-md mx-auto">
+          {profiles.map((profile, index) => (
+            <ProfileBlock
               collaborator={profile}
+              index={index}
+              key={`${profile.uid}-${index}`}
             />
           ))}
-        </Flex>
+        </div>
 
-        <Button
-          hidden={!hasNextPage}
-          disabled={isFetchingNextPage}
-          loading={isLoading || isFetchingNextPage}
-          onClick={() => fetchNextPage()}
-        >
-          Cargar más
-        </Button>
-      </Flex>
-    </SectionImg>
+        {(isLoading || isFetchingNextPage) && (
+          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-center justify-center text-white bg-black/50 rounded-full p-2 z-30">
+            <Loader2 className="animate-spin mr-2" />
+            <Text>Cargando perfiles...</Text>
+          </div>
+        )}
+
+        {!hasNextPage && profiles.length > 0 && (
+          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-center justify-center text-white bg-black/50 rounded-full p-2 z-30">
+            <Text>Fin de los perfiles.</Text>
+          </div>
+        )}
+
+        {profiles.length === 0 && !isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center text-white text-center p-4">
+            <div>
+              <Heading>No hay perfiles.</Heading>
+              <Text as="p" color="gray">
+                No se encontraron perfiles con esos criterios.
+              </Text>
+            </div>
+          </div>
+        )}
+      </Section>
+    </>
+  );
+}
+
+export default function ProfilesPage() {
+  return (
+    <ProfilesFiltersProvider>
+      <ProfilesPageContent />
+    </ProfilesFiltersProvider>
   );
 }

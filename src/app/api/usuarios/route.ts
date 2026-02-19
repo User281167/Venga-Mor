@@ -156,7 +156,7 @@ export async function PUT(req: Request) {
       apellido: updatedUserData?.apellido || "",
       foto: updatedUserData?.foto || null,
       tipo: decoded.tipo || "cliente",
-      creado: updatedUserData?.creado || Date.now(),
+      creado: new Date(updatedUserData?.creado || Date.now()).toISOString(),
       descripcion: updatedUserData?.descripcion || null,
     };
 
