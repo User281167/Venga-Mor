@@ -66,7 +66,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${poppins.variable} ${playball.variable} dark`}>
       <body className="font-body antialiased bg-background">
-        <main className="flex flex-col min-h-screen pb-16">
+        <main className="flex flex-col min-h-screen">
           <Providers>
             <>
               {children}
