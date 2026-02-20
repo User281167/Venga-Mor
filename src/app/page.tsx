@@ -16,7 +16,7 @@ export default function LoginPage() {
           alt={introGif.description}
           layout="fill"
           objectFit="cover"
-          objectPosition="center 25%"
+          objectPosition="center top"
           className="z-0"
           unoptimized
           priority
