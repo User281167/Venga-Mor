@@ -8,7 +8,7 @@ export default function LoginPage() {
   const introGif = PlaceHolderImages.find((p) => p.id === "intro-gif");
 
   return (
-    <Section className="relative h-screen w-full flex flex-col items-center justify-center p-0 overflow-hidden bg-black">
+    <Section className="relative h-screen w-full flex flex-col items-center justify-end p-0 overflow-hidden bg-black">
       {/* Background GIF - Fill the screen and align to top */}
       {introGif && (
         <Image
@@ -16,7 +16,7 @@ export default function LoginPage() {
           alt={introGif.description}
           layout="fill"
           objectFit="cover"
-          objectPosition="top"
+          objectPosition="center 25%"
           className="z-0"
           unoptimized
           priority
@@ -24,12 +24,12 @@ export default function LoginPage() {
       )}
 
       {/* Gradient Overlay for readability and style */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent z-10" />
+      <div className="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-black via-black/80 to-transparent z-10" />
 
-      {/* Centered Title */}
-      <div className="relative z-20 flex-grow flex flex-col items-center justify-center">
+      {/* Content container */}
+      <div className="relative z-20 w-full max-w-sm mx-auto p-6 flex flex-col items-center text-center">
         <Heading
-          className="text-8xl md:text-9xl font-headline text-primary"
+          className="text-8xl md:text-9xl font-headline text-primary mb-8"
           style={{
             fontFamily: "'Playball', cursive",
             textShadow: "2px 2px 8px rgba(0,0,0,0.7)",
@@ -37,10 +37,7 @@ export default function LoginPage() {
         >
           Venga Mor
         </Heading>
-      </div>
 
-      {/* Buttons container at the bottom */}
-      <div className="relative z-20 w-full max-w-sm mx-auto p-6">
         <Flex direction="column" gap="3" className="w-full">
           <Link href="/iniciar-sesion" className="w-full">
             <Button
@@ -54,9 +51,8 @@ export default function LoginPage() {
           <Link href="/perfiles" className="w-full">
             <Button
               size="3"
-              variant="surface"
-              highContrast
-              className="w-full cursor-pointer h-12 text-lg font-semibold"
+              variant="soft"
+              className="w-full cursor-pointer h-12 text-lg font-semibold bg-black/50 text-white"
             >
               Ver perfiles
             </Button>
