@@ -30,15 +30,17 @@ export default function HeaderGif({
           alt={imageAlt}
           unoptimized
           priority
-          className="absolute -z-10 h-screen w-full object-cover object-bottom transition-all duration-1000 ease-in-out"
+          layout="fill"
+          objectFit="cover"
+          className="absolute -z-10 w-full h-full transition-all duration-1000 ease-in-out"
           style={{ opacity: bgOpacity / 100 }}
           data-ai-hint={imageHint}
-          width={1920}
-          height={1080}
         />
       )}
-
-      {children}
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-0" />
+      <div className="relative z-10 flex items-center justify-center w-full h-full">
+        {children}
+      </div>
     </Section>
   );
 }

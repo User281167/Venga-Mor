@@ -1,89 +1,72 @@
 "use client";
 import Link from "next/link";
-import { Button, Flex, Heading } from "@radix-ui/themes";
-import { useEffect, useState } from "react";
-import PayPalPayment from "@/components/pay-pal";
-import HeaderGif from "@/components/header-gif";
+import { Button, Flex, Heading, Section } from "@radix-ui/themes";
+import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 
-const rotatingTexts = [
-  "Servicios íntimos",
-  "Privacidad",
-  "La app para los mayores",
-  "Diversión y sensualidad",
-  "Seguridad y compromiso",
-];
-
-const backgroundImages = [
-  PlaceHolderImages.find((p) => p.id === "intro-gif"),
-  PlaceHolderImages.find((p) => p.id === "intro-gif-2"),
-].filter(Boolean);
-
 export default function LoginPage() {
-  const [currentTextIndex, setCurrentTextIndex] = useState(0);
-  const [bgImage, setBgImage] = useState(backgroundImages[0]);
-
-  useEffect(() => {
-    const textInterval = setInterval(() => {
-      setCurrentTextIndex(
-        (prevIndex) => (prevIndex + 1) % rotatingTexts.length,
-      );
-    }, 3000);
-
-    const bgInterval = setInterval(() => {
-      setBgImage((current) =>
-        current?.id === "intro-gif"
-          ? backgroundImages[1]!
-          : backgroundImages[0]!,
-      );
-    }, 6000); // Change background every 6 seconds
-
-    return () => {
-      clearInterval(textInterval);
-      clearInterval(bgInterval);
-    };
-  }, []);
+  const introGif = PlaceHolderImages.find((p) => p.id === "intro-gif");
 
   return (
-    <HeaderGif imageUrl={bgImage?.imageUrl}>
+    <Section className="relative h-screen w-full flex flex-col p-0 bg-background">
+      {/* Top part with GIF */}
+      <div className="relative flex-grow w-full">
+        {introGif && (
+          <Image
+            src={introGif.imageUrl}
+            alt={introGif.description}
+            layout="fill"
+            objectFit="cover"
+            className="z-0"
+            unoptimized
+            priority
+          />
+        )}
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent z-10" />
+        <div className="relative z-20 flex flex-col items-center justify-center h-full">
+          <Heading
+            className="text-8xl md:text-9xl font-headline text-primary"
+            style={{
+              fontFamily: "'Playball', cursive",
+              textShadow: "2px 2px 8px rgba(0,0,0,0.7)",
+            }}
+          >
+            Venga Mor
+          </Heading>
+        </div>
+      </div>
+
+      {/* Bottom part with buttons */}
       <Flex
         direction="column"
         align="center"
-        gap="6"
-        className="w-full max-w-md"
+        gap="4"
+        className="bg-background p-6 z-20 w-full"
       >
-        <Heading
-          className="text-8xl md:text-9xl font-headline text-primary"
-          style={{ fontFamily: "'Playball', cursive" }}
-        >
-          Venga Mor
-        </Heading>
+        <div className="w-full max-w-sm">
+          <Flex direction="column" gap="4" className="w-full">
+            <Link href="/iniciar-sesion" className="w-full">
+              <Button
+                size="4"
+                className="w-full cursor-pointer bg-primary text-primary-foreground h-14 text-lg"
+              >
+                Ingresar
+              </Button>
+            </Link>
 
-        <p className="text-white mt-4 text-xl md:text-2xl h-8 transition-opacity duration-500">
-          {rotatingTexts[currentTextIndex]}
-        </p>
-
-        <Link href="/iniciar-sesion" className="w-full">
-          <Button
-            size="4"
-            className="bg-primary w-full cursor-pointer text-primary-foreground"
-          >
-            Ingresar
-          </Button>
-        </Link>
-
-        <Link href="/perfiles" className="w-full">
-          <Button
-            size="4"
-            variant="soft"
-            className="w-full bg-secondary cursor-pointer"
-          >
-            Ver perfiles
-          </Button>
-        </Link>
-
-        <PayPalPayment className="w-full" />
+            <Link href="/perfiles" className="w-full">
+              <Button
+                size="4"
+                variant="soft"
+                className="w-full cursor-pointer bg-muted h-14 text-lg"
+              >
+                Ver perfiles
+              </Button>
+            </Link>
+          </Flex>
+        </div>
       </Flex>
-    </HeaderGif>
+    </Section>
   );
 }

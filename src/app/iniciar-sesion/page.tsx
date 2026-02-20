@@ -1,6 +1,6 @@
 "use client";
 import { Button, Flex, Heading, TextField } from "@radix-ui/themes";
-import { EyeClosedIcon, EyeIcon } from "lucide-react";
+import { EyeClosedIcon, EyeIcon, Facebook } from "lucide-react";
 import { toast } from "sonner";
 import { Form } from "radix-ui";
 import HeaderGif from "@/components/header-gif";
@@ -35,7 +35,7 @@ export default function SignInPage() {
     if (!loading && !!user) {
       router.push("/perfil");
     }
-  }, [user, loading]);
+  }, [user, loading, router]);
 
   useEffect(() => {
     if (!loading) {
@@ -82,17 +82,9 @@ export default function SignInPage() {
           <Link href="/">Venga Mor</Link>
         </Heading>
 
-        <Heading
-          as="h2"
-          className="text-xl md:text-2xl font-bold"
-          style={{ fontFamily: "'Playball', cursive" }}
-        >
-          Bienvenido a Venga Mor
-        </Heading>
-
         <Form.Root
           onSubmit={form.handleSubmit(onSubmit)}
-          className="w-full max-w-md bg-white/40 p-6 rounded-lg shadow-md flex flex-col gap-4"
+          className="w-full max-w-md bg-background/80 backdrop-blur-sm p-6 rounded-lg shadow-lg flex flex-col gap-4"
           noValidate
         >
           <Form.Field name="email">
@@ -157,37 +149,60 @@ export default function SignInPage() {
             Iniciar Sesión
           </Button>
 
-          <div className="relative my-6">
+          <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-gray-300" />
+              <span className="w-full border-t border-gray-600" />
             </div>
 
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-gray-500">
+              <span className="bg-background/80 px-2 text-gray-400">
                 O continuar con
               </span>
             </div>
           </div>
 
-          <Button
-            disabled={loadingForm}
-            type="button"
-            onClick={handleGoogleSignIn}
-            size="3"
-            className="bg-red-600 hover:bg-red-700 flex items-center justify-center gap-2"
-          >
-            <img src="/google-icon.png" alt="Google Icon" className="w-6 h-6" />
-            Iniciar Sesión con Google
-          </Button>
+          <Flex direction="column" gap="3">
+            <Button
+              disabled={loadingForm}
+              type="button"
+              onClick={handleGoogleSignIn}
+              size="3"
+              variant="outline"
+              className="w-full"
+            >
+              <img
+                src="/google-icon.png"
+                alt="Google Icon"
+                className="w-5 h-5 mr-2"
+              />
+              Continuar con Google
+            </Button>
+            <Button
+              disabled={true}
+              type="button"
+              size="3"
+              variant="outline"
+              className="w-full"
+            >
+              <Facebook className="w-5 h-5 mr-2" />
+              Continuar con Facebook
+            </Button>
+          </Flex>
 
-          <p className="text-sm text-gray-500 bg-white p-3 rounded-md">
+          <p className="text-sm text-center mt-4">
             ¿No tienes una cuenta?{" "}
-            <Link href="/registrarse" className="text-primary hover:underline">
+            <Link
+              href="/registrarse"
+              className="text-primary font-semibold hover:underline"
+            >
               Regístrate aquí
             </Link>
           </p>
 
-          <Link href="/restablecer-cuenta" className="hover:underline">
+          <Link
+            href="/restablecer-cuenta"
+            className="text-center text-sm text-gray-400 hover:underline"
+          >
             Restablecer contraseña
           </Link>
         </Form.Root>
