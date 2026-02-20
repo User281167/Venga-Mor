@@ -8,43 +8,39 @@ export default function LoginPage() {
   const introGif = PlaceHolderImages.find((p) => p.id === "intro-gif");
 
   return (
-    <Section className="relative h-screen w-full flex flex-col p-0 bg-background">
-      {/* Top part with GIF */}
-      <div className="relative flex-grow w-full">
-        {introGif && (
-          <Image
-            src={introGif.imageUrl}
-            alt={introGif.description}
-            layout="fill"
-            objectFit="cover"
-            className="z-0"
-            unoptimized
-            priority
-          />
-        )}
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent z-10" />
-        <div className="relative z-20 flex flex-col items-center justify-center h-full">
-          <Heading
+    <Section className="relative h-screen w-full flex flex-col items-center justify-center p-0 overflow-hidden">
+      {/* Background GIF */}
+      {introGif && (
+        <Image
+          src={introGif.imageUrl}
+          alt={introGif.description}
+          layout="fill"
+          objectFit="cover"
+          className="z-0"
+          unoptimized
+          priority
+        />
+      )}
+      
+      {/* Gradient Overlay for readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent z-10" />
+
+      {/* Title */}
+      <div className="relative z-20">
+        <Heading
             className="text-8xl md:text-9xl font-headline text-primary"
             style={{
-              fontFamily: "'Playball', cursive",
-              textShadow: "2px 2px 8px rgba(0,0,0,0.7)",
+                fontFamily: "'Playball', cursive",
+                textShadow: "2px 2px 8px rgba(0,0,0,0.7)",
             }}
-          >
+            >
             Venga Mor
-          </Heading>
-        </div>
+        </Heading>
       </div>
 
-      {/* Bottom part with buttons */}
-      <Flex
-        direction="column"
-        align="center"
-        gap="4"
-        className="bg-background p-6 z-20 w-full"
-      >
-        <div className="w-full max-w-sm">
+      {/* Buttons absolutely positioned at the bottom */}
+      <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
+        <div className="w-full max-w-sm mx-auto">
           <Flex direction="column" gap="4" className="w-full">
             <Link href="/iniciar-sesion" className="w-full">
               <Button
@@ -66,7 +62,7 @@ export default function LoginPage() {
             </Link>
           </Flex>
         </div>
-      </Flex>
+      </div>
     </Section>
   );
 }
