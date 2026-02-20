@@ -23,7 +23,7 @@ export default function HeaderGif({
     : introGif?.imageHint || "woman animation";
 
   return (
-    <Section className="relative min-h-screen min-w-full flex flex-col items-center justify-center px-4 text-center bg-primary/10 overflow-hidden">
+    <Section className="relative h-screen min-w-full flex flex-col items-center justify-center px-4 text-center bg-primary/10 overflow-hidden">
       {imageUrl && (
         <Image
           src={imageUrl}

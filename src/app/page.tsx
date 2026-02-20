@@ -46,7 +46,12 @@ export default function LoginPage() {
 
   return (
     <HeaderGif imageUrl={bgImage?.imageUrl}>
-      <Flex direction="column" align="center" gap="5">
+      <Flex
+        direction="column"
+        align="center"
+        gap="6"
+        className="w-full max-w-md"
+      >
         <Heading
           className="text-8xl md:text-9xl font-headline text-primary"
           style={{ fontFamily: "'Playball', cursive" }}
@@ -54,7 +59,7 @@ export default function LoginPage() {
           Venga Mor
         </Heading>
 
-        <p className="text-white mt-4 text-lg md:text-xl h-6 transition-opacity duration-500">
+        <p className="text-white mt-4 text-xl md:text-2xl h-8 transition-opacity duration-500">
           {rotatingTexts[currentTextIndex]}
         </p>
 
@@ -69,7 +74,7 @@ export default function LoginPage() {
 
         <Link href="/perfiles" className="w-full">
           <Button
-            size="3"
+            size="4"
             variant="soft"
             className="w-full bg-secondary cursor-pointer"
           >
