@@ -23,14 +23,14 @@ export default function HeaderGif({
     : introGif?.imageHint || "woman animation";
 
   return (
-    <Section className="relative h-screen min-w-full flex flex-col items-center justify-center px-4 text-center bg-primary/10 overflow-hidden">
+    <Section className="relative h-screen w-full flex flex-col items-center justify-center px-4 text-center overflow-hidden">
       {imageUrl && (
         <Image
           src={imageUrl}
           alt={imageAlt}
           unoptimized
           priority
-          className="absolute -z-10 h-screen w-full object-cover object-center transition-all duration-1000 ease-in-out"
+          className="absolute -z-10 h-screen w-full object-cover object-bottom transition-all duration-1000 ease-in-out"
           style={{ opacity: bgOpacity / 100 }}
           data-ai-hint={imageHint}
           width={1920}
