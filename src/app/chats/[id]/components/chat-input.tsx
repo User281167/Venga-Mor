@@ -12,6 +12,7 @@ import {
 import ProgressBar from "@/components/ProgressBar";
 import { Message } from "@/types/chat.type";
 import { RefObject } from "react";
+import { AudioMessage } from "./audio-message";
 
 interface ChatInputProps {
   message: string;
@@ -44,7 +45,7 @@ export function ChatInput({
     <Flex direction="column" gap="2" className="w-full">
       {/* Preview de reply */}
       {replyingTo && (
-        <Card className="flex justify-between items-center">
+        <Card className="flex justify-between gap-4 items-center">
           <Flex direction="column" gap="2" className="w-full">
             {replyingTo.type === "image" && replyingTo.mediaUrl && (
               <img
@@ -62,10 +63,7 @@ export function ChatInput({
               )}
 
             {replyingTo.type === "audio" && replyingTo.mediaUrl && (
-              <audio controls className="w-full">
-                <source src={replyingTo.mediaUrl} />
-                Tu navegador no soporta el elemento de audio.
-              </audio>
+              <AudioMessage src={replyingTo.mediaUrl} isMyMessage={false} />
             )}
 
             <Text as="p">{replyingTo.text.slice(0, 100)}</Text>

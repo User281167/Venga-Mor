@@ -1,7 +1,7 @@
 "use client";
 
 import { Flex, Spinner, Text } from "@radix-ui/themes";
-import { ChatItem } from "../chat-item";
+import { ChatItem } from "./chat-item";
 import { Message } from "@/types/chat.type";
 import { RefObject } from "react";
 

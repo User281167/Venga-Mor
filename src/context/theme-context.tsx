@@ -56,7 +56,6 @@ export const availableExploreBgs: ImagePlaceholder[] = [
   PlaceHolderImages.find((p) => p.id === "explore-bg-7")!,
 ].filter(Boolean);
 
-
 type ThemeContextType = {
   exploreBackground: string;
   setExploreBackground: (url: string) => void;
@@ -65,6 +64,7 @@ type ThemeContextType = {
   bgOpacity: number;
   setBgOpacity: (opacity: number) => void;
   availableExploreBgs: ImagePlaceholder[];
+  currentForegroundColor: string;
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -75,6 +75,9 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const [bgOpacity, setBgOpacity] = useState(30);
+  const [currentForegroundColor, setCurrentForegroundColor] = useState<string>(
+    getThemeColor("Venga Mor").foreground,
+  );
 
   const setThemeColor = (colorName: string) => {
     const color = getThemeColor(colorName);
@@ -85,6 +88,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     );
 
     localStorage.setItem(THEME_COLOR_KEY, colorName);
+    setCurrentForegroundColor(color.foreground);
   };
 
   // carga inicial
@@ -131,6 +135,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
         bgOpacity,
         setBgOpacity,
         availableExploreBgs,
+        currentForegroundColor,
       }}
     >
       {children}
@@ -145,5 +150,3 @@ export const useTheme = () => {
   }
   return context;
 };
-
-    
