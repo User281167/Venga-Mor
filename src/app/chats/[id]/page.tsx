@@ -241,6 +241,21 @@ export default function ChatPage() {
                   />
                 )}
 
+                {replyingTo.type === "video" &&
+                  replyingTo.mediaMetadata?.thumbnailUrl && (
+                    <img
+                      className="max-h-40 w-full object-cover rounded-md"
+                      src={replyingTo.mediaMetadata.thumbnailUrl}
+                    />
+                  )}
+
+                {replyingTo.type === "audio" && replyingTo.mediaUrl && (
+                  <audio controls className="w-full">
+                    <source src={replyingTo.mediaUrl} />
+                    Tu navegador no soporta el elemento de audio.
+                  </audio>
+                )}
+
                 <Text as="p">{replyingTo.text.slice(0, 100)}</Text>
               </Flex>
 

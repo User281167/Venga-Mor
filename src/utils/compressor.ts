@@ -1,6 +1,6 @@
 import imageCompression from "browser-image-compression";
-import lamejs from "lamejs";
 import { convertFloat32ToInt16 } from "./convert";
+import { Mp3Encoder } from "@breezystack/lamejs";
 
 export async function compressImage(
   file: File,
@@ -28,7 +28,6 @@ export async function compressAudio(file: File): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsArrayBuffer(file);
-
     reader.onload = async (e) => {
       try {
         const audioContext = new AudioContext();
@@ -36,16 +35,14 @@ export async function compressAudio(file: File): Promise<Blob> {
           e.target?.result as ArrayBuffer,
         );
 
-        // Convertir a mono y reducir sample rate para comprimir
         const channels = 1;
-        const sampleRate = 22050; // Reducir de 44100 a 22050
+        const sampleRate = audioBuffer.sampleRate;
+        const sampleBlockSize = 1152;
         const samples = audioBuffer.length;
 
-        const mp3encoder = new lamejs.Mp3Encoder(channels, sampleRate, 96); // 96kbps
-        const mp3Data: Int8Array[] = [];
-
+        const mp3encoder = new Mp3Encoder(channels, sampleRate, 96);
+        const mp3Data: Uint8Array[] = [];
         const channelData = audioBuffer.getChannelData(0);
-        const sampleBlockSize = 1152;
 
         for (let i = 0; i < samples; i += sampleBlockSize) {
           const sampleChunk = channelData.subarray(i, i + sampleBlockSize);
@@ -53,22 +50,24 @@ export async function compressAudio(file: File): Promise<Blob> {
             convertFloat32ToInt16(sampleChunk),
           );
           if (mp3buf.length > 0) {
-            mp3Data.push(mp3buf);
+            mp3Data.push(new Uint8Array(mp3buf));
           }
         }
 
         const mp3buf = mp3encoder.flush();
         if (mp3buf.length > 0) {
-          mp3Data.push(mp3buf);
+          mp3Data.push(new Uint8Array(mp3buf));
         }
 
-        const blob = new Blob(mp3Data, { type: "audio/mp3" });
+        const blob = new Blob(
+          mp3Data.map((b) => new Uint8Array(b)),
+          { type: "audio/mp3" },
+        );
         resolve(blob);
       } catch (error) {
         reject(error);
       }
     };
-
     reader.onerror = reject;
   });
 }
