@@ -11,7 +11,7 @@ interface Props {
 
 export function ReplyPreview({ replyTo, isMyMessage, onClickReply }: Props) {
   return (
-    <button
+    <div
       onClick={() => {
         if (replyTo.type !== "audio") {
           onClickReply?.(replyTo.messageId);
@@ -63,6 +63,6 @@ export function ReplyPreview({ replyTo, isMyMessage, onClickReply }: Props) {
       <Text size="1" className="truncate block">
         {replyTo.text}
       </Text>
-    </button>
+    </div>
   );
 }
