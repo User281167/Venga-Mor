@@ -1,34 +1,23 @@
 "use client";
 
-import {
-  Avatar,
-  Card,
-  Flex,
-  Heading,
-  Text,
-  TextField,
-  Button,
-  Spinner,
-} from "@radix-ui/themes";
-import { Send, ArrowLeft, CircleX, HardDrive } from "lucide-react";
+import { Card, Flex, Spinner, Text } from "@radix-ui/themes";
 import SectionImg from "@/components/section-img";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 
 import { useUser } from "@/context/user-context";
 import { useChat } from "./chat-message.hook";
-import { ChatItem } from "./chat-item";
 import { toast } from "sonner";
 import { Message } from "@/types/chat.type";
-import ProgressBar from "@/components/ProgressBar";
+
+import { ChatHeader } from "./components/chat-header";
+import { ChatMessageList } from "./components/chat-message-list";
+import { ChatInput } from "./components/chat-input";
 
 export default function ChatPage() {
   const params = useParams<{ id: string }>();
-  const router = useRouter();
-
   const { user } = useUser();
   const {
     loading,
@@ -60,46 +49,37 @@ export default function ChatPage() {
   const messageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // SCROLL INTELIGENTE - Solo cuando shouldScrollToBottom es true
   useEffect(() => {
     if (shouldScrollToBottom) {
-      // Usar scrollIntoView sin smooth para evitar conflictos
       chatEndRef.current?.scrollIntoView({ behavior: "auto" });
     }
   }, [messages, shouldScrollToBottom]);
 
   const handleReply = useCallback(
-    (msg: Message) => {
-      setReplyingTo(msg);
-    },
+    (msg: Message) => setReplyingTo(msg),
     [setReplyingTo],
   );
 
   const handleScrollToMessage = useCallback((messageId: string) => {
-    const messageElement = messageRefs.current.get(messageId);
+    const el = messageRefs.current.get(messageId);
+    if (!el) return;
 
-    if (messageElement) {
-      messageElement.scrollIntoView({ behavior: "smooth", block: "center" });
-      // Highlight temporal
-      messageElement.classList.add("bg-accent/30");
-
-      setTimeout(() => {
-        messageElement.classList.remove("bg-accent/30");
-      }, 2000);
-    }
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    el.classList.add("bg-accent/30");
+    setTimeout(() => el.classList.remove("bg-accent/30"), 2000);
   }, []);
 
-  if (errorMessage) {
-    toast.error(errorMessage);
-  }
+  if (errorMessage) toast.error(errorMessage);
+
+  const bgProps = {
+    imageUrl: bgImage?.imageUrl,
+    alt: bgImage?.description,
+    imageHint: bgImage?.imageHint,
+  };
 
   if (loading) {
     return (
-      <SectionImg
-        imageUrl={bgImage?.imageUrl}
-        alt={bgImage?.description}
-        imageHint={bgImage?.imageHint}
-      >
+      <SectionImg {...bgProps}>
         <Spinner />
       </SectionImg>
     );
@@ -107,11 +87,7 @@ export default function ChatPage() {
 
   if (chatError) {
     return (
-      <SectionImg
-        imageUrl={bgImage?.imageUrl}
-        alt={bgImage?.description}
-        imageHint={bgImage?.imageHint}
-      >
+      <SectionImg {...bgProps}>
         <Text>Error al cargar el chat</Text>
       </SectionImg>
     );
@@ -119,212 +95,47 @@ export default function ChatPage() {
 
   if (chatNotFound || !chatInfo || !chatInfo.otherUser) {
     return (
-      <SectionImg
-        imageUrl={bgImage?.imageUrl}
-        alt={bgImage?.description}
-        imageHint={bgImage?.imageHint}
-      >
+      <SectionImg {...bgProps}>
         <Text>Chat no encontrado</Text>
       </SectionImg>
     );
   }
 
   return (
-    <SectionImg
-      imageUrl={bgImage?.imageUrl}
-      alt={bgImage?.description}
-      imageHint={bgImage?.imageHint}
-    >
+    <SectionImg {...bgProps}>
       <Card className="max-w-2xl w-full mx-auto bg-card/50 flex-grow flex flex-col max-h-[90vh]">
-        {/* Header del Chat */}
-        <Flex p="4" align="center" gap="4" className="border-b border-border">
-          <Button
-            variant="ghost"
-            size="2"
-            onClick={() => router.push("/chats")}
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
+        <ChatHeader chatInfo={chatInfo} otherUserStatus={otherUserStatus} />
 
-          <Avatar
-            src={chatInfo.otherUser.photoURL || undefined}
-            fallback={chatInfo.otherUser.displayName.charAt(0).toUpperCase()}
-            size="3"
-            radius="full"
-          />
+        <ChatMessageList
+          messages={messages}
+          currentUserId={user?.uid ?? ""}
+          hasMore={hasMore}
+          loadingOlder={loadingOlder}
+          loadMoreTriggerRef={
+            loadMoreTriggerRef as React.RefObject<HTMLDivElement>
+          }
+          messagesContainerRef={
+            messagesContainerRef as React.RefObject<HTMLDivElement>
+          }
+          chatEndRef={chatEndRef as React.RefObject<HTMLDivElement>}
+          messageRefs={messageRefs}
+          onReply={handleReply}
+          onScrollToMessage={handleScrollToMessage}
+        />
 
-          <div className="flex-grow">
-            <Heading as="h1" className="text-xl">
-              {chatInfo.otherUser.displayName}
-            </Heading>
-            <Text size="1" className="text-muted-foreground">
-              {otherUserStatus === "online" ? (
-                <span className="text-green-500">● En línea</span>
-              ) : (
-                <span className="text-gray-400">● Desconectado</span>
-              )}
-            </Text>
-          </div>
-        </Flex>
-
-        {/* Mensajes */}
-        <Flex
-          ref={messagesContainerRef}
-          direction="column"
-          gap="3"
-          className="p-4 flex-grow overflow-y-auto"
-        >
-          {/* Trigger para cargar más (invisible) */}
-          {hasMore && messages.length > 0 && (
-            <div ref={loadMoreTriggerRef} className="h-1" />
-          )}
-
-          {/* Indicador de carga */}
-          {loadingOlder && (
-            <Flex justify="center" py="2">
-              <Spinner size="2" />
-            </Flex>
-          )}
-
-          {/* Mensaje de "inicio de chat" */}
-          {!hasMore && messages.length > 0 && (
-            <Flex justify="center" py="3">
-              <Text size="1" className="text-muted-foreground">
-                🎉 Inicio de la conversación
-              </Text>
-            </Flex>
-          )}
-
-          {messages.length === 0 ? (
-            <div className="flex-grow flex items-center justify-center">
-              <Text className="text-muted-foreground text-center">
-                No hay mensajes aún.
-                <br />
-                Inicia la conversación 👋
-              </Text>
-            </div>
-          ) : (
-            messages.map((msg) => {
-              const isMyMessage = msg.senderId === user?.uid;
-
-              return (
-                <ChatItem
-                  ref={(el) => {
-                    if (el) {
-                      messageRefs.current.set(msg.id, el);
-                    } else {
-                      messageRefs.current.delete(msg.id);
-                    }
-                  }}
-                  key={msg.id}
-                  msg={msg}
-                  isMyMessage={isMyMessage}
-                  onReply={handleReply}
-                  onClickReply={handleScrollToMessage}
-                />
-              );
-            })
-          )}
-
-          <div ref={chatEndRef} />
-        </Flex>
-
-        {/* Input de Mensaje */}
-        <Flex direction="column" gap="2" className="w-full">
-          {replyingTo && (
-            <Card className="flex justify-between items-center">
-              <Flex direction="column" gap="2" className="w-full">
-                {replyingTo.type === "image" && replyingTo.mediaUrl && (
-                  <img
-                    className="max-h-40 w-full object-cover rounded-md"
-                    src={replyingTo.mediaUrl}
-                  />
-                )}
-
-                {replyingTo.type === "video" &&
-                  replyingTo.mediaMetadata?.thumbnailUrl && (
-                    <img
-                      className="max-h-40 w-full object-cover rounded-md"
-                      src={replyingTo.mediaMetadata.thumbnailUrl}
-                    />
-                  )}
-
-                {replyingTo.type === "audio" && replyingTo.mediaUrl && (
-                  <audio controls className="w-full">
-                    <source src={replyingTo.mediaUrl} />
-                    Tu navegador no soporta el elemento de audio.
-                  </audio>
-                )}
-
-                <Text as="p">{replyingTo.text.slice(0, 100)}</Text>
-              </Flex>
-
-              <Button
-                size="2"
-                color="red"
-                variant="ghost"
-                onClick={() => setReplyingTo(null)}
-              >
-                <CircleX className="h-4 w-4" />
-              </Button>
-            </Card>
-          )}
-
-          {file && (
-            <Card className="flex justify-between items-center">
-              <Text as="p">{file.name}</Text>
-
-              <Button
-                size="2"
-                color="red"
-                variant="ghost"
-                onClick={() => setFile(null)}
-              >
-                <CircleX className="h-4 w-4" />
-              </Button>
-            </Card>
-          )}
-
-          {uploadingMedia && (
-            <Card className="flex justify-between items-center">
-              <Text as="p">Subiendo...</Text>
-              <ProgressBar value={uploadProgress} />
-            </Card>
-          )}
-
-          <Flex p="4" gap="3" align="center" className="border-t border-border">
-            <TextField.Root
-              className="flex-grow"
-              placeholder={
-                replyingTo ? `Respondiendo...` : "Escribe un mensaje..."
-              }
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              disabled={uploadingMedia}
-            />
-
-            <Button
-              onClick={() => fileRef.current?.click()}
-              disabled={uploadingMedia}
-            >
-              <HardDrive className="h-4 w-4" />
-              <input
-                type="file"
-                ref={fileRef}
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
-                style={{ display: "none" }}
-              />
-            </Button>
-
-            <Button
-              onClick={handleSendMessageWithType}
-              disabled={(!message.trim() && !file) || uploadingMedia}
-            >
-              <Send className="h-4 w-4" />
-            </Button>
-          </Flex>
-        </Flex>
+        <ChatInput
+          message={message}
+          setMessage={setMessage}
+          handleKeyPress={handleKeyPress}
+          handleSendMessageWithType={handleSendMessageWithType}
+          replyingTo={replyingTo}
+          setReplyingTo={setReplyingTo}
+          file={file}
+          setFile={setFile}
+          fileRef={fileRef as React.RefObject<HTMLInputElement>}
+          uploadingMedia={uploadingMedia}
+          uploadProgress={uploadProgress}
+        />
       </Card>
     </SectionImg>
   );
