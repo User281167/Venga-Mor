@@ -18,7 +18,7 @@ export default function SectionImg({
   const { bgOpacity } = useTheme();
 
   return (
-    <Section className="min-h-screen min-w-full flex flex-col gap-4 items-center justify-center px-4 text-center bg-primary/10 overflow-hidden py-24">
+    <Section className="min-h-screen min-w-full flex flex-col gap-4 items-center justify-center px-4 text-center bg-primary/10 overflow-hidden pb-24">
       <Image
         src={
           imageUrl ?? "https://i.ibb.co/gMrKhtLp/In-Shot-20251123-182048081.jpg"
