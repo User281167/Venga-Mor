@@ -28,12 +28,6 @@ export const CollaboratorCard = React.memo(function CollaboratorCard({
 
   return (
     <div className="relative w-full h-full group">
-      <Link
-        href={`/perfil-info/${collaborator.uid}`}
-        className="absolute inset-0 z-20"
-        aria-label={`Ver perfil de ${collaborator.nombre}`}
-      />
-
       <div className="relative w-full h-full overflow-hidden bg-black">
         {/* Background Image */}
         <Image
@@ -57,7 +51,7 @@ export const CollaboratorCard = React.memo(function CollaboratorCard({
         >
           <Button
             variant="ghost"
-            className="text-white p-0 h-auto flex flex-col items-center"
+            className="text-white h-auto flex flex-col items-center"
           >
             <Heart size={32} />
             <Text size="1">1.2k</Text>
@@ -65,7 +59,7 @@ export const CollaboratorCard = React.memo(function CollaboratorCard({
 
           <Button
             variant="ghost"
-            className="text-white p-0 h-auto flex flex-col items-center"
+            className="text-white h-auto flex flex-col items-center"
           >
             <MessageCircle size={32} />
             <Text size="1">345</Text>
@@ -73,7 +67,7 @@ export const CollaboratorCard = React.memo(function CollaboratorCard({
 
           <Dialog.Root>
             <Dialog.Trigger>
-              <Button variant="ghost" className="text-white p-0 h-auto z-30">
+              <Button variant="ghost" className="text-white h-auto z-30">
                 <Diamond size={32} />
               </Button>
             </Dialog.Trigger>
@@ -184,6 +178,12 @@ export const CollaboratorCard = React.memo(function CollaboratorCard({
           </div>
         </div>
       </div>
+
+      <Link
+        href={`/perfil-info/${collaborator.uid}`}
+        className="absolute inset-0 z-20 w-full h-full"
+        aria-label={`Ver perfil de ${collaborator.nombre}`}
+      />
     </div>
   );
 });

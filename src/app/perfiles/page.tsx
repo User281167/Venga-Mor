@@ -436,8 +436,10 @@ function ProfilesPageContent() {
         )}
 
         {!hasNextPage && profiles.length > 0 && (
-          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-center justify-center text-white bg-black/50 rounded-full p-2 z-30">
-            <Text>Fin de los perfiles.</Text>
+          <div className="w-full flex items-center justify-center mt-8">
+            <Text className="text-white bg-black/50 rounded-full p-2">
+              Fin de los perfiles
+            </Text>
           </div>
         )}
 
