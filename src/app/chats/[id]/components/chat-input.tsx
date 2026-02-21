@@ -63,7 +63,11 @@ export function ChatInput({
               )}
 
             {replyingTo.type === "audio" && replyingTo.mediaUrl && (
-              <AudioMessage src={replyingTo.mediaUrl} isMyMessage={false} />
+              <AudioMessage
+                src={replyingTo.mediaUrl}
+                isMyMessage={false}
+                audioId={replyingTo.id}
+              />
             )}
 
             <Text as="p">{replyingTo.text.slice(0, 100)}</Text>

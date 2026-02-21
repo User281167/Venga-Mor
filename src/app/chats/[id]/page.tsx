@@ -15,6 +15,7 @@ import { Message } from "@/types/chat.type";
 import { ChatHeader } from "./components/chat-header";
 import { ChatMessageList } from "./components/chat-message-list";
 import { ChatInput } from "./components/chat-input";
+import { AudioPlayerProvider } from "./audio-playes.context";
 
 export default function ChatPage() {
   const params = useParams<{ id: string }>();
@@ -102,41 +103,43 @@ export default function ChatPage() {
   }
 
   return (
-    <SectionImg {...bgProps}>
-      <Card className="max-w-2xl w-full mx-auto bg-card/50 flex-grow flex flex-col max-h-[90vh]">
-        <ChatHeader chatInfo={chatInfo} otherUserStatus={otherUserStatus} />
+    <AudioPlayerProvider>
+      <SectionImg {...bgProps}>
+        <Card className="max-w-2xl w-full mx-auto bg-card/50 flex-grow flex flex-col max-h-[80vh]">
+          <ChatHeader chatInfo={chatInfo} otherUserStatus={otherUserStatus} />
 
-        <ChatMessageList
-          messages={messages}
-          currentUserId={user?.uid ?? ""}
-          hasMore={hasMore}
-          loadingOlder={loadingOlder}
-          loadMoreTriggerRef={
-            loadMoreTriggerRef as React.RefObject<HTMLDivElement>
-          }
-          messagesContainerRef={
-            messagesContainerRef as React.RefObject<HTMLDivElement>
-          }
-          chatEndRef={chatEndRef as React.RefObject<HTMLDivElement>}
-          messageRefs={messageRefs}
-          onReply={handleReply}
-          onScrollToMessage={handleScrollToMessage}
-        />
+          <ChatMessageList
+            messages={messages}
+            currentUserId={user?.uid ?? ""}
+            hasMore={hasMore}
+            loadingOlder={loadingOlder}
+            loadMoreTriggerRef={
+              loadMoreTriggerRef as React.RefObject<HTMLDivElement>
+            }
+            messagesContainerRef={
+              messagesContainerRef as React.RefObject<HTMLDivElement>
+            }
+            chatEndRef={chatEndRef as React.RefObject<HTMLDivElement>}
+            messageRefs={messageRefs}
+            onReply={handleReply}
+            onScrollToMessage={handleScrollToMessage}
+          />
 
-        <ChatInput
-          message={message}
-          setMessage={setMessage}
-          handleKeyPress={handleKeyPress}
-          handleSendMessageWithType={handleSendMessageWithType}
-          replyingTo={replyingTo}
-          setReplyingTo={setReplyingTo}
-          file={file}
-          setFile={setFile}
-          fileRef={fileRef as React.RefObject<HTMLInputElement>}
-          uploadingMedia={uploadingMedia}
-          uploadProgress={uploadProgress}
-        />
-      </Card>
-    </SectionImg>
+          <ChatInput
+            message={message}
+            setMessage={setMessage}
+            handleKeyPress={handleKeyPress}
+            handleSendMessageWithType={handleSendMessageWithType}
+            replyingTo={replyingTo}
+            setReplyingTo={setReplyingTo}
+            file={file}
+            setFile={setFile}
+            fileRef={fileRef as React.RefObject<HTMLInputElement>}
+            uploadingMedia={uploadingMedia}
+            uploadProgress={uploadProgress}
+          />
+        </Card>
+      </SectionImg>
+    </AudioPlayerProvider>
   );
 }

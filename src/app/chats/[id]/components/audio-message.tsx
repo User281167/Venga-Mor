@@ -2,22 +2,37 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Play, Pause, Loader2 } from "lucide-react";
+import { useAudioPlayer } from "../audio-playes.context";
 import { useTheme } from "@/context/theme-context";
 
 interface AudioMessageProps {
   src: string;
   isMyMessage: boolean;
+  audioId: string;
 }
 
-export function AudioMessage({ src, isMyMessage }: AudioMessageProps) {
+export function AudioMessage({ src, isMyMessage, audioId }: AudioMessageProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const { currentPlayingId, setCurrentPlayingId } = useAudioPlayer();
+  const isPlaying = currentPlayingId === audioId;
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState("0:00");
   const [duration, setDuration] = useState("0:00");
 
   const { currentForegroundColor } = useTheme();
+
+  // Cuando otro audio empieza a reproducirse, pausar este
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (currentPlayingId !== audioId) {
+      audio.pause();
+      audio.currentTime = 0;
+      setProgress(0);
+      setCurrentTime("0:00");
+    }
+  }, [currentPlayingId, audioId]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -32,7 +47,7 @@ export function AudioMessage({ src, isMyMessage }: AudioMessageProps) {
       );
     };
     const onEnded = () => {
-      setIsPlaying(false);
+      setCurrentPlayingId(null);
       setProgress(0);
       setCurrentTime("0:00");
     };
@@ -55,17 +70,17 @@ export function AudioMessage({ src, isMyMessage }: AudioMessageProps) {
     if (!audio) return;
     if (isPlaying) {
       audio.pause();
-      setIsPlaying(false);
+      setCurrentPlayingId(null);
     } else {
+      // Esto detiene cualquier otro audio via el useEffect de arriba
+      setCurrentPlayingId(audioId);
       audio.play();
-      setIsPlaying(true);
     }
   };
 
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
     const audio = audioRef.current;
     if (!audio || !audio.duration) return;
-
     const rect = e.currentTarget.getBoundingClientRect();
     const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     audio.currentTime = pct * audio.duration;
@@ -77,7 +92,6 @@ export function AudioMessage({ src, isMyMessage }: AudioMessageProps) {
     <div className="flex items-center gap-3 w-full">
       <audio ref={audioRef} src={src} preload="metadata" />
 
-      {/* Botón play/pause */}
       <button
         onClick={togglePlay}
         disabled={isLoading}
@@ -113,7 +127,6 @@ export function AudioMessage({ src, isMyMessage }: AudioMessageProps) {
               : "rgba(0,0,0,0.15)",
           }}
         >
-          {/* Fill */}
           <div
             className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-100 w-full"
             style={{
@@ -123,7 +136,6 @@ export function AudioMessage({ src, isMyMessage }: AudioMessageProps) {
                 : "hsl(var(--primary))",
             }}
           />
-          {/* Thumb — aparece al hover */}
           <div
             className={`absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full shadow-sm
                         opacity-0 group-hover:opacity-100 transition-opacity duration-150 ${my ? "bg-black" : "bg-primary"}`}
@@ -136,7 +148,6 @@ export function AudioMessage({ src, isMyMessage }: AudioMessageProps) {
           />
         </div>
 
-        {/* Tiempo */}
         <span
           className={`text-[10px] tabular-nums leading-none select-none ${my ? "text-primary-foreground" : "text-white"}`}
         >

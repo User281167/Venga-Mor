@@ -53,7 +53,11 @@ const ChatItemComponent = forwardRef<HTMLDivElement, Props>(
             }`}
           >
             {msg.type === "audio" && msg.mediaUrl ? (
-              <AudioMessage src={msg.mediaUrl} isMyMessage={isMyMessage} />
+              <AudioMessage
+                src={msg.mediaUrl}
+                isMyMessage={isMyMessage}
+                audioId={msg.id}
+              />
             ) : (
               <Text>{msg.text}</Text>
             )}

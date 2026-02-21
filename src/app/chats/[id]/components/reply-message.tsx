@@ -57,7 +57,11 @@ export function ReplyPreview({ replyTo, isMyMessage, onClickReply }: Props) {
       )}
 
       {replyTo.type === "audio" && replyTo.mediaUrl && (
-        <AudioMessage isMyMessage={false} src={replyTo.mediaUrl} />
+        <AudioMessage
+          isMyMessage={false}
+          src={replyTo.mediaUrl}
+          audioId={replyTo.messageId}
+        />
       )}
 
       <Text size="1" className="truncate block">
