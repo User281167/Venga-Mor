@@ -86,6 +86,16 @@ export default function PostCarousel({ id }: { id: string }) {
     });
   }, [posts]);
 
+  if (posts.length === 0 && !isLoading) {
+    return (
+      <div className="h-96 flex items-center justify-center">
+        <p className="text-muted-foreground">
+          No hay publicaciones para mostrar.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <>
       <Swiper
