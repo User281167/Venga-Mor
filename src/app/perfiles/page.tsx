@@ -172,11 +172,11 @@ function ProfilesPageContent() {
         priority
       />
       <header className="fixed top-0 left-0 right-0 z-20 p-4 flex items-center justify-around bg-gradient-to-b from-black/50 to-transparent">
-        <Heading className="text-2xl md:text-4xl font-bold font-headline text-primary">
+        <Heading className="text-2xl md:text-4xl font-bold font-headline text-primary ">
           VENGA MOR
         </Heading>
 
-        <Flex gap="2" align="center">
+        <Flex gap="4" align="center">
           <Dialog.Root>
             <Dialog.Trigger>
               <Button variant="soft">
