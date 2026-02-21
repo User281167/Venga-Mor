@@ -63,7 +63,7 @@ function ProfileBlock({
       ref={ref}
       key={`${collaborator.uid}-${index}`}
       // This container defines the snap area and adds padding for separation
-      className="relative h-full w-full flex-shrink-0 scroll-snap-start flex items-center justify-center p-4"
+      className="relative h-full w-full flex-shrink-0 scroll-snap-start flex items-center justify-center p-4 max-w-3xl mx-auto"
     >
       <motion.div
         className="w-full h-full"
@@ -171,7 +171,7 @@ function ProfilesPageContent() {
         unoptimized
         priority
       />
-      <header className="fixed top-0 left-0 right-0 z-20 p-4 flex items-center justify-between bg-gradient-to-b from-black/50 to-transparent">
+      <header className="fixed top-0 left-0 right-0 z-20 p-4 flex items-center justify-around bg-gradient-to-b from-black/50 to-transparent">
         <Heading className="text-2xl md:text-4xl font-bold font-headline text-primary">
           VENGA MOR
         </Heading>
@@ -420,15 +420,13 @@ function ProfilesPageContent() {
           backgroundColor: "transparent", // Make section background transparent
         }}
       >
-        <div className="relative z-10 h-full w-full max-w-md mx-auto">
-          {profiles.map((profile, index) => (
-            <ProfileBlock
-              collaborator={profile}
-              index={index}
-              key={`${profile.uid}-${index}`}
-            />
-          ))}
-        </div>
+        {profiles.map((profile, index) => (
+          <ProfileBlock
+            collaborator={profile}
+            index={index}
+            key={`${profile.uid}-${index}`}
+          />
+        ))}
 
         {(isLoading || isFetchingNextPage) && (
           <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-center justify-center text-white bg-black/50 rounded-full p-2 z-30">
