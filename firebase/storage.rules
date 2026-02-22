@@ -6,7 +6,7 @@ service firebase.storage {
     function esColaboradorAutenticado(userId) {
       return request.auth != null
              && request.auth.uid == userId
-             && request.auth.token.tipo == "colaborador";
+             && request.auth.token.role == "colaborador";
     }
 
     // --- SECCIÓN DE IMÁGENES ---
