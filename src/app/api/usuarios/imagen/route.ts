@@ -6,10 +6,10 @@ import { getUserID, isCollaborator } from "../../utils";
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
-    const file = formData.get("file");
+    const file = formData.get("file") as File | null;
 
     if (!file) {
-      return Response.json(ApiResponse.failure("Datos incompletos"), {
+      return new Response(ApiResponse.failure("Archivo no enviado").toJSON(), {
         status: 400,
       });
     }
@@ -22,49 +22,81 @@ export async function POST(req: Request) {
       });
     }
 
-    const { data, error } = await supabaseAdmin.storage
+    // -----------------------------
+    // Generar nombre único
+    // -----------------------------
+    const fileExt = file.name.split(".").pop() || "jpg";
+    const fileName = `${uid}-${Date.now()}.${fileExt}`;
+    const filePath = `perfiles/${fileName}`;
+
+    // -----------------------------
+    // Obtener foto anterior
+    // -----------------------------
+    const userRef = adminDb.collection("usuarios").doc(uid);
+    const userSnap = await userRef.get();
+    const oldPhotoUrl = userSnap.data()?.foto as string | undefined;
+
+    // -----------------------------
+    // Subir nueva imagen
+    // -----------------------------
+    const { error: uploadError } = await supabaseAdmin.storage
       .from("perfiles")
-      .upload(`${uid}`, file, {
-        cacheControl: "3600",
-        upsert: true,
+      .upload(fileName, file, {
+        upsert: false,
+        contentType: file.type || "image/jpeg",
       });
 
-    if (error)
-      return new Response(ApiResponse.failure(error.message).toJSON(), {
+    if (uploadError) {
+      return new Response(ApiResponse.failure(uploadError.message).toJSON(), {
         status: 500,
       });
+    }
 
-    const { data: signedUrl } = supabaseAdmin.storage
+    // -----------------------------
+    // Obtener URL pública
+    // -----------------------------
+    const { data: publicData } = supabaseAdmin.storage
       .from("perfiles")
-      .getPublicUrl(uid);
+      .getPublicUrl(fileName);
 
-    // --- SINCRONIZACIÓN CON BATCH ---
+    const newPhotoUrl = publicData.publicUrl;
+
+    // -----------------------------
+    // Batch Firestore
+    // -----------------------------
     const batch = adminDb.batch();
 
-    const userRef = adminDb.collection("usuarios").doc(uid);
-    batch.update(userRef, { foto: signedUrl.publicUrl });
+    batch.update(userRef, { foto: newPhotoUrl });
 
     if (await isCollaborator()) {
-      console.log("Colaborador");
       const colabRef = adminDb.collection("colaboradores").doc(uid);
-
-      batch.set(
-        colabRef,
-        {
-          foto: signedUrl.publicUrl,
-        },
-        { merge: true },
-      );
+      batch.set(colabRef, { foto: newPhotoUrl }, { merge: true });
     }
 
     await batch.commit();
-    console.log("Imagen actualzada", signedUrl.publicUrl);
 
-    const imageUrl = `${signedUrl.publicUrl}?v=${Date.now()}`;
+    // -----------------------------
+    // Borrar imagen anterior (opcional)
+    // -----------------------------
+    if (oldPhotoUrl) {
+      try {
+        const oldFileName = oldPhotoUrl.split("/perfiles/")[1];
 
-    return new Response(ApiResponse.success(imageUrl).toJSON());
+        if (oldFileName) {
+          await supabaseAdmin.storage.from("perfiles").remove([oldFileName]);
+        }
+      } catch (err) {
+        console.warn("No se pudo borrar imagen anterior:", err);
+      }
+    }
+
+    console.log("Imagen actualizada:", newPhotoUrl);
+
+    return new Response(ApiResponse.success(newPhotoUrl).toJSON(), {
+      status: 200,
+    });
   } catch (error) {
-    console.error(error);
+    console.error("Error actualizando imagen:", error);
     return new Response(ApiResponse.failure("Error interno").toJSON(), {
       status: 500,
     });
