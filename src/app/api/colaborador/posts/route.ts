@@ -9,8 +9,6 @@ export async function POST(req: Request) {
   try {
     const uid = await getUserID();
 
-    console.log("UID del colaborador:", uid);
-
     if (!uid) {
       return new Response(ApiResponse.failure("No autorizado").toJSON(), {
         status: 401,

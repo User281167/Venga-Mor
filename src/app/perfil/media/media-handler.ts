@@ -7,6 +7,13 @@ import { MediaFile, PostData } from "@/types/post";
 // Tipo para el callback de progreso
 type ProgressCallback = (progress: number) => void;
 
+function sanitizeFileName(name: string): string {
+  return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // remove accents
+    .replace(/[^a-zA-Z0-9._-]/g, "_"); // replace spaces/special chars
+}
+
 export const uploadFileResumable = (
   file: File,
   userId: string,
@@ -15,7 +22,9 @@ export const uploadFileResumable = (
   onProgress?: ProgressCallback,
 ): Promise<MediaFile> => {
   return new Promise((resolve, reject) => {
-    const storagePath = `${folder}/${userId}/${postId}/${file.name}`;
+    const filename = sanitizeFileName(file.name);
+
+    const storagePath = `${folder}/${userId}/${postId}/${filename}`;
     const storageRef = ref(storage, storagePath);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -32,7 +41,7 @@ export const uploadFileResumable = (
         resolve({
           url: downloadUrl,
           path: storagePath,
-          name: file.name,
+          name: filename,
         });
       },
     );

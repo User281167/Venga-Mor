@@ -104,10 +104,6 @@ export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  // return new Response(ApiResponse.failure("No encontrado TEST").toJSON(), {
-  //   status: 404,
-  // });
-
   try {
     const uid = await getUserID();
 

@@ -1,5 +1,5 @@
 import { getUserID } from "@/app/api/utils";
-import { FollowingModel } from "@/app/models/follow.model";
+import { FollowingModel } from "@/models/follow.model";
 import { ApiResponse } from "@/lib/api-response";
 import { adminDb } from "@/lib/firebase-admin-connection";
 

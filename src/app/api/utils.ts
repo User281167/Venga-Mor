@@ -1,6 +1,8 @@
 import { adminAuth } from "@/lib/firebase-admin-connection";
 import { cookies } from "next/headers";
 import z from "zod";
+import admin from "firebase-admin";
+import { UserRole } from "./constants/user-roles";
 
 export async function getUserID(): Promise<string | null> {
   const token = (await cookies()).get("token")?.value;
@@ -23,7 +25,14 @@ export async function isCollaborator(): Promise<boolean> {
   }
 
   const decoded = await adminAuth.verifyIdToken(token);
-  return decoded.tipo === "colaborador";
+  return decoded.role === "colaborador";
+}
+
+export async function setUserRoleClaims(
+  userId: string,
+  role: UserRole,
+): Promise<void> {
+  return admin.auth().setCustomUserClaims(userId, { role });
 }
 
 export async function isVerified(): Promise<boolean> {

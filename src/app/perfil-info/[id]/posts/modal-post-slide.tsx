@@ -1,8 +1,7 @@
 import React from "react";
 import { useVideoVisibility } from "./use-video-visibility";
 import { MediaSlide } from "./modal-slide";
-import { Flex, Text } from "@radix-ui/themes";
-import { Separator } from "@radix-ui/themes/components/select";
+import { Flex, Separator, Text } from "@radix-ui/themes";
 
 export const ModalMediaSlide = React.memo(function ModalMediaSlide({
   slide,

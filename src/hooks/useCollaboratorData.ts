@@ -80,6 +80,11 @@ export function useCreateCollaborator() {
           /* forceRefresh */ true,
         );
 
+        alert(
+          "Colaborador creado exitosamente. Se actualizará tu sesión para reflejar los cambios.",
+        );
+        alert(freshToken);
+
         // Enviar al backend para actualizar la cookie http-only
         await updateFirabaseIdToken(freshToken);
       } catch (err) {

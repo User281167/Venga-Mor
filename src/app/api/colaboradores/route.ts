@@ -3,6 +3,7 @@ import { ApiResponse } from "@/lib/api-response";
 import { adminDb } from "@/lib/firebase-admin-connection";
 import { Collaborator } from "@/types/collaborator";
 import admin from "firebase-admin";
+import { getUserID } from "../utils";
 
 const normalize = (str: string): string => {
   return str
@@ -20,6 +21,14 @@ const clean = (val: string | null): string | null => {
 
 export async function GET(req: Request) {
   try {
+    const uid = await getUserID();
+
+    if (!uid) {
+      return new Response(ApiResponse.failure("No autorizado").toJSON(), {
+        status: 401,
+      });
+    }
+
     const { searchParams } = new URL(req.url);
 
     const minAge = parseInt(searchParams.get("minAge") || "18");

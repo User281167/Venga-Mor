@@ -67,8 +67,9 @@ export async function POST(req: Request) {
     const batch = adminDb.batch();
 
     batch.update(userRef, { foto: newPhotoUrl });
+    const isCollab = await isCollaborator();
 
-    if (await isCollaborator()) {
+    if (isCollab) {
       const colabRef = adminDb.collection("colaboradores").doc(uid);
       batch.set(colabRef, { foto: newPhotoUrl }, { merge: true });
     }
@@ -76,7 +77,7 @@ export async function POST(req: Request) {
     await batch.commit();
 
     // -----------------------------
-    // Borrar imagen anterior (opcional)
+    // Borrar imagen anterior
     // -----------------------------
     if (oldPhotoUrl) {
       try {

@@ -1,7 +1,7 @@
 import { ApiResponse } from "@/lib/api-response";
 import { getUserID } from "../../utils";
 import { adminDb } from "@/lib/firebase-admin-connection";
-import { FollowingModel } from "@/app/models/follow.model";
+import { FollowingModel } from "@/models/follow.model";
 import { PaginationDto } from "@/dtos/pagination.dto";
 
 export async function GET(req: Request) {

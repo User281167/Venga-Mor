@@ -12,7 +12,7 @@ import {
   getCollaboratorFollowers,
 } from "@/handlers/follow-handler";
 import { useUser } from "@/context/user-context";
-import { FollowingModel } from "@/app/models/follow.model";
+import { FollowingModel } from "@/models/follow.model";
 import { BusinessError } from "@/errors/errors";
 
 // ============================================

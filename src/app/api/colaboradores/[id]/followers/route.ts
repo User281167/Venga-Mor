@@ -1,4 +1,4 @@
-import { FollowerModel } from "@/app/models/follow.model";
+import { FollowerModel } from "@/models/follow.model";
 import { PaginationDto } from "@/dtos/pagination.dto";
 import { ApiResponse } from "@/lib/api-response";
 import { adminDb } from "@/lib/firebase-admin-connection";

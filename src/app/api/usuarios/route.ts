@@ -5,9 +5,9 @@ import { AppUser } from "@/types/user";
 import { UpdateUserInfoSchema, UserDto } from "@/dtos/user.dto";
 import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase";
-import { getZodErrors } from "../utils";
+import { getZodErrors, isCollaborator, setUserRoleClaims } from "../utils";
 import { UserCookieService } from "../services/user-cookie.service";
-import admin from "firebase-admin";
+import { USER_ROLES } from "../constants/user-roles";
 
 export async function POST(req: Request) {
   try {
@@ -21,22 +21,24 @@ export async function POST(req: Request) {
       });
     }
 
-    const parsed = registerFormSchemaWithoutPassword.safeParse(userData);
+    const errors = getZodErrors(registerFormSchemaWithoutPassword, userData);
 
-    if (!parsed.success) {
-      // Convertimos los errores por campo a string[]
-      const errors: string[] = Object.entries(
-        parsed.error.flatten().fieldErrors,
-      ).flatMap(
-        ([field, msgs]) => msgs?.map((msg) => `${field}: ${msg}`) ?? [],
+    if (!!errors) {
+      console.log("Datos recibidos para el nuevo perfil:", userData);
+      console.log("Errores de validación:", errors);
+
+      return new Response(
+        ApiResponse.failure(
+          "Datos incompletos o erroneos",
+          errors ?? [],
+        ).toJSON(),
+        {
+          status: 400,
+        },
       );
-
-      return Response.json(ApiResponse.failure("Validación fallida", errors), {
-        status: 400,
-      });
     }
 
-    const { email, nombre, apellido } = parsed.data;
+    const { email, nombre, apellido } = user;
 
     // Verificar token Firebase
     const decoded = await adminAuth.verifyIdToken(idToken);
@@ -44,6 +46,13 @@ export async function POST(req: Request) {
 
     // Seguridad extra: email debe coincidir
     if (decoded.email !== email) {
+      console.error(
+        "Email del token:",
+        decoded.email,
+        "Email proporcionado:",
+        email,
+      );
+
       return Response.json(
         ApiResponse.failure("El email no coincide con el usuario autenticado", [
           "Email del token no coincide con el proporcionado",
@@ -65,11 +74,12 @@ export async function POST(req: Request) {
     } as AppUser;
 
     // guardar en cookies
-    await UserCookieService.setName(user.nombre + " " + user.apellido);
-    await adminDb.collection("usuarios").doc(uid).set(userDoc);
-
     // cambiar claims
-    await admin.auth().setCustomUserClaims(uid, { role: "cliente" });
+    await Promise.all([
+      UserCookieService.setName(user.nombre + " " + user.apellido),
+      adminDb.collection("usuarios").doc(uid).set(userDoc),
+      setUserRoleClaims(uid, USER_ROLES.CLIENT),
+    ]);
 
     return Response.json(
       ApiResponse.success(userDoc, "Usuario registrado correctamente"),
@@ -95,7 +105,16 @@ export async function PUT(req: Request) {
 
     const decoded = await adminAuth.verifyIdToken(token);
     const uid = decoded.uid;
-    const esColab = decoded.tipo === "colaborador"; // Verificamos el Claim
+    const esColab = await isCollaborator(); // Verificamos el Claim
+
+    console.log(
+      "Usuario autenticado:",
+      decoded.email,
+      "UID:",
+      uid,
+      "Es colaborador:",
+      esColab,
+    );
 
     const body = await req.json();
     const errors = getZodErrors(UpdateUserInfoSchema, body);
@@ -159,7 +178,7 @@ export async function PUT(req: Request) {
       nombre: updatedUserData?.nombre || "",
       apellido: updatedUserData?.apellido || "",
       foto: updatedUserData?.foto || null,
-      tipo: decoded.tipo || "cliente",
+      tipo: esColab ? "colaborador" : "cliente",
       creado: new Date(updatedUserData?.creado || Date.now()).toISOString(),
       descripcion: updatedUserData?.descripcion || null,
     };
@@ -232,6 +251,8 @@ export async function GET() {
       { status: 200 },
     );
   } catch (error: any) {
+    console.error("Error obteniendo usuario:", error);
+
     return new Response(
       ApiResponse.failure(error.message || "Error inesperado").toJSON(),
       { status: 500 },

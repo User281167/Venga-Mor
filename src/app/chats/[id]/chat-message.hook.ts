@@ -163,7 +163,7 @@ export const useChat = (chatId: string | undefined) => {
       setMessage("");
       setReplyingTo(null);
     } catch (error) {
-      setErrorMessage("Error al enviar el mensaje" + error.message);
+      setErrorMessage("Error al enviar el mensaje");
     }
   }, [message, user, chatId, chatInfo, replyingTo]);
 

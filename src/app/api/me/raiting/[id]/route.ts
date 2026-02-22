@@ -1,5 +1,5 @@
 import { getUserID } from "@/app/api/utils";
-import { Raiting } from "@/app/models/raiting.model";
+import { Raiting } from "@/models/raiting.model";
 import { ApiResponse } from "@/lib/api-response";
 import { adminDb } from "@/lib/firebase-admin-connection";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { FollowingModel } from "@/app/models/follow.model";
+import { FollowingModel } from "@/models/follow.model";
 import { Avatar, Flex, Heading, Text } from "@radix-ui/themes";
 import Link from "next/link";
 import React from "react";

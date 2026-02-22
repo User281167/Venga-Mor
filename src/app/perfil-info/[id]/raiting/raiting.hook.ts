@@ -2,7 +2,7 @@ import { BusinessError } from "@/errors/errors";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import getMyRaiting from "./getMyRaiting";
 import { api } from "@/lib/apiHelper";
-import { Raiting } from "@/app/models/raiting.model";
+import { Raiting } from "@/models/raiting.model";
 
 // Obtener Mi calificación actual del colaborador
 export function useRaitingCollaborator(collaboratorId?: string) {

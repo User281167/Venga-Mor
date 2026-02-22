@@ -1,13 +1,14 @@
 import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebase-admin-connection";
 import { ApiResponse } from "@/lib/api-response";
-import { deepTrim, getUserID, getZodErrors } from "../utils";
+import { deepTrim, getUserID, getZodErrors, setUserRoleClaims } from "../utils";
 import {
   collaboratorFormSchema,
   CollaboratorInfo,
 } from "@/schema/collaborator";
 import { Collaborator } from "@/types/collaborator";
 import { AppUser } from "@/types/user";
+import { USER_ROLES } from "../constants/user-roles";
 
 export async function POST(req: Request) {
   try {
@@ -23,6 +24,8 @@ export async function POST(req: Request) {
     const errors = getZodErrors(collaboratorFormSchema, data);
 
     if (!!errors) {
+      console.error("Errores de validación:", errors);
+
       return new Response(
         ApiResponse.failure(
           "Datos incompletos o erroneos",
@@ -57,9 +60,7 @@ export async function POST(req: Request) {
       .create(plainData);
 
     const task2 = userRef.update({ tipo: "colaborador" });
-    const task3 = admin
-      .auth()
-      .setCustomUserClaims(uid, { role: "colaborador" });
+    const task3 = setUserRoleClaims(uid, USER_ROLES.COLLABORATOR);
 
     await Promise.all([task1, task2, task3]);
 
@@ -68,7 +69,7 @@ export async function POST(req: Request) {
       { status: 201 },
     );
   } catch (error) {
-    console.error(error);
+    console.error("Error al crear la cuenta de colaborador:", error);
 
     return new Response(
       ApiResponse.failure("No se pudo crear la cuenta", [
@@ -93,6 +94,8 @@ export async function PUT(req: Request) {
     const errors = getZodErrors(collaboratorFormSchema, data);
 
     if (!!errors) {
+      console.error("Errores de validación:", errors);
+
       return new Response(
         ApiResponse.failure(
           "Datos incompletos o erroneos",

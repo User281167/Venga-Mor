@@ -61,8 +61,8 @@ export async function onSubmitRegisterUser(
     const token = await res.user.getIdToken();
 
     const createdAtDate = res.user.metadata.creationTime
-      ? new Date(res.user.metadata.creationTime)
-      : null;
+      ? new Date(res.user.metadata.creationTime).toISOString()
+      : new Date().toISOString();
 
     const user = {
       uid: res.user.uid,
@@ -71,7 +71,7 @@ export async function onSubmitRegisterUser(
       apellido: apellido,
       foto: null,
       tipo: "cliente",
-      creado: createdAtDate ? createdAtDate.getTime() : Date.now(),
+      creado: createdAtDate,
     } as AppUser;
 
     return await registerUser(token, user);
@@ -115,8 +115,8 @@ export async function onSubmitRegisterGmailUser(): Promise<
     const token = await res.user.getIdToken();
 
     const createdAtDate = res.user.metadata.creationTime
-      ? new Date(res.user.metadata.creationTime)
-      : null;
+      ? new Date(res.user.metadata.creationTime).toISOString()
+      : new Date().toISOString();
 
     const user: AppUser = {
       uid: res.user.uid,
@@ -125,7 +125,7 @@ export async function onSubmitRegisterGmailUser(): Promise<
       apellido: "",
       foto: res.user.photoURL,
       tipo: "cliente",
-      creado: createdAtDate ? createdAtDate.getTime() : Date.now(),
+      creado: createdAtDate,
     };
 
     // limpiar cache

@@ -27,11 +27,7 @@ const RankingCard = ({
   return (
     <Card className="bg-card/80 hover:bg-card/90 transition-all">
       <Flex align="center" gap="4">
-        <Text
-          size="6"
-          weight="bold"
-          className="w-10 text-center text-primary"
-        >
+        <Text size="6" weight="bold" className="w-10 text-center text-primary">
           {rank}
         </Text>
         <Avatar
@@ -50,7 +46,9 @@ const RankingCard = ({
         </Flex>
         <Flex align="center" gap="1" className="text-yellow-400">
           <Star size={16} />
-          <Text weight="bold">{collaborator.estrellas?.toFixed(1) ?? "N/A"}</Text>
+          <Text weight="bold">
+            {collaborator.estrellas?.toFixed(1) ?? "N/A"}
+          </Text>
         </Flex>
       </Flex>
     </Card>
@@ -102,7 +100,9 @@ export default function RankingPage() {
 
   const topGlobal = useMemo(
     () =>
-      [...allCollaborators].sort((a, b) => (b.estrellas || 0) - (a.estrellas || 0)),
+      [...allCollaborators].sort(
+        (a, b) => (b.estrellas || 0) - (a.estrellas || 0),
+      ),
     [allCollaborators],
   );
 
@@ -140,14 +140,34 @@ export default function RankingPage() {
             />
           </Grid>
         )}
-        <Flex direction="column" gap="2" mt="6" p="4" className="bg-muted rounded-lg">
-            <Heading as="h4" size="3" className="text-center">Leyenda de Ranking</Heading>
-            <Flex justify="around" mt="2">
-                <Flex align="center" gap="2"><Star size={16} className="text-yellow-400"/> <Text size="2">Estrellas</Text></Flex>
-                <Flex align="center" gap="2"><Heart size={16} className="text-red-500"/> <Text size="2">Seguidores</Text></Flex>
-                <Flex align="center" gap="2"><Gem size={16} className="text-blue-400"/> <Text size="2">Joyas</Text></Flex>
+        <Flex
+          direction="column"
+          gap="2"
+          mt="6"
+          p="4"
+          className="bg-muted rounded-lg"
+        >
+          <Heading as="h4" size="3" className="text-center">
+            Leyenda de Ranking
+          </Heading>
+          <Flex justify="center" mt="2">
+            <Flex align="center" gap="2">
+              <Star size={16} className="text-yellow-400" />{" "}
+              <Text size="2">Estrellas</Text>
             </Flex>
-            <Text size="1" color="gray" className="text-center" mt="2">Actualmente el ranking se basa en estrellas. ¡Próximamente más métricas!</Text>
+            <Flex align="center" gap="2">
+              <Heart size={16} className="text-red-500" />{" "}
+              <Text size="2">Seguidores</Text>
+            </Flex>
+            <Flex align="center" gap="2">
+              <Gem size={16} className="text-blue-400" />{" "}
+              <Text size="2">Joyas</Text>
+            </Flex>
+          </Flex>
+          <Text size="1" color="gray" className="text-center" mt="2">
+            Actualmente el ranking se basa en estrellas. ¡Próximamente más
+            métricas!
+          </Text>
         </Flex>
       </Card>
     </SectionImg>

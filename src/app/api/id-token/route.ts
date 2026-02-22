@@ -20,6 +20,8 @@ export async function POST(req: NextRequest) {
       status: 200,
     });
   } catch (error: any) {
+    console.error("Error renovando token:", error);
+
     return NextResponse.json(
       ApiResponse.failure(error.message || "Error renovando token"),
       { status: 500 },

@@ -33,7 +33,7 @@ export default function PostCarousel({ id }: { id: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const handleSlideChange = (swiper) => {
+  const handleSlideChange = (swiper: any) => {
     const remaining = swiper.slides.length - swiper.activeIndex;
 
     if (remaining <= 3 && hasNextPage && !isFetchingNextPage) {

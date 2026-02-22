@@ -1,4 +1,4 @@
-import { FollowerModel, FollowingModel } from "@/app/models/follow.model";
+import { FollowerModel, FollowingModel } from "@/models/follow.model";
 import { PaginationDto } from "@/dtos/pagination.dto";
 import { ApiResponse } from "@/lib/api-response";
 import { api } from "@/lib/apiHelper";

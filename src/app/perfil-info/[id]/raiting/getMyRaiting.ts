@@ -1,4 +1,4 @@
-import { Raiting } from "@/app/models/raiting.model";
+import { Raiting } from "@/models/raiting.model";
 import { BusinessError } from "@/errors/errors";
 import { ApiResponse } from "@/lib/api-response";
 

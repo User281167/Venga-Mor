@@ -46,8 +46,8 @@ export async function onSubmitLoginUser(
     await updateFirabaseIdToken(token);
 
     const createdAtDate = res.user.metadata.creationTime
-      ? new Date(res.user.metadata.creationTime)
-      : null;
+      ? new Date(res.user.metadata.creationTime).toISOString()
+      : new Date().toISOString();
 
     const user = {
       uid: res.user.uid,
@@ -56,7 +56,7 @@ export async function onSubmitLoginUser(
       apellido: "",
       foto: null,
       tipo: "cliente",
-      creado: createdAtDate ? createdAtDate.getTime() : null,
+      creado: createdAtDate,
     } as AppUser;
 
     return ApiResponse.success(user, "Sesión iniciada exitosamente.");
@@ -98,8 +98,8 @@ export async function onSubmitLoginGmailUser(): Promise<ApiResponse<AppUser>> {
     const token = await res.user.getIdToken();
 
     const createdAtDate = res.user.metadata.creationTime
-      ? new Date(res.user.metadata.creationTime)
-      : null;
+      ? new Date(res.user.metadata.creationTime).toISOString()
+      : new Date().toISOString();
 
     const user: AppUser = {
       uid: res.user.uid,
@@ -108,7 +108,7 @@ export async function onSubmitLoginGmailUser(): Promise<ApiResponse<AppUser>> {
       apellido: "",
       foto: res.user.photoURL,
       tipo: "cliente",
-      creado: createdAtDate ? createdAtDate.getTime() : Date.now(),
+      creado: createdAtDate,
     };
 
     // limpiar cache

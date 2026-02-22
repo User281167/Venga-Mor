@@ -3,7 +3,8 @@ import { adminAuth, adminDb } from "@/lib/firebase-admin-connection";
 import { ApiResponse } from "@/lib/api-response";
 import { AppUser } from "@/types/user";
 import { UserCookieService } from "../../services/user-cookie.service";
-import admin from "firebase-admin";
+import { getZodErrors, setUserRoleClaims } from "../../utils";
+import { USER_ROLES } from "../../constants/user-roles";
 
 export async function POST(req: Request) {
   try {
@@ -17,22 +18,24 @@ export async function POST(req: Request) {
       });
     }
 
-    const parsed = registerFormSchemaWithoutPassword.safeParse(userData);
+    const errors = getZodErrors(registerFormSchemaWithoutPassword, userData);
 
-    if (!parsed.success) {
-      // Convertimos los errores por campo a string[]
-      const errors: string[] = Object.entries(
-        parsed.error.flatten().fieldErrors,
-      ).flatMap(
-        ([field, msgs]) => msgs?.map((msg) => `${field}: ${msg}`) ?? [],
+    if (!!errors) {
+      console.log("Datos recibidos para el nuevo perfil:", userData);
+      console.log("Errores de validación:", errors);
+
+      return new Response(
+        ApiResponse.failure(
+          "Datos incompletos o erroneos",
+          errors ?? [],
+        ).toJSON(),
+        {
+          status: 400,
+        },
       );
-
-      return Response.json(ApiResponse.failure("Validación fallida", errors), {
-        status: 400,
-      });
     }
 
-    const { email, nombre, apellido } = parsed.data;
+    const { email, nombre, apellido } = user;
 
     // Verificar token Firebase
     const decoded = await adminAuth.verifyIdToken(idToken);
@@ -84,11 +87,12 @@ export async function POST(req: Request) {
     } as AppUser;
 
     // guardar en cookies
-    await UserCookieService.setName(user.nombre + " " + user.apellido);
-    await adminDb.collection("usuarios").doc(uid).set(newUserDoc);
-
     // cambiar claims
-    await admin.auth().setCustomUserClaims(uid, { role: "cliente" });
+    await Promise.all([
+      UserCookieService.setName(user.nombre + " " + user.apellido),
+      adminDb.collection("usuarios").doc(uid).set(newUserDoc),
+      setUserRoleClaims(uid, USER_ROLES.CLIENT),
+    ]);
 
     return Response.json(
       ApiResponse.success(newUserDoc, "Usuario registrado correctamente"),
