@@ -7,6 +7,7 @@ import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase";
 import { getZodErrors } from "../utils";
 import { UserCookieService } from "../services/user-cookie.service";
+import admin from "firebase-admin";
 
 export async function POST(req: Request) {
   try {
@@ -66,6 +67,9 @@ export async function POST(req: Request) {
     // guardar en cookies
     await UserCookieService.setName(user.nombre + " " + user.apellido);
     await adminDb.collection("usuarios").doc(uid).set(userDoc);
+
+    // cambiar claims
+    await admin.auth().setCustomUserClaims(uid, { role: "cliente" });
 
     return Response.json(
       ApiResponse.success(userDoc, "Usuario registrado correctamente"),

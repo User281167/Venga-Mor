@@ -3,6 +3,7 @@ import { adminAuth, adminDb } from "@/lib/firebase-admin-connection";
 import { ApiResponse } from "@/lib/api-response";
 import { AppUser } from "@/types/user";
 import { UserCookieService } from "../../services/user-cookie.service";
+import admin from "firebase-admin";
 
 export async function POST(req: Request) {
   try {
@@ -76,13 +77,18 @@ export async function POST(req: Request) {
       apellido: apellido?.trim(),
       foto: user.foto ?? null,
       tipo: "cliente" as const,
-      creado: user.creado ?? new Date(),
+      creado: user.creado
+        ? new Date(user.creado).toISOString()
+        : new Date().toISOString(),
       descripcion: "",
     } as AppUser;
 
     // guardar en cookies
     await UserCookieService.setName(user.nombre + " " + user.apellido);
     await adminDb.collection("usuarios").doc(uid).set(newUserDoc);
+
+    // cambiar claims
+    await admin.auth().setCustomUserClaims(uid, { role: "cliente" });
 
     return Response.json(
       ApiResponse.success(newUserDoc, "Usuario registrado correctamente"),

@@ -59,7 +59,7 @@ export async function POST(req: Request) {
     const task2 = userRef.update({ tipo: "colaborador" });
     const task3 = admin
       .auth()
-      .setCustomUserClaims(uid, { role: "colaboradores" });
+      .setCustomUserClaims(uid, { role: "colaborador" });
 
     await Promise.all([task1, task2, task3]);
 
