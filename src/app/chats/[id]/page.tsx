@@ -15,7 +15,7 @@ import { Message } from "@/types/chat.type";
 import { ChatHeader } from "./components/chat-header";
 import { ChatMessageList } from "./components/chat-message-list";
 import { ChatInput } from "./components/chat-input";
-import { AudioPlayerProvider } from "./audio-playes.context";
+import { AudioPlayerProvider } from "./audio-player.context";
 
 export default function ChatPage() {
   const params = useParams<{ id: string }>();

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Play, Pause, Loader2 } from "lucide-react";
-import { useAudioPlayer } from "../audio-playes.context";
+import { useAudioPlayer } from "../audio-player.context";
 import { useTheme } from "@/context/theme-context";
 
 interface AudioMessageProps {
