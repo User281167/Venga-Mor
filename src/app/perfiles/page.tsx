@@ -44,13 +44,14 @@ import { useEffect, useRef } from "react";
 import { CollaboratorCard } from "./profile-card";
 import { Loader2 } from "lucide-react";
 import { motion, useInView } from "framer-motion";
+import { Collaborator } from "@/types/collaborator";
 
 // Create a new component to handle the animation and layout of each profile block
 function ProfileBlock({
   collaborator,
   index,
 }: {
-  collaborator: any;
+  collaborator: Collaborator;
   index: number;
 }) {
   const ref = useRef(null);

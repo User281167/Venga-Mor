@@ -46,6 +46,15 @@ export default function ProfileAbout({ collaborator }: ProfileAboutProps) {
           {/* Información clave en formato más visual y moderno */}
           <Flex direction="column" gap="3">
             <Flex align="center" gap="2">
+              <Badge color="bronze" variant="soft" size="2">
+                Seguidores
+              </Badge>
+              <Text size="3">
+                <Strong>{collaborator.seguidoresCount ?? 0}</Strong> seguidores
+              </Text>
+            </Flex>
+
+            <Flex align="center" gap="2">
               <Badge color="gray" variant="soft" size="2">
                 Edad
               </Badge>
@@ -74,7 +83,7 @@ export default function ProfileAbout({ collaborator }: ProfileAboutProps) {
               </Flex>
             )}
 
-            {collaborator.altura && collaborator.altura > 0 && (
+            {collaborator.altura > 0 && (
               <Flex align="center" gap="2">
                 <Badge color="amber" variant="soft" size="2">
                   Altura

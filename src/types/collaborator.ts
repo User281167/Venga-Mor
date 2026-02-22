@@ -18,4 +18,5 @@ export interface Collaborator {
   redes: string[];
   estrellas: number;
   verificado?: boolean;
+  seguidoresCount?: number;
 }

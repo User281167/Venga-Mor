@@ -54,7 +54,7 @@ export const CollaboratorCard = React.memo(function CollaboratorCard({
             className="text-white h-auto flex flex-col items-center"
           >
             <Heart size={32} />
-            <Text size="1">1.2k</Text>
+            <Text size="1">{collaborator.seguidoresCount ?? 0}</Text>
           </Button>
 
           <Button
