@@ -18,6 +18,6 @@ export const postDataSchema = z.object({
       .max(3, "Solo se permiten hasta 3 imágenes."),
     video: mediaFileSchema.nullable(),
   }),
-  creado: z.number(),
-  actualizado: z.number(),
+  creado: z.string(),
+  actualizado: z.string(),
 });

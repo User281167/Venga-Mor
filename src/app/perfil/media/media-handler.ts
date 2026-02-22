@@ -85,8 +85,9 @@ export async function createMediaPost(
         images: uploadedImages,
         video: uploadedVideo,
       },
-      creado: Date.now(),
-      actualizado: Date.now(),
+      creado: new Date().toISOString(),
+      actualizado: new Date().toISOString(),
+      randomSeed: Math.random(), // Para orden aleatorio en el feed
     };
 
     const response = await fetch("/api/colaborador/posts/", {

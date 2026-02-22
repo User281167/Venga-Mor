@@ -9,6 +9,8 @@ export async function POST(req: Request) {
   try {
     const uid = await getUserID();
 
+    console.log("UID del colaborador:", uid);
+
     if (!uid) {
       return new Response(ApiResponse.failure("No autorizado").toJSON(), {
         status: 401,
@@ -19,6 +21,9 @@ export async function POST(req: Request) {
     const errors = getZodErrors(postDataSchema, data);
 
     if (!!errors) {
+      console.log("Datos recibidos para el nuevo post:", data);
+      console.log("Errores de validación:", errors);
+
       return new Response(
         ApiResponse.failure(
           "Datos incompletos o erroneos",
