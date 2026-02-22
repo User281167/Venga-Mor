@@ -7,6 +7,7 @@ import {
 import { CollaboratorInfo } from "@/schema/collaborator";
 import { useUser } from "@/context/user-context";
 import { BusinessError } from "@/errors/errors";
+import { updateFirabaseIdToken } from "@/handlers/postIdToken";
 
 // Hook para obtener datos del colaborador
 export function useCollaboratorProfile() {
@@ -47,7 +48,7 @@ export function useCreateCollaborator() {
 
       return result.data;
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       // Guardar el colaborador en cache
       queryClient.setQueryData(["collaborator", user?.uid], data);
 
@@ -65,6 +66,26 @@ export function useCreateCollaborator() {
         queryClient.invalidateQueries({
           queryKey: ["profile", user.uid],
         });
+      }
+
+      // forzar refresh del token + actualizar cookie
+      try {
+        if (!firebaseUser) {
+          console.warn("No hay firebaseUser disponible");
+          return;
+        }
+
+        // Force refresh → obtiene token con los claims nuevos
+        const freshToken = await firebaseUser.getIdToken(
+          /* forceRefresh */ true,
+        );
+
+        // Enviar al backend para actualizar la cookie http-only
+        await updateFirabaseIdToken(freshToken);
+      } catch (err) {
+        throw new BusinessError(
+          "Colaborador creado, pero hubo un error al actualizar la sesión. Por favor, cierra sesión y vuelve a iniciar sesión.",
+        );
       }
     },
   });
