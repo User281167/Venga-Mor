@@ -41,10 +41,6 @@ export default function ProfileHeader({ collaborator }: ProfileHeaderProps) {
             </Flex>
           )}
         </Flex>
-
-        <Text as="p" className="text-muted-foreground">
-          "{collaborator.descripcion}"
-        </Text>
       </Flex>
     </Flex>
   );
