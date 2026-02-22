@@ -74,7 +74,7 @@ export default function ProfileAbout({ collaborator }: ProfileAboutProps) {
               </Flex>
             )}
 
-            {collaborator.altura && (
+            {collaborator.altura && collaborator.altura > 0 && (
               <Flex align="center" gap="2">
                 <Badge color="amber" variant="soft" size="2">
                   Altura
