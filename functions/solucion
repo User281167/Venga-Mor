@@ -1,0 +1,35 @@
+El error ocurre porque Firebase necesita permisos específicos en IAM para desplegar funciones, especialmente con **Cloud Functions v2** y Eventarc.  Aunque seas propietario del proyecto, el servicio requiere roles explícitos para sus agentes.
+
+### ✅ Solución: Asigna los roles necesarios manualmente
+
+Ejecuta estos comandos con `gcloud` (reemplaza `PROJECT_ID` y `PROJECT_NUMBER`):
+
+```bash
+# Obtén el número del proyecto si no lo conoces
+gcloud projects describe PROJECT_ID --format="value(projectNumber)"
+```
+
+```bash
+# Roles necesarios para el despliegue
+gcloud projects add-iam-policy-binding PROJECT_ID \
+  --member="serviceAccount:PROJECT_NUMBER-compute@developer.gserviceaccount.com" \
+  --role="roles/eventarc.eventReceiver"
+
+gcloud projects add-iam-policy-binding PROJECT_ID \
+  --member="serviceAccount:PROJECT_NUMBER-compute@developer.gserviceaccount.com" \
+  --role="roles/run.invoker"
+
+gcloud projects add-iam-policy-binding PROJECT_ID \
+  --member="serviceAccount:service-PROJECT_NUMBER@gcp-sa-pubsub.iam.gserviceaccount.com" \
+  --role="roles/iam.serviceAccountTokenCreator"
+```
+
+### ¿Por qué ocurre?
+- Firebase CLI **no puede asignar automáticamente** estos roles si hay políticas organizacionales o falta de permisos.
+- El rol `roles/eventarc.eventReceiver` permite recibir eventos.
+- El rol `roles/run.invoker` permite invocar Cloud Run (necesario para v2).
+- Aunque seas propietario, **el permiso `resourcemanager.projects.setIamPolicy`** es necesario para modificar políticas IAM, y a veces no se hereda por defecto.
+
+### Si aún falla:
+- Pide a un administrador que te otorgue el rol **`roles/resourcemanager.projectIamAdmin`** temporalmente.
+- O que ejecute los comandos por ti.
