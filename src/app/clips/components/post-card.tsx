@@ -4,6 +4,7 @@ import React, { useState, useCallback } from "react";
 import { Avatar } from "@radix-ui/themes";
 import { VideoSlide, MultiImageSlide } from "./post-slides";
 import { PostData } from "@/types/post";
+import Link from "next/link";
 
 interface PostCardProps {
   post: PostData;
@@ -74,7 +75,10 @@ export const PostCard = React.memo(function PostCard({
         }}
       >
         {/* Autor */}
-        <div className="flex items-center gap-2">
+        <Link
+          href={`/perfil-info/${post.autorId}`}
+          className="flex items-center gap-2"
+        >
           <Avatar
             size="2"
             fallback={post.autorId?.[0]?.toUpperCase() ?? "?"}
@@ -85,7 +89,7 @@ export const PostCard = React.memo(function PostCard({
             @{post.autorId}
           </span>
           <span className="text-white/40 text-xs ml-auto">{fecha}</span>
-        </div>
+        </Link>
 
         {/* Descripción */}
         {post.descripcion && (

@@ -25,7 +25,8 @@ export function useFeed({
   const params: FeedParams = { limit, autorId, mediaType };
 
   // El seed actual para este conjunto de filtros
-  const [seedStart, setSeedStart] = useState(() => Math.random());
+  // const [seedStart, setSeedStart] = useState(() => Math.random());
+  const [seedStart, setSeedStart] = useState(0); // para tener todos los clips
 
   const {
     data,

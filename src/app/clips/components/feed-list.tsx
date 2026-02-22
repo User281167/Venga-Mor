@@ -58,6 +58,11 @@ export function FeedList({ className, ...feedParams }: FeedListProps) {
     [posts.length, hasNextPage, isFetchingNextPage, fetchNextPage],
   );
 
+  const handleRefresh = useCallback(() => {
+    refresh();
+    swiperRef.current?.slideTo(0);
+  }, [refresh]);
+
   // Botones de navegación
   const slidePrev = useCallback(() => swiperRef.current?.slidePrev(), []);
   const slideNext = useCallback(() => swiperRef.current?.slideNext(), []);
@@ -88,7 +93,7 @@ export function FeedList({ className, ...feedParams }: FeedListProps) {
         <p className="text-xs text-white/30">{error?.message}</p>
 
         <button
-          onClick={refresh}
+          onClick={handleRefresh}
           className="mt-2 text-xs uppercase tracking-widest border border-white/20 rounded-full px-4 py-2 hover:bg-white/10 transition-colors"
         >
           Reintentar
@@ -140,8 +145,9 @@ export function FeedList({ className, ...feedParams }: FeedListProps) {
               <p className="text-white/30 text-sm tracking-widest uppercase">
                 Has visto todo
               </p>
+
               <button
-                onClick={refresh}
+                onClick={handleRefresh}
                 className="text-xs uppercase tracking-widest border border-white/20 rounded-full px-4 py-2 text-white/50 hover:bg-white/10 hover:text-white transition-colors"
               >
                 Ver feed nuevo
