@@ -27,15 +27,15 @@ export const metadata: Metadata = {
   title: "Venga Mor",
   description: "Tu compañía de élite en Bogotá.",
   icons: {
-    icon: "https://i.ibb.co/XZ1jGh0x/In-Shot-20231119-124433570.jpg",
-    apple: "https://i.ibb.co/XZ1jGh0x/In-Shot-20231119-124433570.jpg",
+    icon: "/favicon.ico",
+    apple: "/favicon.ico",
   },
   openGraph: {
     title: "Venga Mor",
     description: "Tu compañía de élite en Bogotá.",
     images: [
       {
-        url: "https://i.ibb.co/XZ1jGh0x/In-Shot-20231119-124433570.jpg",
+        url: "/favicon.ico",
         width: 574,
         height: 571,
         alt: "Venga Mor Logo",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Venga Mor",
     description: "Tu compañía de élite en Bogotá.",
-    images: ["https://i.ibb.co/XZ1jGh0x/In-Shot-20231119-124433570.jpg"],
+    images: ["/favicon.ico"],
   },
 };
 
