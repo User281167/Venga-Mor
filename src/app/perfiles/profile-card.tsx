@@ -62,7 +62,7 @@ export const CollaboratorCard = React.memo(function CollaboratorCard({
             className="text-white h-auto flex flex-col items-center"
           >
             <MessageCircle size={32} />
-            <Text size="1">345</Text>
+            <Text size="1">{collaborator.comentariosCount ?? 0}</Text>
           </Button>
 
           <Dialog.Root>

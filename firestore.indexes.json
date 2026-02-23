@@ -26,14 +26,6 @@
       ]
     },
     {
-      "collectionGroup": "posts",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "autorId", "order": "ASCENDING" },
-        { "fieldPath": "creado", "order": "DESCENDING" }
-      ]
-    },
-    {
       "collectionGroup": "comentarios",
       "queryScope": "COLLECTION",
       "fields": [
@@ -51,5 +43,26 @@
       ]
     }
   ],
-  "fieldOverrides": []
+  "fieldOverrides": [
+    {
+      "collectionGroup": "posts",
+      "fieldPath": "autorId",
+      "indexes": [{ "order": "ASCENDING", "queryScope": "COLLECTION_GROUP" }]
+    },
+    {
+      "collectionGroup": "comentarios",
+      "fieldPath": "usuario_id",
+      "indexes": [{ "order": "ASCENDING", "queryScope": "COLLECTION_GROUP" }]
+    },
+    {
+      "collectionGroup": "usuarios",
+      "fieldPath": "usuarioId",
+      "indexes": [{ "order": "ASCENDING", "queryScope": "COLLECTION_GROUP" }]
+    },
+    {
+      "collectionGroup": "members",
+      "fieldPath": "userId",
+      "indexes": [{ "order": "ASCENDING", "queryScope": "COLLECTION_GROUP" }]
+    }
+  ]
 }

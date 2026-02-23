@@ -19,4 +19,5 @@ export interface Collaborator {
   estrellas: number;
   verificado?: boolean;
   seguidoresCount?: number;
+  comentariosCount?: number;
 }

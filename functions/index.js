@@ -44,6 +44,43 @@ export const onFollowDeleted = onDocumentDeleted(
   },
 );
 
+// Comentarios contador por perfil de colaborador
+// Doc comentarios/id usar campo colaborador_id
+export const onCommentCreated = onDocumentCreated(
+  "comentarios/{comentarioId}",
+  async (event) => {
+    const snap = event.data;
+    if (!snap) return;
+
+    const { colaborador_id } = snap.data();
+    const colabRef = db.doc(`colaboradores/${colaborador_id}`);
+
+    await colabRef.update({
+      comentariosCount: admin.firestore.FieldValue.increment(1),
+    });
+  },
+);
+
+export const onCommentDeleted = onDocumentDeleted(
+  "comentarios/{comentarioId}",
+  async (event) => {
+    const snap = event.data;
+    if (!snap) return;
+
+    const { colaborador_id } = snap.data();
+    const colabRef = db.doc(`colaboradores/${colaborador_id}`);
+
+    await db.runTransaction(async (tx) => {
+      const colabSnap = await tx.get(colabRef);
+      const actual = colabSnap.data()?.comentariosCount ?? 0;
+
+      tx.update(colabRef, {
+        comentariosCount: Math.max(0, actual - 1),
+      });
+    });
+  },
+);
+
 // Raiting calcular estrellas y media de estrellas
 /*
 En colabroadores
