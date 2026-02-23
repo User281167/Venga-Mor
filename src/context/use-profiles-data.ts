@@ -27,6 +27,7 @@ export function useProfilesList(
         ageRange[1],
         categories,
         locationData,
+        star,
         pageParam,
       );
 

@@ -34,6 +34,10 @@ export async function GET(req: Request) {
     const minAge = parseInt(searchParams.get("minAge") || "18");
     const maxAge = parseInt(searchParams.get("maxAge") || "60");
 
+    const stars = searchParams.get("stars")
+      ? parseFloat(searchParams.get("stars")!)
+      : null;
+
     if (
       isNaN(minAge) ||
       isNaN(maxAge) ||
@@ -43,6 +47,13 @@ export async function GET(req: Request) {
     ) {
       return new Response(
         ApiResponse.failure("Rango de edad inválido").toJSON(),
+        { status: 400 },
+      );
+    }
+
+    if (stars && (stars < 0 || stars > 5)) {
+      return new Response(
+        ApiResponse.failure("Valor de estrellas inválido").toJSON(),
         { status: 400 },
       );
     }
@@ -114,6 +125,12 @@ export async function GET(req: Request) {
     if (categories.length > 0) {
       profiles = profiles.filter((p) =>
         p.categorias?.some((cat: string) => categories.includes(cat)),
+      );
+    }
+
+    if (stars !== null && stars >= 1) {
+      profiles = profiles.filter(
+        (p) => p.estrellas >= stars && p.estrellas <= stars + 0.99,
       );
     }
 

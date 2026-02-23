@@ -97,107 +97,107 @@ rating: {
   }
 }
 */
-// function calcularPromedio(total, conteo) {
-//   let suma = 0;
+function calcularPromedio(total, conteo) {
+  let suma = 0;
 
-//   for (let i = 1; i <= 5; i++) {
-//     suma += (conteo[i] || 0) * i;
-//   }
+  for (let i = 1; i <= 5; i++) {
+    suma += (conteo[i] || 0) * i;
+  }
 
-//   return total === 0 ? 0 : Number((suma / total).toFixed(1));
-// }
+  return total === 0 ? 0 : Number((suma / total).toFixed(1));
+}
 
-// export const onRatingCreate = onDocumentCreated(
-//   "ratings/{ratingId}",
-//   async (event) => {
-//     const snap = event.data;
-//     if (!snap) return;
+export const onRatingCreate = onDocumentCreated(
+  "ratings/{ratingId}",
+  async (event) => {
+    const snap = event.data;
+    if (!snap) return;
 
-//     const { colaboradorId, valor } = snap.data();
+    const { colaboradorId, valor } = snap.data();
 
-//     const colabRef = admin
-//       .firestore()
-//       .collection("colaboradores")
-//       .doc(colaboradorId);
+    const colabRef = admin
+      .firestore()
+      .collection("colaboradores")
+      .doc(colaboradorId);
 
-//     await admin.firestore().runTransaction(async (tx) => {
-//       const colabSnap = await tx.get(colabRef);
+    await admin.firestore().runTransaction(async (tx) => {
+      const colabSnap = await tx.get(colabRef);
 
-//       const rating = colabSnap.data()?.rating ?? {
-//         total: 0,
-//         promedio: 0,
-//         conteo: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
-//       };
+      const rating = colabSnap.data()?.rating ?? {
+        total: 0,
+        promedio: 0,
+        conteo: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+      };
 
-//       rating.total += 1;
-//       rating.conteo[valor] += 1;
-//       rating.promedio = calcularPromedio(rating.total, rating.conteo);
+      rating.total += 1;
+      rating.conteo[valor] += 1;
+      rating.promedio = calcularPromedio(rating.total, rating.conteo);
 
-//       tx.set(colabRef, { rating }, { merge: true });
-//     });
-//   },
-// );
+      tx.set(colabRef, { rating, estrellas: rating.promedio }, { merge: true });
+    });
+  },
+);
 
-// export const onRatingUpdate = onDocumentUpdated(
-//   "ratings/{ratingId}",
-//   async (event) => {
-//     const beforeSnap = event.data?.before;
-//     const afterSnap = event.data?.after;
-//     if (!beforeSnap || !afterSnap) return;
+export const onRatingUpdate = onDocumentUpdated(
+  "ratings/{ratingId}",
+  async (event) => {
+    const beforeSnap = event.data?.before;
+    const afterSnap = event.data?.after;
+    if (!beforeSnap || !afterSnap) return;
 
-//     const before = beforeSnap.data();
-//     const after = afterSnap.data();
+    const before = beforeSnap.data();
+    const after = afterSnap.data();
 
-//     if (before.valor === after.valor) return;
+    if (before.valor === after.valor) return;
 
-//     const colabRef = admin
-//       .firestore()
-//       .collection("colaboradores")
-//       .doc(after.colaboradorId);
+    const colabRef = admin
+      .firestore()
+      .collection("colaboradores")
+      .doc(after.colaboradorId);
 
-//     await admin.firestore().runTransaction(async (tx) => {
-//       const colabSnap = await tx.get(colabRef);
-//       const rating = colabSnap.data()?.rating;
-//       if (!rating) return;
+    await admin.firestore().runTransaction(async (tx) => {
+      const colabSnap = await tx.get(colabRef);
+      const rating = colabSnap.data()?.rating;
+      if (!rating) return;
 
-//       rating.conteo[before.valor] = Math.max(
-//         0,
-//         rating.conteo[before.valor] - 1,
-//       );
-//       rating.conteo[after.valor] += 1;
-//       rating.promedio = calcularPromedio(rating.total, rating.conteo);
+      rating.conteo[before.valor] = Math.max(
+        0,
+        rating.conteo[before.valor] - 1,
+      );
+      rating.conteo[after.valor] += 1;
+      rating.promedio = calcularPromedio(rating.total, rating.conteo);
 
-//       tx.update(colabRef, { rating });
-//     });
-//   },
-// );
+      tx.update(colabRef, { rating, estrellas: rating.promedio });
+    });
+  },
+);
 
-// export const onRatingDelete = onDocumentDeleted(
-//   "ratings/{ratingId}",
-//   async (event) => {
-//     const snap = event.data;
-//     if (!snap) return;
+export const onRatingDelete = onDocumentDeleted(
+  "ratings/{ratingId}",
+  async (event) => {
+    const snap = event.data;
+    if (!snap) return;
 
-//     const { colaboradorId, valor } = snap.data();
+    const { colaboradorId, valor } = snap.data();
 
-//     const colabRef = admin
-//       .firestore()
-//       .collection("colaboradores")
-//       .doc(colaboradorId);
+    const colabRef = admin
+      .firestore()
+      .collection("colaboradores")
+      .doc(colaboradorId);
 
-//     await admin.firestore().runTransaction(async (tx) => {
-//       const colabSnap = await tx.get(colabRef);
-//       const rating = colabSnap.data()?.rating;
-//       if (!rating) return;
+    await admin.firestore().runTransaction(async (tx) => {
+      const colabSnap = await tx.get(colabRef);
+      const rating = colabSnap.data()?.rating;
+      if (!rating) return;
 
-//       rating.total = Math.max(0, rating.total - 1);
-//       rating.conteo[valor] = Math.max(0, rating.conteo[valor] - 1);
-//       rating.promedio = calcularPromedio(rating.total, rating.conteo);
+      rating.total = Math.max(0, rating.total - 1);
+      rating.conteo[valor] = Math.max(0, rating.conteo[valor] - 1);
+      rating.promedio = calcularPromedio(rating.total, rating.conteo);
 
-//       tx.update(colabRef, { rating });
-//     });
-//   },
-// );
+      tx.update(colabRef, { rating, estrellas: rating.promedio });
+    });
+  },
+);
 
 // /*
 //   Actualizar nombre y appelido de colaborador agregar en todas las colecciones donde se repite el nombre y apellido del colaborador
