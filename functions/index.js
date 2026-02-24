@@ -201,85 +201,47 @@ export const onRatingDelete = onDocumentDeleted(
 
 // /*
 //   Actualizar nombre y appelido de colaborador agregar en todas las colecciones donde se repite el nombre y apellido del colaborador
+//
+// seguidores
+//    colaboradores/{collaboradorId}/seguidores/{seguidorId} -> nombre
+// siguiendo
+//    usuarios/{uid}/siguiendo/{colaboradorId} -> nombre
+// posts
+//    posts/{postId} -> usuario_nombre
+// comentarios
+//    comentarios/{comentarioId} -> usuario_nombre
+// colaboradores
+//    colaboradores/{colaboradorId} -> nombre, apellido
 // */
-// export const onUsuarioUpdated = onDocumentUpdated(
-//   "usuarios/{uid}",
-//   async (event) => {
-//     const before = event.data?.before.data();
-//     const after = event.data?.after.data();
+export const onUsuarioUpdated = onDocumentUpdated(
+  "usuarios/{uid}",
+  async (event) => {
+    const before = event.data?.before.data();
+    const after = event.data?.after.data();
+    if (!before || !after) return;
 
-//     if (!before || !after) return;
+    if (before.nombre === after.nombre && before.apellido === after.apellido)
+      return;
 
-//     // Solo si cambió nombre o apellido
-//     if (before.nombre === after.nombre && before.apellido === after.apellido)
-//       return;
+    const uid = event.params.uid;
+    const nombreCompleto = `${after.nombre} ${after.apellido}`.trim();
 
-//     const uid = event.params.uid;
-//     const nombreCompleto = `${after.nombre} ${after.apellido}`;
-//     const esColaborador = after.tipo === "colaborador";
+    const [comentariosSnap, postsSnap] = await Promise.all([
+      db.collection("comentarios").where("usuario_id", "==", uid).get(),
+      db.collection("posts").where("autorId", "==", uid).get(),
+    ]);
 
-//     // Consultas en paralelo
-//     const [postsSnap, comentariosSnap, siguiendoSnap, seguidoresSnap] =
-//       await Promise.all([
-//         db.collection("posts").where("autorId", "==", uid).get(),
-//         db.collection("comentarios").where("usuario_id", "==", uid).get(),
-//         db.collection("siguiendo").doc(uid).collection("colaboradores").get(),
-//         // Seguidores: docs donde este uid aparece como seguidor
-//         db.collectionGroup("usuarios").where("usuarioId", "==", uid).get(),
-//       ]);
+    const batch = db.batch();
 
-//     // Dividir en batches de 500
-//     const allOps = [];
+    comentariosSnap.forEach((doc) =>
+      batch.update(doc.ref, { usuario_nombre: nombreCompleto }),
+    );
 
-//     // 1. Posts y colaborador
-//     if (esColaborador) {
-//       postsSnap.forEach((doc) =>
-//         allOps.push({ ref: doc.ref, data: { autorNombre: nombreCompleto } }),
-//       );
+    // set con merge crea el campo si no existe, actualiza si ya existe
+    postsSnap.forEach((doc) =>
+      batch.set(doc.ref, { autorNombre: nombreCompleto }, { merge: true }),
+    );
 
-//       const colabRef = db.collection("colaboradores").doc(uid);
-//       allOps.push({
-//         ref: colabRef,
-//         data: { nombre: after.nombre, apellido: after.apellido },
-//       });
-//     }
-
-//     // 2. Comentarios
-//     comentariosSnap.forEach((doc) =>
-//       allOps.push({ ref: doc.ref, data: { autorNombre: nombreCompleto } }),
-//     );
-
-//     // 3. Siguiendo (subdocs donde este usuario sigue a colaboradores)
-//     siguiendoSnap.forEach((doc) =>
-//       allOps.push({ ref: doc.ref, data: { nombre: nombreCompleto } }),
-//     );
-
-//     // 4. Seguidores (subdocs en colaboradores/seguidores/usuarios/{uid})
-//     seguidoresSnap.forEach((doc) =>
-//       allOps.push({ ref: doc.ref, data: { nombre: nombreCompleto } }),
-//     );
-
-//     // 5. Chat participants
-//     const chatParticipantsSnap = await db
-//       .collectionGroup("members")
-//       .where("userId", "==", uid)
-//       .get();
-
-//     chatParticipantsSnap.forEach((doc) =>
-//       allOps.push({ ref: doc.ref, data: { nombre: nombreCompleto } }),
-//     );
-
-//     // Ejecutar en batches de 500
-//     const BATCH_LIMIT = 500;
-//     for (let i = 0; i < allOps.length; i += BATCH_LIMIT) {
-//       const batch = db.batch();
-//       const chunk = allOps.slice(i, i + BATCH_LIMIT);
-//       chunk.forEach(({ ref, data }) => batch.update(ref, data));
-//       await batch.commit();
-//     }
-
-//     console.log(
-//       `[onUsuarioUpdated] uid=${uid} | nombre="${nombreCompleto}" | ops=${allOps.length}`,
-//     );
-//   },
-// );
+    await batch.commit();
+  },
+);
