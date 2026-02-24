@@ -50,6 +50,7 @@ export const uploadFileResumable = (
 
 export async function createMediaPost(
   userId: string,
+  autorName: string,
   description: string,
   images: File[],
   videos: File[],
@@ -89,6 +90,7 @@ export async function createMediaPost(
     const postData: PostData = {
       id: postId,
       autorId: userId,
+      autorNombre: autorName,
       descripcion: description.trim().slice(0, 200),
       media: {
         images: uploadedImages,

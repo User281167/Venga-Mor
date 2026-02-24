@@ -7,6 +7,7 @@ export interface MediaFile {
 export interface PostData {
   id: string;
   autorId: string;
+  autorNombre: string;
   descripcion: string;
   media: {
     images: MediaFile[];

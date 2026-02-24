@@ -14,6 +14,7 @@ export function serializePost(doc: any): PostData {
     descripcion: data.descripcion,
     media: data.media,
     randomSeed: data.randomSeed,
+    autorNombre: data.autorNombre ?? "",
   };
 }
 

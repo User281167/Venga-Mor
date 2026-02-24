@@ -73,6 +73,7 @@ export default function MediaUploadPanel() {
 
     const result = await createMediaPost(
       user.uid,
+      `${user.apellido} ${user.apellido}`.trim(),
       description,
       images,
       videos,

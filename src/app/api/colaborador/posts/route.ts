@@ -37,6 +37,7 @@ export async function POST(req: Request) {
       ...data,
       descripcion: data.descripcion.trim(),
       autorId: uid,
+      autorNombre: data.autorNombre || "",
       creado: new Date().toISOString(),
       actualizado: new Date().toISOString(),
     };

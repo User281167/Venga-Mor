@@ -9,6 +9,7 @@ export const mediaFileSchema = z.object({
 export const postDataSchema = z.object({
   id: z.string(),
   autorId: z.string(),
+  autorNombre: z.string(),
   descripcion: z
     .string()
     .max(200, "La descripción no puede exceder los 200 caracteres."),

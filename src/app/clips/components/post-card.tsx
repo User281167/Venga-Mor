@@ -86,7 +86,7 @@ export const PostCard = React.memo(function PostCard({
             className="ring-2 ring-white/30"
           />
           <span className="text-white/90 text-sm font-medium tracking-wide">
-            @{post.autorId}
+            @{post.autorNombre || post.autorId.slice(0, 6)}
           </span>
           <span className="text-white/40 text-xs ml-auto">{fecha}</span>
         </Link>
