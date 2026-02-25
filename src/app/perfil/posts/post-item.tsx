@@ -1,4 +1,4 @@
-import { Box, Flex, Grid, Text } from "@radix-ui/themes";
+import { Box, Button, Flex, Grid, Text } from "@radix-ui/themes";
 
 import * as Dialog from "@radix-ui/react-dialog";
 import { Trash, XIcon } from "lucide-react";
@@ -9,6 +9,7 @@ import "react-responsive-carousel/lib/styles/carousel.min.css";
 import React from "react";
 import { PostData } from "@/types/post";
 import { PostEditDialog } from "./PostEditDialog";
+import { PostDeleteDialog } from "./PostDeleteDialog";
 
 interface PostItemProps {
   post: PostData;
@@ -45,12 +46,7 @@ export const PostItem = React.memo(function PostItem({ post }: PostItemProps) {
 
         <Flex gap="2">
           <PostEditDialog post={post} />
-
-          <Trash
-            color="red"
-            size={20}
-            className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-          />
+          <PostDeleteDialog post={post} />
         </Flex>
       </Flex>
 

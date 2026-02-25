@@ -34,3 +34,9 @@ export const updatePostDescription = async (
     description: newDescription,
   });
 };
+
+export const deletePost = async (
+  postId: string,
+): Promise<ApiResponse<undefined>> => {
+  return api.del(`/api/colaborador/posts/${postId}`);
+};

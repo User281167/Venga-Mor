@@ -4,6 +4,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import {
+  deletePost,
   fetchPosts,
   updatePostDescription,
 } from "@/app/perfil/posts/post-handler";
@@ -126,6 +127,53 @@ export function useUpdatePostDescription() {
     },
 
     // Si éxito — sincroniza con servidor
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: key });
+    },
+  });
+}
+
+export function useDeletePost() {
+  const queryClient = useQueryClient();
+  const { user } = useUser();
+  const key = [...queryKey, user?.uid];
+
+  return useMutation({
+    mutationFn: async (postId: string) => {
+      const result = await deletePost(postId);
+
+      if (!result.success) {
+        throw new BusinessError(result.message || "Error al eliminar");
+      }
+
+      return result;
+    },
+
+    onMutate: async (postId: string) => {
+      await queryClient.cancelQueries({ queryKey: key });
+      const snapshot = queryClient.getQueryData(key);
+
+      queryClient.setQueryData(key, (old: any) => {
+        if (!old?.pages) return old;
+
+        return {
+          ...old,
+          pages: old.pages.map((page: any) => ({
+            ...page,
+            data: page.data.filter((post: PostData) => post.id !== postId),
+          })),
+        };
+      });
+
+      return { snapshot };
+    },
+
+    onError: (_err, _postId, context) => {
+      if (context?.snapshot) {
+        queryClient.setQueryData(key, context.snapshot);
+      }
+    },
+
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: key });
     },
