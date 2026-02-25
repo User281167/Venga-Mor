@@ -12,7 +12,6 @@ export const VideoSlide = React.memo(function VideoSlide({
   return (
     <video
       src={url}
-      controls
       muted
       className="h-full w-full object-contain"
       onClick={onClick}

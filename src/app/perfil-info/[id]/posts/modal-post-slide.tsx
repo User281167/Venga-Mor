@@ -11,35 +11,8 @@ export const ModalMediaSlide = React.memo(function ModalMediaSlide({
   const videoRef = useVideoVisibility();
   let content;
 
-  if (slide.type === "video") {
-    content = (
-      <video
-        ref={videoRef}
-        src={slide.url}
-        controls
-        muted
-        playsInline
-        className="max-h-full max-w-full object-contain flex-1"
-      />
-    );
-  } else {
-    content = (
-      <img
-        src={slide.url}
-        className="max-h-full max-w-full object-contain flex-1"
-      />
-    );
-  }
-
   return (
-    <Flex
-      direction="column"
-      align="center"
-      justify="center"
-      gap="4"
-      className="w-full h-full"
-      mt="6"
-    >
+    <Flex direction="column" className="w-full h-full">
       <Flex direction="column" gap="4" className="w-full">
         <Text as="p" className="text-white text-center">
           {slide.description}
@@ -52,7 +25,20 @@ export const ModalMediaSlide = React.memo(function ModalMediaSlide({
         </Text>
       </Flex>
 
-      {content}
+      <div className="flex-1 w-full flex items-center justify-center overflow-hidden">
+        {slide.type === "video" ? (
+          <video
+            ref={videoRef}
+            src={slide.url}
+            controls
+            autoPlay
+            playsInline
+            className="w-full max-h-full object-contain"
+          />
+        ) : (
+          <img src={slide.url} className="w-full max-h-full object-contain" />
+        )}
+      </div>
     </Flex>
   );
 });
