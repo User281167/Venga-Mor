@@ -1,12 +1,14 @@
-import { Box, Flex, Grid, Separator, Text } from "@radix-ui/themes";
+import { Box, Flex, Grid, Text } from "@radix-ui/themes";
+
 import * as Dialog from "@radix-ui/react-dialog";
-import { XIcon } from "lucide-react";
+import { Trash, XIcon } from "lucide-react";
 
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 import React from "react";
 import { PostData } from "@/types/post";
+import { PostEditDialog } from "./PostEditDialog";
 
 interface PostItemProps {
   post: PostData;
@@ -20,20 +22,18 @@ export const PostItem = React.memo(function PostItem({ post }: PostItemProps) {
   const video = post.media.video;
 
   return (
-    <Dialog.Root>
-      <Flex
-        direction="column"
-        gap="3"
-        p="4"
-        className="group relative rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xl transition-all hover:bg-white/15"
-      >
-        {/* Header: Fecha y Descripción */}
+    <Flex
+      direction="column"
+      gap="3"
+      p="4"
+      className="group relative rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xl transition-all hover:bg-white/15"
+    >
+      {/* Header: Fecha y Descripción */}
+      <Flex justify="between" align="center" gap="2">
         <Box className="text-left">
           <Text as="p" className="text-sm  font-medium tracking-wider">
             Pulicación el: {new Date(post.creado).toLocaleDateString()}
           </Text>
-
-          <Separator />
 
           <Text
             as="p"
@@ -43,6 +43,18 @@ export const PostItem = React.memo(function PostItem({ post }: PostItemProps) {
           </Text>
         </Box>
 
+        <Flex gap="2">
+          <PostEditDialog post={post} />
+
+          <Trash
+            color="red"
+            size={20}
+            className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+          />
+        </Flex>
+      </Flex>
+
+      <Dialog.Root>
         {/* Grid 2x2 de Contenido */}
         <Dialog.Trigger asChild>
           <Grid
@@ -122,7 +134,7 @@ export const PostItem = React.memo(function PostItem({ post }: PostItemProps) {
             </Carousel>
           </Dialog.Content>
         </Dialog.Portal>
-      </Flex>
-    </Dialog.Root>
+      </Dialog.Root>
+    </Flex>
   );
 });

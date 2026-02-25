@@ -89,8 +89,8 @@ export async function GET(req: Request) {
     const snapshot = await query.get();
 
     const posts = snapshot.docs.map((doc) => ({
-      id: doc.id,
       ...doc.data(),
+      id: doc.id,
     }));
 
     // Enviamos el ID del último para que el front sepa de dónde seguir

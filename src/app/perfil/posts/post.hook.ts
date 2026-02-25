@@ -1,5 +1,12 @@
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchPosts } from "@/app/perfil/posts/post-handler";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+import {
+  fetchPosts,
+  updatePostDescription,
+} from "@/app/perfil/posts/post-handler";
 import { PostData } from "@/types/post";
 import { useUser } from "@/context/user-context";
 import { BusinessError } from "@/errors/errors";
@@ -64,4 +71,63 @@ export function useAddPostOptimistic() {
       };
     });
   };
+}
+
+export function useUpdatePostDescription() {
+  const queryClient = useQueryClient();
+  const { user } = useUser();
+  const key = [...queryKey, user?.uid];
+
+  return useMutation({
+    mutationFn: async ({
+      postId,
+      descripcion,
+    }: {
+      postId: string;
+      descripcion: string;
+    }) => {
+      const result = await updatePostDescription(postId, descripcion);
+
+      if (!result.success) {
+        throw new BusinessError(result.message || "Error al actualizar");
+      }
+      return result;
+    },
+
+    // Antes de la llamada — actualiza UI inmediatamente
+    onMutate: async ({ postId, descripcion }) => {
+      await queryClient.cancelQueries({ queryKey: key });
+
+      // Guarda snapshot para rollback
+      const snapshot = queryClient.getQueryData(key);
+
+      queryClient.setQueryData(key, (old: any) => {
+        if (!old?.pages) return old;
+
+        return {
+          ...old,
+          pages: old.pages.map((page: any) => ({
+            ...page,
+            data: page.data.map((post: PostData) =>
+              post.id === postId ? { ...post, descripcion } : post,
+            ),
+          })),
+        };
+      });
+
+      return { snapshot };
+    },
+
+    // Si falla — revierte al snapshot
+    onError: (_err, _vars, context) => {
+      if (context?.snapshot) {
+        queryClient.setQueryData(key, context.snapshot);
+      }
+    },
+
+    // Si éxito — sincroniza con servidor
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: key });
+    },
+  });
 }

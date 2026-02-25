@@ -1,5 +1,6 @@
 import { PostListDto } from "@/dtos/post.dto";
 import { ApiResponse } from "@/lib/api-response";
+import { api } from "@/lib/apiHelper";
 
 export const fetchPosts = async (
   lastId?: string | null,
@@ -23,4 +24,13 @@ export const fetchPosts = async (
   } catch (error) {
     return ApiResponse.failure("Error al cargar posts");
   }
+};
+
+export const updatePostDescription = async (
+  postId: string,
+  newDescription: string,
+): Promise<ApiResponse<void>> => {
+  return api.put<void>(`/api/colaborador/posts/${postId}`, {
+    description: newDescription,
+  });
 };
