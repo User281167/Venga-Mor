@@ -1,4 +1,3 @@
-import { UserCookieService } from "@/app/api/services/user-cookie.service";
 import { getUserID } from "@/app/api/utils";
 import { ApiResponse } from "@/lib/api-response";
 import { adminDb } from "@/lib/firebase-admin-connection";
@@ -61,26 +60,18 @@ export async function POST(
       );
     }
 
-    // datos del usuario
-    const userName = await UserCookieService.getName();
-    const userPhoto = await UserCookieService.getPhoto();
-
     const now = new Date().toISOString();
     const batch = adminDb.batch();
 
     batch.set(siguiendoRef, {
       fecha: now,
-      nombre: colaboradorDoc.data()?.nombre,
-      avatar: colaboradorDoc.data()?.foto || "",
     });
 
     batch.set(seguidorRef, {
       fecha: now,
-      nombre: userName,
-      avatar: userPhoto || "",
     });
 
-    batch.commit();
+    await batch.commit();
 
     return new Response(
       ApiResponse.success(null, "Seguimiento creado exitosamente").toJSON(),

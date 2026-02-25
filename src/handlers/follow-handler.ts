@@ -6,12 +6,12 @@ import { api } from "@/lib/apiHelper";
 // Verificar si sigo a un colaborador
 export async function getMyFollowStatus(
   colaboradorId: string,
-): Promise<ApiResponse<FollowingModel>> {
+): Promise<ApiResponse<boolean>> {
   if (!colaboradorId.trim()) {
     return ApiResponse.failure("ID de colaborador requerido");
   }
 
-  return api.get<FollowingModel>(`/api/me/following/${colaboradorId}`);
+  return api.get<boolean>(`/api/me/following/${colaboradorId}`);
 }
 
 // Seguir a un colaborador

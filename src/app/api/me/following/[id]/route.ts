@@ -1,5 +1,4 @@
 import { getUserID } from "@/app/api/utils";
-import { FollowingModel } from "@/models/follow.model";
 import { ApiResponse } from "@/lib/api-response";
 import { adminDb } from "@/lib/firebase-admin-connection";
 
@@ -33,21 +32,8 @@ export async function GET(
 
     const snap = await followingRef.get();
 
-    if (!snap.exists) {
-      return new Response(
-        ApiResponse.failure("No sigues a este colaborador").toJSON(),
-        { status: 404 },
-      );
-    }
-
     return new Response(
-      ApiResponse.success(
-        {
-          colaborador_id: snap.id, // opcional pero útil para el frontend
-          ...snap.data(),
-        } as FollowingModel,
-        "Siguiendo",
-      ).toJSON(),
+      ApiResponse.success(snap.exists, "Siguiendo").toJSON(),
       { status: 200 },
     );
   } catch (error) {

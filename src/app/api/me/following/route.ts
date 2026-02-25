@@ -41,18 +41,23 @@ export async function GET(req: Request) {
     const snapshot = await query.get();
     const docs = snapshot.docs.slice(0, limitParam);
 
-    const data: FollowingModel[] = docs.map((doc) => ({
-      colaborador_id: doc.id,
-      ...(doc.data() as Omit<FollowingModel, "colaborador_id">),
-    }));
+    // Obtener datos frescos de cada colaborador en paralelo
+    const colaboradoresSnaps = await Promise.all(
+      docs.map((doc) => adminDb.collection("colaboradores").doc(doc.id).get()),
+    );
+
+    const data: FollowingModel[] = docs.map((doc, index) => {
+      const colab = colaboradoresSnaps[index].data();
+      return {
+        colaborador_id: doc.id,
+        fecha: doc.data().fecha,
+        nombre: `${colab?.nombre ?? ""} ${colab?.apellido ?? ""}`.trim(),
+        avatar: colab?.foto ?? "",
+      };
+    });
 
     const hasMore = snapshot.docs.length > limitParam;
     const newLastId = docs.length ? docs[docs.length - 1].id : null;
-
-    // ⚠️ total: NO se debe calcular leyendo docs
-    // asumimos que lo guardás en usuarios/{uid}.following_count
-    const userDoc = await adminDb.collection("usuarios").doc(uid).get();
-    // const total = userDoc.data()?.following_count ?? data.length;
 
     const response: PaginationDto<FollowingModel> = {
       data,

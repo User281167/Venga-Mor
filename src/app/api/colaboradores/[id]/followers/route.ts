@@ -44,21 +44,25 @@ export async function GET(
     const snapshot = await query.get();
     const docs = snapshot.docs.slice(0, limitParam);
 
-    const data: FollowerModel[] = docs.map((doc) => ({
-      usuario_id: doc.id,
-      ...(doc.data() as Omit<FollowerModel, "usuario_id">),
-    }));
+    const [colaboradorDoc, ...usuariosSnaps] = await Promise.all([
+      adminDb.collection("colaboradores").doc(colaboradorId).get(),
+      ...docs.map((doc) => adminDb.collection("usuarios").doc(doc.id).get()),
+    ]);
+
+    const data: FollowerModel[] = docs.map((doc, index) => {
+      const usuario = usuariosSnaps[index].data();
+      return {
+        usuario_id: doc.id,
+        fecha: doc.data().fecha,
+        nombre: `${usuario?.nombre ?? ""} ${usuario?.apellido ?? ""}`.trim(),
+        avatar: usuario?.foto ?? "",
+      };
+    });
+
+    const total = colaboradorDoc.data()?.followers_count ?? data.length;
 
     const hasMore = snapshot.docs.length > limitParam;
     const newLastId = docs.length ? docs[docs.length - 1].id : null;
-
-    // total: si tienes contador followers en colaboradorDoc
-    const colaboradorDoc = await adminDb
-      .collection("colaboradores")
-      .doc(colaboradorId)
-      .get();
-
-    const total = colaboradorDoc.data()?.followers_count ?? data.length;
 
     const response: PaginationDto<FollowerModel> = {
       data,

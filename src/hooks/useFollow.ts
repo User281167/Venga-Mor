@@ -29,7 +29,7 @@ export function useFollowStatus(colaboradorId: string | undefined) {
       }
 
       const res = await getMyFollowStatus(colaboradorId);
-      return res.success;
+      return res.success && !!res.data;
     },
     enabled: !!colaboradorId && !!user, // Solo si hay colaborador y usuario autenticado
     staleTime: 1000 * 60 * 5, // 5 minutos
