@@ -13,8 +13,6 @@ export function useUpdateUser() {
     mutationFn: async (updatedData: UpdateUserInfo) => {
       const result = await updateUser(updatedData);
 
-      console.log("Result ", result);
-
       if (!result.success || !result.data) {
         throw new BusinessError(
           result.message || "Error al actualizar usuario",

@@ -107,15 +107,6 @@ export async function PUT(req: Request) {
     const uid = decoded.uid;
     const esColab = await isCollaborator(); // Verificamos el Claim
 
-    console.log(
-      "Usuario autenticado:",
-      decoded.email,
-      "UID:",
-      uid,
-      "Es colaborador:",
-      esColab,
-    );
-
     const body = await req.json();
     const errors = getZodErrors(UpdateUserInfoSchema, body);
 

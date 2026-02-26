@@ -19,8 +19,6 @@ export async function PUT(
 
     let { description } = await req.json();
 
-    console.log("Descripción recibida para actualización:", description);
-
     if (
       !description ||
       typeof description !== "string" ||
