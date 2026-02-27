@@ -18,29 +18,37 @@ const db = getFirestore();
 export const onFollowCreated = onDocumentCreated(
   "colaboradores/{collaboradorId}/seguidores/{seguidorId}",
   async (event) => {
-    const collaboradorId = event.params.collaboradorId;
-    const userRef = db.doc(`colaboradores/${collaboradorId}`);
+    try {
+      const collaboradorId = event.params.collaboradorId;
+      const userRef = db.doc(`colaboradores/${collaboradorId}`);
 
-    await userRef.update({
-      seguidoresCount: admin.firestore.FieldValue.increment(1),
-    });
+      await userRef.update({
+        seguidoresCount: admin.firestore.FieldValue.increment(1),
+      });
+    } catch (error) {
+      console.error("Error inesperado al incrementar seguidoresCount:", error);
+    }
   },
 );
 
 export const onFollowDeleted = onDocumentDeleted(
   "colaboradores/{collaboradorId}/seguidores/{seguidorId}",
   async (event) => {
-    const collaboradorId = event.params.collaboradorId;
-    const colabRef = db.doc(`colaboradores/${collaboradorId}`);
+    try {
+      const collaboradorId = event.params.collaboradorId;
+      const colabRef = db.doc(`colaboradores/${collaboradorId}`);
 
-    await db.runTransaction(async (tx) => {
-      const snap = await tx.get(colabRef);
-      const actual = snap.data()?.seguidoresCount ?? 0;
+      await db.runTransaction(async (tx) => {
+        const snap = await tx.get(colabRef);
+        const actual = snap.data()?.seguidoresCount ?? 0;
 
-      tx.update(colabRef, {
-        seguidoresCount: Math.max(0, actual - 1),
+        tx.update(colabRef, {
+          seguidoresCount: Math.max(0, actual - 1),
+        });
       });
-    });
+    } catch (error) {
+      console.error("Error inesperado al decrementar seguidoresCount:", error);
+    }
   },
 );
 
@@ -49,35 +57,43 @@ export const onFollowDeleted = onDocumentDeleted(
 export const onCommentCreated = onDocumentCreated(
   "comentarios/{comentarioId}",
   async (event) => {
-    const snap = event.data;
-    if (!snap) return;
+    try {
+      const snap = event.data;
+      if (!snap) return;
 
-    const { colaborador_id } = snap.data();
-    const colabRef = db.doc(`colaboradores/${colaborador_id}`);
+      const { colaborador_id } = snap.data();
+      const colabRef = db.doc(`colaboradores/${colaborador_id}`);
 
-    await colabRef.update({
-      comentariosCount: admin.firestore.FieldValue.increment(1),
-    });
+      await colabRef.update({
+        comentariosCount: admin.firestore.FieldValue.increment(1),
+      });
+    } catch (error) {
+      console.error("Error inesperado al incrementar comentariosCount:", error);
+    }
   },
 );
 
 export const onCommentDeleted = onDocumentDeleted(
   "comentarios/{comentarioId}",
   async (event) => {
-    const snap = event.data;
-    if (!snap) return;
+    try {
+      const snap = event.data;
+      if (!snap) return;
 
-    const { colaborador_id } = snap.data();
-    const colabRef = db.doc(`colaboradores/${colaborador_id}`);
+      const { colaborador_id } = snap.data();
+      const colabRef = db.doc(`colaboradores/${colaborador_id}`);
 
-    await db.runTransaction(async (tx) => {
-      const colabSnap = await tx.get(colabRef);
-      const actual = colabSnap.data()?.comentariosCount ?? 0;
+      await db.runTransaction(async (tx) => {
+        const colabSnap = await tx.get(colabRef);
+        const actual = colabSnap.data()?.comentariosCount ?? 0;
 
-      tx.update(colabRef, {
-        comentariosCount: Math.max(0, actual - 1),
+        tx.update(colabRef, {
+          comentariosCount: Math.max(0, actual - 1),
+        });
       });
-    });
+    } catch (error) {
+      console.error("Error inesperado al decrementar comentariosCount:", error);
+    }
   },
 );
 
@@ -110,92 +126,108 @@ function calcularPromedio(total, conteo) {
 export const onRatingCreate = onDocumentCreated(
   "ratings/{ratingId}",
   async (event) => {
-    const snap = event.data;
-    if (!snap) return;
+    try {
+      const snap = event.data;
+      if (!snap) return;
 
-    const { colaboradorId, valor } = snap.data();
+      const { colaboradorId, valor } = snap.data();
 
-    const colabRef = admin
-      .firestore()
-      .collection("colaboradores")
-      .doc(colaboradorId);
+      const colabRef = admin
+        .firestore()
+        .collection("colaboradores")
+        .doc(colaboradorId);
 
-    await admin.firestore().runTransaction(async (tx) => {
-      const colabSnap = await tx.get(colabRef);
+      await admin.firestore().runTransaction(async (tx) => {
+        const colabSnap = await tx.get(colabRef);
 
-      const rating = colabSnap.data()?.rating ?? {
-        total: 0,
-        promedio: 0,
-        conteo: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
-      };
+        const rating = colabSnap.data()?.rating ?? {
+          total: 0,
+          promedio: 0,
+          conteo: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+        };
 
-      rating.total += 1;
-      rating.conteo[valor] += 1;
-      rating.promedio = calcularPromedio(rating.total, rating.conteo);
+        rating.total += 1;
+        rating.conteo[valor] += 1;
+        rating.promedio = calcularPromedio(rating.total, rating.conteo);
 
-      tx.set(colabRef, { rating, estrellas: rating.promedio }, { merge: true });
-    });
+        tx.set(
+          colabRef,
+          { rating, estrellas: rating.promedio },
+          { merge: true },
+        );
+      });
+    } catch (error) {
+      console.error("Error inesperado al crear rating:", error);
+    }
   },
 );
 
 export const onRatingUpdate = onDocumentUpdated(
   "ratings/{ratingId}",
   async (event) => {
-    const beforeSnap = event.data?.before;
-    const afterSnap = event.data?.after;
-    if (!beforeSnap || !afterSnap) return;
+    try {
+      const beforeSnap = event.data?.before;
+      const afterSnap = event.data?.after;
+      if (!beforeSnap || !afterSnap) return;
 
-    const before = beforeSnap.data();
-    const after = afterSnap.data();
+      const before = beforeSnap.data();
+      const after = afterSnap.data();
 
-    if (before.valor === after.valor) return;
+      if (before.valor === after.valor) return;
 
-    const colabRef = admin
-      .firestore()
-      .collection("colaboradores")
-      .doc(after.colaboradorId);
+      const colabRef = admin
+        .firestore()
+        .collection("colaboradores")
+        .doc(after.colaboradorId);
 
-    await admin.firestore().runTransaction(async (tx) => {
-      const colabSnap = await tx.get(colabRef);
-      const rating = colabSnap.data()?.rating;
-      if (!rating) return;
+      await admin.firestore().runTransaction(async (tx) => {
+        const colabSnap = await tx.get(colabRef);
+        const rating = colabSnap.data()?.rating;
+        if (!rating) return;
 
-      rating.conteo[before.valor] = Math.max(
-        0,
-        rating.conteo[before.valor] - 1,
-      );
-      rating.conteo[after.valor] += 1;
-      rating.promedio = calcularPromedio(rating.total, rating.conteo);
+        rating.conteo[before.valor] = Math.max(
+          0,
+          rating.conteo[before.valor] - 1,
+        );
+        rating.conteo[after.valor] += 1;
+        rating.promedio = calcularPromedio(rating.total, rating.conteo);
 
-      tx.update(colabRef, { rating, estrellas: rating.promedio });
-    });
+        tx.update(colabRef, { rating, estrellas: rating.promedio });
+      });
+    } catch (error) {
+      console.error("Error inesperado al actualizar rating:", error);
+    }
   },
 );
 
 export const onRatingDelete = onDocumentDeleted(
   "ratings/{ratingId}",
   async (event) => {
-    const snap = event.data;
-    if (!snap) return;
+    try {
+      const snap = event.data;
+      if (!snap) return;
 
-    const { colaboradorId, valor } = snap.data();
+      const { colaboradorId, valor } = snap.data();
 
-    const colabRef = admin
-      .firestore()
-      .collection("colaboradores")
-      .doc(colaboradorId);
+      const colabRef = admin
+        .firestore()
+        .collection("colaboradores")
+        .doc(colaboradorId);
 
-    await admin.firestore().runTransaction(async (tx) => {
-      const colabSnap = await tx.get(colabRef);
-      const rating = colabSnap.data()?.rating;
-      if (!rating) return;
+      await admin.firestore().runTransaction(async (tx) => {
+        const colabSnap = await tx.get(colabRef);
+        const rating = colabSnap.data()?.rating;
+        if (!rating) return;
 
-      rating.total = Math.max(0, rating.total - 1);
-      rating.conteo[valor] = Math.max(0, rating.conteo[valor] - 1);
-      rating.promedio = calcularPromedio(rating.total, rating.conteo);
+        rating.total = Math.max(0, rating.total - 1);
+        rating.conteo[valor] = Math.max(0, rating.conteo[valor] - 1);
+        rating.promedio = calcularPromedio(rating.total, rating.conteo);
 
-      tx.update(colabRef, { rating, estrellas: rating.promedio });
-    });
+        tx.update(colabRef, { rating, estrellas: rating.promedio });
+      });
+    } catch (error) {
+      console.error("Error inesperado al eliminar rating:", error);
+    }
   },
 );
 
@@ -216,32 +248,36 @@ export const onRatingDelete = onDocumentDeleted(
 export const onUsuarioUpdated = onDocumentUpdated(
   "usuarios/{uid}",
   async (event) => {
-    const before = event.data?.before.data();
-    const after = event.data?.after.data();
-    if (!before || !after) return;
+    try {
+      const before = event.data?.before.data();
+      const after = event.data?.after.data();
+      if (!before || !after) return;
 
-    if (before.nombre === after.nombre && before.apellido === after.apellido)
-      return;
+      if (before.nombre === after.nombre && before.apellido === after.apellido)
+        return;
 
-    const uid = event.params.uid;
-    const nombreCompleto = `${after.nombre} ${after.apellido}`.trim();
+      const uid = event.params.uid;
+      const nombreCompleto = `${after.nombre} ${after.apellido}`.trim();
 
-    const [comentariosSnap, postsSnap] = await Promise.all([
-      db.collection("comentarios").where("usuario_id", "==", uid).get(),
-      db.collection("posts").where("autorId", "==", uid).get(),
-    ]);
+      const [comentariosSnap, postsSnap] = await Promise.all([
+        db.collection("comentarios").where("usuario_id", "==", uid).get(),
+        db.collection("posts").where("autorId", "==", uid).get(),
+      ]);
 
-    const batch = db.batch();
+      const batch = db.batch();
 
-    comentariosSnap.forEach((doc) =>
-      batch.update(doc.ref, { usuario_nombre: nombreCompleto }),
-    );
+      comentariosSnap.forEach((doc) =>
+        batch.update(doc.ref, { usuario_nombre: nombreCompleto }),
+      );
 
-    // set con merge crea el campo si no existe, actualiza si ya existe
-    postsSnap.forEach((doc) =>
-      batch.set(doc.ref, { autorNombre: nombreCompleto }, { merge: true }),
-    );
+      // set con merge crea el campo si no existe, actualiza si ya existe
+      postsSnap.forEach((doc) =>
+        batch.set(doc.ref, { autorNombre: nombreCompleto }, { merge: true }),
+      );
 
-    await batch.commit();
+      await batch.commit();
+    } catch (error) {
+      console.error("Error inesperado al actualizar nombre de usuario:", error);
+    }
   },
 );
