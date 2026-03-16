@@ -5,19 +5,17 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
-  "theme_color": "#ff0055",
-  "orientation": "portrait",
+  "theme_color": "#337",
   "icons": [
     {
-      "src": "https://i.ibb.co/jk9tgFjs/In-Shot-20251127-124506071.gif",
+      "src": "https://i.ibb.co/XZ1jGh0x/In-Shot-20231119-124433570.jpg",
       "sizes": "192x192",
-      "type": "image/gif",
-      "purpose": "any maskable"
+      "type": "image/jpeg"
     },
     {
-      "src": "https://i.ibb.co/jk9tgFjs/In-Shot-20251127-124506071.gif",
+      "src": "https://i.ibb.co/XZ1jGh0x/In-Shot-20231119-124433570.jpg",
       "sizes": "512x512",
-      "type": "image/gif"
+      "type": "image/jpeg"
     }
   ]
 }

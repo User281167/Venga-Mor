@@ -12,22 +12,22 @@ export default function LoginPage() {
   const [showIosTip, setShowIosTip] = useState(false);
 
   useEffect(() => {
-    const handleBeforeInstallPrompt = (e: Event) => {
-      // Prevenir que el navegador muestre su propio prompt automáticamente
+    // Registro del Service Worker
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then(() => console.log("Service Worker activo"))
+        .catch((err) => console.log("Error SW:", err));
+    }
+
+    const handleBeforeInstallPrompt = (e: any) => {
+      // Evita que el navegador muestre su propio aviso
       e.preventDefault();
-      // Guardar el evento para dispararlo luego
+      // "Atrapamos" el evento para usarlo con nuestro botón
       setDeferredPrompt(e);
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-
-    // Registro del Service Worker para PWA
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker
-        .register("/sw.js")
-        .then(() => console.log("Service Worker registrado correctamente"))
-        .catch((err) => console.log("Error al registrar SW:", err));
-    }
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
@@ -36,15 +36,14 @@ export default function LoginPage() {
 
   const handleInstallClick = async () => {
     if (deferredPrompt) {
-      // Mostrar el prompt de instalación nativo (Android/Chrome)
+      // Dispara la ventana REAL de instalación
       deferredPrompt.prompt();
-      // Esperar la respuesta del usuario
       const { outcome } = await deferredPrompt.userChoice;
-      console.log(`Usuario eligió: ${outcome}`);
-      // Limpiar el evento guardado
+      console.log(`Resultado de instalación: ${outcome}`);
+      // Limpiamos el evento una vez usado
       setDeferredPrompt(null);
     } else {
-      // Detección manual para iOS o navegadores que no soportan beforeinstallprompt
+      // Si no hay evento (iOS o navegador no compatible)
       const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
       if (isIos) {
         setShowIosTip(true);
@@ -72,7 +71,7 @@ export default function LoginPage() {
         />
       )}
 
-      {/* Gradient Overlay for readability */}
+      {/* Gradient Overlay */}
       <div className="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-black via-black/80 to-transparent z-10" />
 
       {/* Content container */}
@@ -107,7 +106,7 @@ export default function LoginPage() {
             </Button>
           </Link>
 
-          {/* Tercer botón: Descargar App */}
+          {/* Botón de Descarga Mejorado */}
           <Button
             size="3"
             variant="outline"
@@ -118,7 +117,7 @@ export default function LoginPage() {
             Descargar App
           </Button>
 
-          {/* Tip para iOS (iPhone) */}
+          {/* Guía visual para iPhone */}
           <Dialog.Root open={showIosTip} onOpenChange={setShowIosTip}>
             <Dialog.Content style={{ maxWidth: 450 }}>
               <Dialog.Title>Instalar en tu iPhone</Dialog.Title>
