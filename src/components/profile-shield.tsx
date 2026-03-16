@@ -3,8 +3,21 @@
 import Image from "next/image";
 import { Collaborator } from "@/types/collaborator";
 
-// Base URL para los escudos en Firebase Storage
-const SHIELD_BASE_URL = "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/escudos%2F";
+// Base URL y Tokens para los escudos configurados
+const SHIELD_BASE = "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/escudos%2F";
+
+const SHIELD_MAP: Record<number, { file: string; token: string }> = {
+  1: { file: "Image1%202026-03-16%20at%201.59.19%20AM.png", token: "d8f4e7eb-84bf-40d9-aabb-9652254127e6" },
+  2: { file: "Image2%202026-03-16%20at%201.59.19%20AM%20(1).png", token: "0e3a6938-1493-4774-870d-6b27d35b5e6d" },
+  3: { file: "Image3%202026-03-16%20at%201.59.19%20AM%20(2).png", token: "370a3897-5c53-4c55-8314-5b03178cc593" },
+  4: { file: "Image4%202026-03-16%20at%201.59.19%20AM%20(3).png", token: "e4a02e70-13e1-4aa4-8dd2-8982cda820be" },
+  5: { file: "Image5%202026-03-16%20at%201.59.20%20AM.png", token: "5d9ae057-f3a6-4dfa-9290-afb6af90fba5" },
+  6: { file: "Image6%202026-03-16%20at%201.59.20%20AM%20(1).png", token: "7517405c-bee6-4c00-9b8e-56413a6c4fe9" },
+  7: { file: "Image7%202026-03-16%20at%201.59.20%20AM%20(2).png", token: "3098bc73-2dc0-4e12-ac8e-179999b786de" },
+  8: { file: "Image8%202026-03-16%20at%201.59.20%20AM%20(3).png", token: "c619a96c-f5b5-41f7-a3ca-72ca47eae6e1" },
+  9: { file: "image9%202026-03-16%20at%201.59.20%20AM%20(4).png", token: "920c9f13-352a-41fb-8f89-cb34875f53c2" },
+  10: { file: "Image10%202026-03-16%20at%201.59.21%20AM.png", token: "8eead3f5-bfe8-46ab-8511-cb3d317afdc2" },
+};
 
 interface ProfileShieldProps {
   collaborator: Collaborator;
@@ -17,34 +30,31 @@ export function ProfileShield({ collaborator, size = 48, className = "" }: Profi
   const comments = collaborator.comentariosCount || 0;
   const stars = collaborator.estrellas || 0;
 
-  // Calculamos un puntaje de prestigio para determinar el escudo (1 al 10)
-  // Jewel/Joyas se sumaría aquí si estuviera en el modelo, por ahora usamos actividad
-  const prestigeScore = (followers * 2) + (comments) + (stars * 5);
+  // Calculamos prestigio para determinar nivel (1 al 10)
+  const prestigeScore = (followers * 2) + comments + (stars * 5);
 
-  let shieldFile = "";
+  let level = 1;
+  if (prestigeScore > 200) level = 10;
+  else if (prestigeScore > 150) level = 9;
+  else if (prestigeScore > 120) level = 8;
+  else if (prestigeScore > 100) level = 7;
+  else if (prestigeScore > 80) level = 6;
+  else if (prestigeScore > 60) level = 5;
+  else if (prestigeScore > 40) level = 4;
+  else if (prestigeScore > 20) level = 3;
+  else if (prestigeScore > 10) level = 2;
 
-  // Mapeo de escudos según prestigio (del 1 al 10)
-  if (prestigeScore > 200) shieldFile = "Image10%202026-03-16%20at%201.59.21%20AM.png";
-  else if (prestigeScore > 150) shieldFile = "image9%202026-03-16%20at%201.59.20%20AM%20%284%29.png";
-  else if (prestigeScore > 120) shieldFile = "Image8%202026-03-16%20at%201.59.20%20AM%20%283%29.png";
-  else if (prestigeScore > 100) shieldFile = "Image7%202026-03-16%20at%201.59.20%20AM%20%282%29.png";
-  else if (prestigeScore > 80) shieldFile = "Image6%202026-03-16%20at%201.59.20%20AM%20%281%29.png";
-  else if (prestigeScore > 60) shieldFile = "Image5%202026-03-16%20at%201.59.20%20AM.png";
-  else if (prestigeScore > 40) shieldFile = "Image4%202026-03-16%20at%201.59.19%20AM%20%283%29.png";
-  else if (prestigeScore > 20) shieldFile = "Image3%202026-03-16%20at%201.59.19%20AM%20%282%29.png";
-  else if (prestigeScore > 10) shieldFile = "Image2%202026-03-16%20at%201.59.19%20AM%20%281%29.png";
-  else shieldFile = "Image1%202026-03-16%20at%201.59.19%20AM.png";
-
-  const imageUrl = `${SHIELD_BASE_URL}${shieldFile}?alt=media`;
+  const shield = SHIELD_MAP[level];
+  const imageUrl = `${SHIELD_BASE}${shield.file}?alt=media&token=${shield.token}`;
 
   return (
     <div 
-      className={`relative z-30 pointer-events-none drop-shadow-[0_0_12px_rgba(255,255,255,0.4)] transition-all duration-500 hover:scale-110 ${className}`}
+      className={`relative z-30 pointer-events-none drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] transition-all duration-500 hover:scale-110 ${className}`}
       style={{ width: size, height: size }}
     >
       <Image
         src={imageUrl}
-        alt="Escudo de Rango Venga Mor"
+        alt={`Escudo Nivel ${level}`}
         width={size}
         height={size}
         className="object-contain"

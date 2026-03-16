@@ -94,16 +94,16 @@ export default function LoginPage() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Gradient Overlay inferior - Subido para cubrir los botones */}
+      {/* Gradient Overlay inferior */}
       <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black via-black/90 to-transparent z-10" />
 
-      {/* Contenedor de contenido - Subido con pb-32 para evitar cortes */}
-      <div className="relative z-20 w-full max-w-[280px] mx-auto p-4 flex flex-col items-center text-center pb-32">
+      {/* Contenedor de contenido - Ajustado para estar más abajo pero visible */}
+      <div className="relative z-20 w-full max-w-[320px] mx-auto p-4 flex flex-col items-center text-center pb-12">
         <Heading
-          className="text-4xl md:text-6xl font-headline text-primary mb-6"
+          className="text-6xl md:text-7xl font-headline text-primary mb-8"
           style={{
             fontFamily: "'Playball', cursive",
-            textShadow: "0px 0px 15px rgba(255,0,85,0.6)",
+            textShadow: "0px 0px 20px rgba(255,0,85,0.7)",
           }}
         >
           Venga Mor
@@ -113,7 +113,7 @@ export default function LoginPage() {
           <Link href="/iniciar-sesion" className="w-full">
             <Button
               size="3"
-              className="w-full cursor-pointer bg-primary text-primary-foreground h-11 text-sm font-bold rounded-xl shadow-lg"
+              className="w-full cursor-pointer bg-primary text-primary-foreground h-12 text-sm font-bold rounded-xl shadow-lg"
             >
               INGRESAR
             </Button>
@@ -123,7 +123,7 @@ export default function LoginPage() {
             <Button
               size="3"
               variant="ghost"
-              className="w-full cursor-pointer h-11 text-sm font-bold text-white hover:bg-white/10"
+              className="w-full cursor-pointer h-12 text-sm font-bold text-white hover:bg-white/10"
             >
               VER PERFILES
             </Button>
@@ -132,7 +132,7 @@ export default function LoginPage() {
           <Button
             size="3"
             variant="outline"
-            className="w-full cursor-pointer h-11 text-sm font-bold bg-black/40 border-white/20 text-white rounded-xl"
+            className="w-full cursor-pointer h-12 text-sm font-bold bg-black/40 border-white/20 text-white rounded-xl"
             onClick={handleInstallClick}
           >
             <Download className="mr-2 h-4 w-4" />

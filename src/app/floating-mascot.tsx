@@ -167,7 +167,10 @@ export function FloatingMascot() {
       <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
         <Popover.Trigger>
           <div className="cursor-pointer relative group">
-            <div className={`absolute inset-0 rounded-full bg-primary/20 animate-ping ${isMusicPlaying ? 'block' : 'hidden'}`} />
+            {/* Solo muestra el anillo y el ping cuando la música está sonando */}
+            {isMusicPlaying && (
+              <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
+            )}
             <Image
               src={mascotImage.imageUrl}
               alt={mascotImage.description}
