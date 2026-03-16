@@ -5,6 +5,7 @@ import { Collaborator } from "@/types/collaborator";
 
 const SHIELD_BASE = "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/escudos%2F";
 
+// Mapa de escudos con sus enlaces oficiales y tokens de acceso
 const SHIELD_MAP: Record<number, { file: string; token: string }> = {
   1: { file: "Image1%202026-03-16%20at%201.59.19%20AM.png", token: "d8f4e7eb-84bf-40d9-aabb-9652254127e6" },
   2: { file: "Image2%202026-03-16%20at%201.59.19%20AM%20(1).png", token: "0e3a6938-1493-4774-870d-6b27d35b5e6d" },
@@ -29,16 +30,16 @@ export function ProfileShield({ collaborator, size = 48, className = "" }: Profi
   const comments = collaborator.comentariosCount || 0;
   const stars = collaborator.estrellas || 0;
 
-  // Lógica de Prestigio
+  // Lógica de Prestigio Venga Mor
   const prestigeScore = (followers * 2) + comments + (stars * 5);
 
   let level = 1;
-  if (prestigeScore > 200) level = 10;
-  else if (prestigeScore > 150) level = 9;
-  else if (prestigeScore > 120) level = 8;
-  else if (prestigeScore > 100) level = 7;
-  else if (prestigeScore > 80) level = 6;
-  else if (prestigeScore > 60) level = 5;
+  if (prestigeScore > 300) level = 10;
+  else if (prestigeScore > 250) level = 9;
+  else if (prestigeScore > 200) level = 8;
+  else if (prestigeScore > 150) level = 7;
+  else if (prestigeScore > 100) level = 6;
+  else if (prestigeScore > 70) level = 5;
   else if (prestigeScore > 40) level = 4;
   else if (prestigeScore > 20) level = 3;
   else if (prestigeScore > 5) level = 2;
@@ -49,7 +50,7 @@ export function ProfileShield({ collaborator, size = 48, className = "" }: Profi
 
   return (
     <div 
-      className={`relative z-30 pointer-events-none transition-all duration-500 hover:scale-110 flex items-center justify-center bg-transparent ${className}`}
+      className={`relative z-30 pointer-events-none transition-all duration-500 flex items-center justify-center ${className}`}
       style={{ width: size, height: size }}
     >
       <Image
@@ -57,7 +58,7 @@ export function ProfileShield({ collaborator, size = 48, className = "" }: Profi
         alt={`Escudo Nivel ${level}`}
         width={size}
         height={size}
-        className="object-contain"
+        className="object-contain drop-shadow-[0_0_8px_rgba(0,0,0,0.5)]"
         unoptimized
       />
     </div>

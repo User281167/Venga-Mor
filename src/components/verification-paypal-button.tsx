@@ -10,8 +10,8 @@ interface Props {
 }
 
 /**
- * BOTÓN DE VERIFICACIÓN
- * Envía el userId como 'custom_id' para que el Webhook sepa a quién activar.
+ * BOTÓN DE VERIFICACIÓN OFICIAL
+ * Envía el userId como 'custom_id' para que el Webhook automático sepa a quién activar.
  */
 export default function VerificationPayPalButton({ userId }: Props) {
     const router = useRouter();
@@ -23,9 +23,10 @@ export default function VerificationPayPalButton({ userId }: Props) {
                     description: "Verificación de Perfil Oficial - Venga Mor",
                     amount: {
                         currency_code: "USD",
-                        value: "5.00", // Precio del servicio de verificación
+                        value: "5.00",
                     },
-                    custom_id: userId, // Vínculo crucial para el Webhook
+                    // ESTO ES LO QUE CONECTA EL PAGO CON EL USUARIO EN EL WEBHOOK
+                    custom_id: userId, 
                 },
             ],
             application_context: {
@@ -35,20 +36,20 @@ export default function VerificationPayPalButton({ userId }: Props) {
     };
 
     const onApprove = (data: OnApproveData, actions: any) => {
-        toast.success("Pago procesado. Tu perfil se activará en unos segundos.");
+        toast.success("¡Pago aprobado! Tu perfil se activará en unos segundos.");
         router.push(`/confirmacion`);
         return Promise.resolve();
     };
 
     const onError = (err: any) => {
-        toast.error("Error en la transacción. Intenta nuevamente.");
+        toast.error("Hubo un problema con la transacción. Intenta de nuevo.");
         console.error("PayPal Error:", err);
     };
 
     return (
         <PayPalScriptProvider
             options={{
-                clientId: "test", // Reemplazar por ENV.PAYPAL_CLIENT_ID en producción
+                clientId: ENV.PAYPAL_CLIENT_ID || "test",
                 intent: "capture",
                 currency: "USD"
             }}

@@ -16,7 +16,6 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { themeColorNames, useTheme, availableExploreBgs } from "@/context/theme-context";
-import { toast } from "sonner";
 import { Play, Pause, Music, SkipBack, SkipForward, Radio } from "lucide-react";
 
 const messages = [
@@ -61,7 +60,6 @@ export function FloatingMascot() {
 
   const {
     setExploreBackground,
-    resetExploreBackground,
     setThemeColor,
     bgOpacity,
     setBgOpacity,
@@ -163,16 +161,15 @@ export function FloatingMascot() {
         <Popover.Trigger>
           <div className="cursor-pointer relative group">
             {isMusicPlaying && (
-              <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping z-0" />
+              <div className="absolute inset-0 rounded-full bg-primary/30 animate-ping z-0" />
             )}
-            <div className={`rounded-full p-0.5 transition-all duration-500 ${isMusicPlaying ? 'bg-primary' : 'bg-transparent'}`}>
+            <div className={`rounded-full transition-all duration-500 overflow-hidden ${isMusicPlaying ? 'p-0.5 bg-primary shadow-[0_0_15px_rgba(255,0,85,0.5)]' : 'p-0 bg-transparent'}`}>
               <Image
                 src={mascotImage.imageUrl}
                 alt={mascotImage.description}
                 width={64}
                 height={64}
-                className={`rounded-full object-cover shadow-lg relative z-10 
-                  ${popoverOpen ? 'scale-110' : ''}`}
+                className={`rounded-full object-cover relative z-10 transition-transform ${popoverOpen ? 'scale-110' : ''}`}
               />
             </div>
           </div>
