@@ -31,7 +31,6 @@ export default function LoginPage() {
       e.preventDefault();
       setDeferredPrompt(e);
       setShowInstallBtn(true);
-      console.log('Evento beforeinstallprompt capturado');
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
@@ -39,7 +38,6 @@ export default function LoginPage() {
     const handleAppInstalled = () => {
       setDeferredPrompt(null);
       setShowInstallBtn(false);
-      console.log('App instalada con éxito');
     };
     window.addEventListener("appinstalled", handleAppInstalled);
 
@@ -59,7 +57,6 @@ export default function LoginPage() {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
-      console.log(`El usuario eligió: ${outcome}`);
       setDeferredPrompt(null);
       setShowInstallBtn(false);
     } else {
@@ -76,7 +73,7 @@ export default function LoginPage() {
 
   return (
     <Section className="relative h-screen w-full flex flex-col items-center justify-end p-0 overflow-hidden bg-black">
-      {/* Background GIFs Rotativos con ajuste para NO CORTARSE */}
+      {/* Background GIFs Rotativos */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentGifIndex}
@@ -90,20 +87,20 @@ export default function LoginPage() {
             src={introGifs[currentGifIndex]}
             alt="Intro Venga Mor"
             fill
-            className="z-0 object-contain object-top" // Ajustado para que se vea completo arriba
+            className="z-0 object-contain object-top"
             unoptimized
             priority
           />
         </motion.div>
       </AnimatePresence>
 
-      {/* Gradient Overlay inferior */}
-      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black via-black/80 to-transparent z-10" />
+      {/* Gradient Overlay inferior - Subido para cubrir los botones */}
+      <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black via-black/90 to-transparent z-10" />
 
-      {/* Contenedor de contenido ajustado para móviles - más pequeño */}
-      <div className="relative z-20 w-full max-w-[280px] mx-auto p-4 flex flex-col items-center text-center pb-10">
+      {/* Contenedor de contenido - Subido con pb-32 para evitar cortes */}
+      <div className="relative z-20 w-full max-w-[280px] mx-auto p-4 flex flex-col items-center text-center pb-32">
         <Heading
-          className="text-4xl md:text-7xl font-headline text-primary mb-4"
+          className="text-4xl md:text-6xl font-headline text-primary mb-6"
           style={{
             fontFamily: "'Playball', cursive",
             textShadow: "0px 0px 15px rgba(255,0,85,0.6)",
@@ -112,11 +109,11 @@ export default function LoginPage() {
           Venga Mor
         </Heading>
 
-        <Flex direction="column" gap="2" className="w-full">
+        <Flex direction="column" gap="3" className="w-full">
           <Link href="/iniciar-sesion" className="w-full">
             <Button
               size="3"
-              className="w-full cursor-pointer bg-primary text-primary-foreground h-10 text-sm font-bold rounded-xl"
+              className="w-full cursor-pointer bg-primary text-primary-foreground h-11 text-sm font-bold rounded-xl shadow-lg"
             >
               INGRESAR
             </Button>
@@ -126,7 +123,7 @@ export default function LoginPage() {
             <Button
               size="3"
               variant="ghost"
-              className="w-full cursor-pointer h-10 text-sm font-bold text-white hover:bg-white/10"
+              className="w-full cursor-pointer h-11 text-sm font-bold text-white hover:bg-white/10"
             >
               VER PERFILES
             </Button>
@@ -135,7 +132,7 @@ export default function LoginPage() {
           <Button
             size="3"
             variant="outline"
-            className="w-full cursor-pointer h-10 text-sm font-bold bg-black/40 border-white/20 text-white rounded-xl mt-1"
+            className="w-full cursor-pointer h-11 text-sm font-bold bg-black/40 border-white/20 text-white rounded-xl"
             onClick={handleInstallClick}
           >
             <Download className="mr-2 h-4 w-4" />
