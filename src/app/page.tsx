@@ -9,9 +9,9 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function LoginPage() {
   const introGifs = [
-    PlaceHolderImages.find((p) => p.id === "intro-gif")?.imageUrl,
-    PlaceHolderImages.find((p) => p.id === "intro-gif-alt")?.imageUrl,
-  ].filter(Boolean);
+    "https://i.ibb.co/4wx2qPMz/In-Shot-20260219-212506821.gif",
+    "https://i.ibb.co/2Y6y6v94/69b7864d645a301516c9025e.gif"
+  ];
 
   const [currentGifIndex, setCurrentGifIndex] = useState(0);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -26,13 +26,21 @@ export default function LoginPage() {
         .catch((err) => console.log("Error registrando SW:", err));
     }
 
-    // Capturar el evento de instalación
+    // Lógica para atrapar el evento de instalación
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
+      console.log('Evento beforeinstallprompt capturado');
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+
+    // Ocultar botón si ya se instaló
+    const handleAppInstalled = () => {
+      setDeferredPrompt(null);
+      console.log('App instalada con éxito');
+    };
+    window.addEventListener("appinstalled", handleAppInstalled);
 
     // Rotación de GIFs cada 5 segundos
     const interval = setInterval(() => {
@@ -41,18 +49,17 @@ export default function LoginPage() {
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener("appinstalled", handleAppInstalled);
       clearInterval(interval);
     };
   }, [introGifs.length]);
 
   const handleInstallClick = async () => {
     if (deferredPrompt) {
-      // Mostrar el diálogo nativo de instalación (Android/PC)
+      // Muestra el prompt real de instalación
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        console.log('App instalada con éxito');
-      }
+      console.log(`El usuario eligió: ${outcome}`);
       setDeferredPrompt(null);
     } else {
       // Detección de iOS para mostrar instrucciones manuales
@@ -61,7 +68,7 @@ export default function LoginPage() {
         setShowIosTip(true);
       } else {
         alert(
-          'Busca la opción "Instalar aplicación" o "Añadir a pantalla de inicio" en el menú de tu navegador.'
+          'Busca la opción "Instalar" o "Añadir a pantalla de inicio" en el menú de tu navegador.'
         );
       }
     }
@@ -69,7 +76,7 @@ export default function LoginPage() {
 
   return (
     <Section className="relative h-screen w-full flex flex-col items-center justify-end p-0 overflow-hidden bg-black">
-      {/* Background GIFs Rotativos con ajuste de cobertura total */}
+      {/* Background GIFs Rotativos */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentGifIndex}
@@ -79,16 +86,14 @@ export default function LoginPage() {
           transition={{ duration: 1.5 }}
           className="absolute inset-0"
         >
-          {introGifs[currentGifIndex] && (
-            <Image
-              src={introGifs[currentGifIndex]!}
-              alt="Intro Venga Mor"
-              fill
-              className="z-0 object-cover object-center"
-              unoptimized
-              priority
-            />
-          )}
+          <Image
+            src={introGifs[currentGifIndex]}
+            alt="Intro Venga Mor"
+            fill
+            className="z-0 object-cover object-center"
+            unoptimized
+            priority
+          />
         </motion.div>
       </AnimatePresence>
 
@@ -98,7 +103,7 @@ export default function LoginPage() {
       {/* Contenedor de contenido ajustado para móviles */}
       <div className="relative z-20 w-full max-w-sm mx-auto p-6 flex flex-col items-center text-center pb-12">
         <Heading
-          className="text-7xl md:text-9xl font-headline text-primary mb-6"
+          className="text-5xl md:text-9xl font-headline text-primary mb-6"
           style={{
             fontFamily: "'Playball', cursive",
             textShadow: "2px 2px 8px rgba(0,0,0,0.7)",

@@ -1,4 +1,3 @@
-
 "use client";
 import {
   Avatar,
@@ -91,7 +90,7 @@ const RankingList = ({
 
 export default function RankingPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "profile-bg");
-  const introGif = PlaceHolderImages.find((p) => p.id === "ranking-intro-gif");
+  const introGifUrl = "https://i.ibb.co/bg5CphYS/69b78cc3622710ffba2f3c71.gif";
   
   const [showIntro, setShowIntro] = useState(true);
 
@@ -122,7 +121,7 @@ export default function RankingPage() {
   return (
     <>
       <AnimatePresence>
-        {showIntro && introGif && (
+        {showIntro && (
           <motion.div
             initial={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 1.1 }}
@@ -131,7 +130,7 @@ export default function RankingPage() {
           >
             <div className="relative w-full h-full">
               <Image
-                src={introGif.imageUrl}
+                src={introGifUrl}
                 alt="Ranking Intro"
                 layout="fill"
                 objectFit="cover"
