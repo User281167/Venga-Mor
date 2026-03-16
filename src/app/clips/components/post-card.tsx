@@ -1,10 +1,13 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Avatar } from "@radix-ui/themes";
 import { VideoSlide, MultiImageSlide } from "./post-slides";
 import { PostData } from "@/types/post";
 import Link from "next/link";
+import { ProfileShield } from "@/components/profile-shield";
+import { getCollaborator } from "@/handlers/getPublicCollaborator";
+import { Collaborator } from "@/types/collaborator";
 
 interface PostCardProps {
   post: PostData;
@@ -18,6 +21,19 @@ export const PostCard = React.memo(function PostCard({
   const hasVideo = !!post.media.video?.url;
   const images = post.media.images ?? [];
   const hasImages = images.length > 0;
+
+  const [author, setAuthor] = useState<Collaborator | null>(null);
+
+  // Cargar datos del autor para mostrar su escudo
+  useEffect(() => {
+    if (isActive && !author) {
+      getCollaborator(post.autorId).then(res => {
+        if (res.success && res.data) {
+          setAuthor(res.data);
+        }
+      });
+    }
+  }, [isActive, post.autorId, author]);
 
   // Cuando el cursor/touch entra en la zona de controles del video,
   // el overlay baja su z-index para no interferir.
@@ -54,42 +70,43 @@ export const PostCard = React.memo(function PostCard({
 
       {/*
         ── Overlay inferior ──────────────────────────────────────────────────────
-        Cuando `overlayDodging` es true:
-          • z-index baja a -10 → el overlay queda detrás del video
-          • pointer-events: none → los clicks pasan directo a los controles
-          • opacity baja a 0 → feedback visual de que "se apartó"
-        Transición de 200 ms para que no sea un salto brusco.
       */}
       <div
         className="absolute inset-x-0 bottom-0 flex flex-col gap-2 px-4 pb-6 md:px-8 md:pb-8 transition-all duration-200"
         style={{
-          // Gradiente integrado en el mismo div para sincronizar la transición
           background: overlayDodging
             ? "transparent"
             : "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 55%, transparent 100%)",
           zIndex: overlayDodging ? -10 : 10,
           pointerEvents: overlayDodging ? "none" : "auto",
           opacity: overlayDodging ? 0 : 1,
-          // Altura suficiente para cubrir la zona del gradiente
           paddingTop: "6rem",
         }}
       >
-        {/* Autor */}
-        <Link
-          href={`/perfil-info/${post.autorId}`}
-          className="flex items-center gap-2"
-        >
-          <Avatar
-            size="2"
-            fallback={post.autorId?.[0]?.toUpperCase() ?? "?"}
-            radius="full"
-            className="ring-2 ring-white/30"
-          />
-          <span className="text-white/90 text-sm font-medium tracking-wide">
-            @{post.autorNombre || post.autorId.slice(0, 6)}
-          </span>
-          <span className="text-white/40 text-xs ml-auto">{fecha}</span>
-        </Link>
+        {/* Autor y Escudo */}
+        <div className="flex items-center justify-between">
+          <Link
+            href={`/perfil-info/${post.autorId}`}
+            className="flex items-center gap-2"
+          >
+            <Avatar
+              size="2"
+              src={author?.foto || undefined}
+              fallback={post.autorId?.[0]?.toUpperCase() ?? "?"}
+              radius="full"
+              className="ring-2 ring-white/30"
+            />
+            <div className="flex flex-col">
+              <span className="text-white/90 text-sm font-medium tracking-wide">
+                @{post.autorNombre || post.autorId.slice(0, 6)}
+              </span>
+              <span className="text-white/40 text-[10px]">{fecha}</span>
+            </div>
+          </Link>
+
+          {/* ESCUDO EN EL REEL */}
+          {author && <ProfileShield collaborator={author} size={40} className="mr-2" />}
+        </div>
 
         {/* Descripción */}
         {post.descripcion && (

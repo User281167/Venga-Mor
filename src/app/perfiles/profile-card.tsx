@@ -12,6 +12,7 @@ import { Collaborator } from "@/types/collaborator";
 import React from "react";
 import Image from "next/image";
 import PayPalPayment from "@/components/pay-pal";
+import { ProfileShield } from "@/components/profile-shield";
 
 interface CollaboratorCardProps {
   collaborator: Collaborator;
@@ -41,6 +42,11 @@ export const CollaboratorCard = React.memo(function CollaboratorCard({
 
         {/* Overlay Gradient */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10"></div>
+
+        {/* ESCUDO DE RANGO (Punta inferior derecha del bloque) */}
+        <div className="absolute bottom-4 right-4 z-40 scale-110 md:scale-125">
+          <ProfileShield collaborator={collaborator} size={56} />
+        </div>
 
         {/* Action Buttons (Right) */}
         <Flex
@@ -91,7 +97,7 @@ export const CollaboratorCard = React.memo(function CollaboratorCard({
         </Flex>
 
         {/* Content (Bottom) */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 text-white z-20">
+        <div className="absolute bottom-0 left-0 right-0 p-6 text-white z-20 pr-20">
           <div>
             <Flex align="center" gap="3">
               <h3 className="text-4xl font-bold font-headline text-white">
