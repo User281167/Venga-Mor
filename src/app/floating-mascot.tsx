@@ -48,7 +48,7 @@ const appPlaylist = [
   { name: "Venga Mix 7", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.30%20AM%20(3).mp3?alt=media&token=8a05a12f-589f-4efa-989b-ba197871fea2" },
   { name: "Venga Mix 8", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.30%20AM.mp3?alt=media&token=1c24212e-8a6f-4d0c-bf49-df9e80424573" },
   { name: "Venga Mix 9", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.31%20AM%20(1).mp3?alt=media&token=659b5ca5-2151-4a66-ab3d-328cc76eae00" },
-  { name: "Venga Mix 10", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.31%20AM%20(1).mp3?alt=media&token=924a3d27-02aa-4811-a177-230595bf3fe0" },
+  { name: "Venga Mix 10", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.31%20AM.mp3?alt=media&token=924a3d27-02aa-4811-a177-230595bf3fe0" },
 ];
 
 export function FloatingMascot() {
@@ -71,14 +71,12 @@ export function FloatingMascot() {
   const shouldShowMascot = !noMascotRoutes.includes(pathname);
   const isExplorePage = pathname.startsWith("/perfiles");
 
-  // --- LOGICA MUSICA LOCAL ---
   const [selectedSong, setSelectedSong] = useState<File | null>(null);
   const [songUrl, setSongUrl] = useState<string | null>(null);
   const [isLocalPlaying, setIsLocalPlaying] = useState(false);
   const localAudioRef = useRef<HTMLAudioElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // --- LOGICA MUSICA APP ---
   const [currentAppSongIndex, setCurrentAppSongIndex] = useState(0);
   const [isAppMusicPlaying, setIsAppMusicPlaying] = useState(false);
   const appAudioRef = useRef<HTMLAudioElement>(null);
@@ -110,20 +108,18 @@ export function FloatingMascot() {
     }
   }, [shouldShowMascot, popoverOpen]);
 
-  // Manejo de reproducción Local
   useEffect(() => {
     if (isLocalPlaying) {
-      localAudioRef.current?.play().catch(() => console.log("Audio interaction required"));
+      localAudioRef.current?.play().catch(() => {});
       setIsAppMusicPlaying(false);
     } else {
       localAudioRef.current?.pause();
     }
   }, [isLocalPlaying, songUrl]);
 
-  // Manejo de reproducción App
   useEffect(() => {
     if (isAppMusicPlaying) {
-      appAudioRef.current?.play().catch(() => console.log("Audio interaction required"));
+      appAudioRef.current?.play().catch(() => {});
       setIsLocalPlaying(false);
     } else {
       appAudioRef.current?.pause();
@@ -160,23 +156,21 @@ export function FloatingMascot() {
 
   return (
     <div className="fixed top-24 left-4 z-[100] w-auto max-w-xs flex items-center gap-3 justify-start">
-      {/* Etiquetas de audio persistentes (fuera del popover) */}
       <audio ref={appAudioRef} src={appPlaylist[currentAppSongIndex].url} onEnded={nextAppSong} />
       {songUrl && <audio ref={localAudioRef} src={songUrl} onEnded={() => setIsLocalPlaying(false)} />}
 
       <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
         <Popover.Trigger>
           <div className="cursor-pointer relative group">
-            {/* Solo muestra el anillo y el ping cuando la música está sonando */}
             {isMusicPlaying && (
-              <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
+              <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping z-0" />
             )}
             <Image
               src={mascotImage.imageUrl}
               alt={mascotImage.description}
               width={64}
               height={64}
-              className={`rounded-full object-cover shadow-lg transition-all duration-500 
+              className={`rounded-full object-cover shadow-lg transition-all duration-500 relative z-10 
                 ${isMusicPlaying ? 'border-2 border-primary' : 'border-0'} 
                 ${popoverOpen ? 'scale-110' : ''}`}
             />
@@ -193,7 +187,6 @@ export function FloatingMascot() {
             
             <Separator className="w-full opacity-20" />
             
-            {/* --- SECCIÓN MUSICA OFICIAL --- */}
             <Box className="bg-white/5 p-3 rounded-2xl border border-white/5">
               <Text size="1" weight="bold" color="gray" mb="2" as="div" className="uppercase tracking-widest text-[10px]">
                 Playlist Oficial Mor
@@ -256,7 +249,6 @@ export function FloatingMascot() {
 
             <Separator className="w-full opacity-20" />
 
-            {/* --- SECCIÓN MUSICA LOCAL --- */}
             <Box>
               <Text size="1" weight="bold" color="gray" mb="2" as="div" className="uppercase tracking-widest text-[10px]">
                 Mi Música Local

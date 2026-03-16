@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { Collaborator } from "@/types/collaborator";
 
-// Base URL y Tokens para los escudos configurados
 const SHIELD_BASE = "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/escudos%2F";
 
 const SHIELD_MAP: Record<number, { file: string; token: string }> = {
@@ -42,15 +41,16 @@ export function ProfileShield({ collaborator, size = 48, className = "" }: Profi
   else if (prestigeScore > 60) level = 5;
   else if (prestigeScore > 40) level = 4;
   else if (prestigeScore > 20) level = 3;
-  else if (prestigeScore > 10) level = 2;
+  else if (prestigeScore > 5) level = 2;
+  else level = 1; // Para 0 stats o muy bajos, nivel 1
 
   const shield = SHIELD_MAP[level];
   const imageUrl = `${SHIELD_BASE}${shield.file}?alt=media&token=${shield.token}`;
 
   return (
     <div 
-      className={`relative z-30 pointer-events-none drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] transition-all duration-500 hover:scale-110 ${className}`}
-      style={{ width: size, height: size }}
+      className={`relative z-30 pointer-events-none transition-all duration-500 hover:scale-110 flex items-center justify-center ${className}`}
+      style={{ width: size, height: size, background: 'transparent' }}
     >
       <Image
         src={imageUrl}

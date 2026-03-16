@@ -9,13 +9,14 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function LoginPage() {
   const introGifs = [
     "https://i.ibb.co/4wx2qPMz/In-Shot-20260219-212506821.gif",
-    "https://i.ibb.co/2Y6y6v94/69b7864d645a301516c9025e.gif"
+    "https://i.ibb.co/2Y6y6v94/69b7864d645a301516c9025e.gif",
+    "https://i.ibb.co/jk9tgFjs/In-Shot-20251127-124506071.gif"
   ];
 
   const [currentGifIndex, setCurrentGifIndex] = useState(0);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showIosTip, setShowIosTip] = useState(false);
-  const [showInstallBtn, setShowInstallBtn] = useState(false);
+  const [isInstallable, setIsInstallable] = useState(false);
 
   useEffect(() => {
     // Registro del Service Worker para PWA
@@ -26,22 +27,20 @@ export default function LoginPage() {
         .catch((err) => console.log("Error registrando SW:", err));
     }
 
-    // Atrapamos el evento de instalación
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      setShowInstallBtn(true);
+      setIsInstallable(true);
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
     const handleAppInstalled = () => {
       setDeferredPrompt(null);
-      setShowInstallBtn(false);
+      setIsInstallable(false);
     };
     window.addEventListener("appinstalled", handleAppInstalled);
 
-    // Rotación de GIFs cada 5 segundos
     const interval = setInterval(() => {
       setCurrentGifIndex((prev) => (prev + 1) % introGifs.length);
     }, 5000);
@@ -57,15 +56,16 @@ export default function LoginPage() {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
+      console.log(`User response: ${outcome}`);
       setDeferredPrompt(null);
-      setShowInstallBtn(false);
+      setIsInstallable(false);
     } else {
       const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
       if (isIos) {
         setShowIosTip(true);
       } else {
         alert(
-          'Busca la opción "Instalar" o "Añadir a pantalla de inicio" en el menú de tu navegador.'
+          'Busca la opción "Instalar App" o "Añadir a pantalla de inicio" en el menú de tu navegador.'
         );
       }
     }
@@ -73,7 +73,6 @@ export default function LoginPage() {
 
   return (
     <Section className="relative h-screen w-full flex flex-col items-center justify-end p-0 overflow-hidden bg-black">
-      {/* Background GIFs Rotativos */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentGifIndex}
@@ -94,10 +93,8 @@ export default function LoginPage() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Gradient Overlay inferior */}
       <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black via-black/90 to-transparent z-10" />
 
-      {/* Contenedor de contenido - Ajustado para estar más abajo pero visible */}
       <div className="relative z-20 w-full max-w-[320px] mx-auto p-4 flex flex-col items-center text-center pb-12">
         <Heading
           className="text-6xl md:text-7xl font-headline text-primary mb-8"
@@ -139,15 +136,12 @@ export default function LoginPage() {
             DESCARGAR APP
           </Button>
 
-          {/* Modal de ayuda para instalación en iPhone */}
           <Dialog.Root open={showIosTip} onOpenChange={setShowIosTip}>
             <Dialog.Content style={{ maxWidth: 350 }} className="rounded-3xl bg-zinc-900 border border-white/10">
               <Dialog.Title className="text-white">Instalar en iPhone</Dialog.Title>
               <Dialog.Description size="2" mb="4" className="text-gray-300">
-                Sigue estos pasos para tener la App en tu menú:
-                <br /><br />
-                1. Toca el botón <b>Compartir</b> <img src="https://img.icons8.com/ios/18/ffffff/upload.png" alt="compartir" className="inline align-middle mx-1" /> abajo.
-                <br />
+                Sigue estos pasos para instalar:<br /><br />
+                1. Toca el botón <b>Compartir</b> <img src="https://img.icons8.com/ios/18/ffffff/upload.png" alt="compartir" className="inline align-middle mx-1" /> abajo.<br />
                 2. Elige <b>"Añadir a pantalla de inicio"</b>.
               </Dialog.Description>
               <Flex justify="end">

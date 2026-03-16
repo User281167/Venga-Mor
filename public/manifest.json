@@ -1,22 +1,18 @@
 {
   "name": "Venga Mor",
-  "short_name": "Venga Mor",
-  "description": "Tu compañía de élite y conexión premium.",
+  "short_name": "VengaMor",
+  "description": "Tu compañía de élite en Bogotá.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
-  "theme_color": "#ff0055",
+  "theme_color": "#000000",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "https://i.ibb.co/jk9tgFjs/In-Shot-20251127-124506071.gif",
-      "sizes": "192x192",
+      "sizes": "512x512",
       "type": "image/gif",
       "purpose": "any maskable"
-    },
-    {
-      "src": "https://i.ibb.co/jk9tgFjs/In-Shot-20251127-124506071.gif",
-      "sizes": "512x512",
-      "type": "image/gif"
     }
   ]
 }
