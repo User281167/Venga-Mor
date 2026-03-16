@@ -84,6 +84,8 @@ export function FloatingMascot() {
   const [isAppMusicPlaying, setIsAppMusicPlaying] = useState(false);
   const appAudioRef = useRef<HTMLAudioElement>(null);
 
+  const isMusicPlaying = isAppMusicPlaying || isLocalPlaying;
+
   useEffect(() => {
     let messageLoop: NodeJS.Timeout;
     let visibilityToggle: NodeJS.Timeout;
@@ -113,7 +115,6 @@ export function FloatingMascot() {
   useEffect(() => {
     if (isLocalPlaying) {
       localAudioRef.current?.play().catch((e) => console.log("Audio playback interaction required"));
-      // Si suena local, pausamos app music
       setIsAppMusicPlaying(false);
     } else {
       localAudioRef.current?.pause();
@@ -124,7 +125,6 @@ export function FloatingMascot() {
   useEffect(() => {
     if (isAppMusicPlaying) {
       appAudioRef.current?.play().catch((e) => console.log("Audio playback interaction required"));
-      // Si suena app, pausamos local music
       setIsLocalPlaying(false);
     } else {
       appAudioRef.current?.pause();
@@ -164,13 +164,17 @@ export function FloatingMascot() {
       <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
         <Popover.Trigger>
           <div className="cursor-pointer relative group">
-            <div className={`absolute inset-0 rounded-full bg-primary/20 animate-ping ${(isAppMusicPlaying || isLocalPlaying) ? 'block' : 'hidden'}`} />
+            {isMusicPlaying && (
+              <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping z-0" />
+            )}
             <Image
               src={mascotImage.imageUrl}
               alt={mascotImage.description}
               width={64}
               height={64}
-              className={`rounded-full object-cover shadow-lg border-2 border-primary transition-transform duration-500 ${popoverOpen ? 'scale-110' : ''}`}
+              className={`rounded-full object-cover shadow-lg transition-transform duration-500 relative z-10 
+                ${isMusicPlaying ? 'border-2 border-primary' : 'border-0'} 
+                ${popoverOpen ? 'scale-110' : ''}`}
             />
           </div>
         </Popover.Trigger>
@@ -180,7 +184,7 @@ export function FloatingMascot() {
               <Text size="2" weight="bold" className="text-primary tracking-tight">
                 Estabilizador de Experiencia
               </Text>
-              <Radio size={16} className={isAppMusicPlaying || isLocalPlaying ? "text-green-500 animate-pulse" : "text-gray-500"} />
+              <Radio size={16} className={isMusicPlaying ? "text-green-500 animate-pulse" : "text-gray-500"} />
             </Flex>
             
             <Separator className="w-full opacity-20" />
@@ -200,7 +204,7 @@ export function FloatingMascot() {
                   {appPlaylist[currentAppSongIndex].name}
                 </Text>
                 <Flex align="center" justify="center" gap="4">
-                  <IconButton variant="ghost" size="1" onClick={prevAppSong} className="text-white hover:text-primary">
+                  <IconButton variant="ghost" size="1" onClick={prevAppSong} className="text-white hover:text-primary cursor-pointer">
                     <SkipBack size={18} fill="currentColor" />
                   </IconButton>
                   <IconButton 
@@ -208,11 +212,11 @@ export function FloatingMascot() {
                     radius="full"
                     size="3" 
                     onClick={() => setIsAppMusicPlaying(!isAppMusicPlaying)}
-                    className="bg-primary text-white hover:scale-105 transition-transform"
+                    className="bg-primary text-white hover:scale-105 transition-transform cursor-pointer"
                   >
                     {isAppMusicPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
                   </IconButton>
-                  <IconButton variant="ghost" size="1" onClick={nextAppSong} className="text-white hover:text-primary">
+                  <IconButton variant="ghost" size="1" onClick={nextAppSong} className="text-white hover:text-primary cursor-pointer">
                     <SkipForward size={18} fill="currentColor" />
                   </IconButton>
                 </Flex>
@@ -281,7 +285,7 @@ export function FloatingMascot() {
               {songUrl && <audio ref={localAudioRef} src={songUrl} onEnded={() => setIsLocalPlaying(false)} />}
               
               <Flex direction="column" gap="2">
-                <Button variant="outline" size="1" onClick={() => fileInputRef.current?.click()} className="w-full border-white/10 hover:bg-white/5 rounded-xl">
+                <Button variant="outline" size="1" onClick={() => fileInputRef.current?.click()} className="w-full border-white/10 hover:bg-white/5 rounded-xl cursor-pointer">
                   <Music size={14} className="mr-2" /> Cargar Archivo
                 </Button>
                 {selectedSong && (
@@ -289,7 +293,7 @@ export function FloatingMascot() {
                     <Text size="1" truncate className="max-w-[120px] text-gray-400">
                       {selectedSong.name}
                     </Text>
-                    <IconButton variant="ghost" size="1" onClick={() => setIsLocalPlaying(!isLocalPlaying)} className="text-primary">
+                    <IconButton variant="ghost" size="1" onClick={() => setIsLocalPlaying(!isLocalPlaying)} className="text-primary cursor-pointer">
                       {isLocalPlaying ? <Pause size={14} /> : <Play size={14} />}
                     </IconButton>
                   </Flex>

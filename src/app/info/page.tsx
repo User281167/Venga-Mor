@@ -1,14 +1,13 @@
 "use client";
 import { Share2, Shield } from "lucide-react";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { Button, Card, Flex, Heading, Section, Text } from "@radix-ui/themes";
+import { Button, Card, Flex, Heading, Text } from "@radix-ui/themes";
 import SectionImg from "@/components/section-img";
 
 export default function InfoPage() {
-  const bgImage = PlaceHolderImages.find((p) => p.id === "info-bg");
+  const logoGif = "https://i.ibb.co/jk9tgFjs/In-Shot-20251127-124506071.gif";
 
   return (
-    <SectionImg imageUrl={bgImage?.imageUrl} imageHint={bgImage?.imageHint}>
+    <SectionImg imageUrl={logoGif} alt="Info Background">
       <Flex
         width="90%"
         maxWidth="900px"
@@ -16,7 +15,7 @@ export default function InfoPage() {
         direction="column"
         gap="4"
       >
-        <Heading className="text-4xl font-bold text-primary mb-8 text-center">
+        <Heading className="text-4xl font-bold text-primary mb-8 text-center" style={{ fontFamily: "'Playball', cursive" }}>
           Información
         </Heading>
 

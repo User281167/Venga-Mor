@@ -10,6 +10,7 @@ export default function LoginPage() {
   const introGifs = [
     "https://i.ibb.co/4wx2qPMz/In-Shot-20260219-212506821.gif",
     "https://i.ibb.co/2Y6y6v94/69b7864d645a301516c9025e.gif",
+    "https://i.ibb.co/FLYC1Qq8/69b869ba62b15dabc86e9faf.png",
     "https://i.ibb.co/jk9tgFjs/In-Shot-20251127-124506071.gif"
   ];
 
