@@ -16,15 +16,16 @@ export default function LoginPage() {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
         .register("/sw.js")
-        .then(() => console.log("Service Worker activo"))
-        .catch((err) => console.log("Error SW:", err));
+        .then(() => console.log("Service Worker registrado"))
+        .catch((err) => console.log("Error registrando SW:", err));
     }
 
     const handleBeforeInstallPrompt = (e: any) => {
-      // Evita que el navegador muestre su propio aviso
+      // Evita que el navegador muestre su propio aviso automático
       e.preventDefault();
-      // "Atrapamos" el evento para usarlo con nuestro botón
+      // Guardamos el evento para dispararlo cuando el usuario toque nuestro botón
       setDeferredPrompt(e);
+      console.log("Evento beforeinstallprompt capturado");
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
@@ -36,14 +37,18 @@ export default function LoginPage() {
 
   const handleInstallClick = async () => {
     if (deferredPrompt) {
-      // Dispara la ventana REAL de instalación
+      // Muestra la ventana REAL de instalación del sistema
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
-      console.log(`Resultado de instalación: ${outcome}`);
+      console.log(`Usuario eligió: ${outcome}`);
+      
+      if (outcome === 'accepted') {
+        console.log('App instalada con éxito');
+      }
       // Limpiamos el evento una vez usado
       setDeferredPrompt(null);
     } else {
-      // Si no hay evento (iOS o navegador no compatible)
+      // Si no hay evento (iPhone o navegador ya tiene la app instalada)
       const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
       if (isIos) {
         setShowIosTip(true);
@@ -106,7 +111,7 @@ export default function LoginPage() {
             </Button>
           </Link>
 
-          {/* Botón de Descarga Mejorado */}
+          {/* Botón de Descarga Profesional */}
           <Button
             size="3"
             variant="outline"
