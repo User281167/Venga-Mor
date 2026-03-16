@@ -29,7 +29,7 @@ export function ProfileShield({ collaborator, size = 48, className = "" }: Profi
   const comments = collaborator.comentariosCount || 0;
   const stars = collaborator.estrellas || 0;
 
-  // Calculamos prestigio para determinar nivel (1 al 10)
+  // Lógica de Prestigio
   const prestigeScore = (followers * 2) + comments + (stars * 5);
 
   let level = 1;
@@ -42,15 +42,15 @@ export function ProfileShield({ collaborator, size = 48, className = "" }: Profi
   else if (prestigeScore > 40) level = 4;
   else if (prestigeScore > 20) level = 3;
   else if (prestigeScore > 5) level = 2;
-  else level = 1; // Para 0 stats o muy bajos, nivel 1
+  else level = 1;
 
   const shield = SHIELD_MAP[level];
   const imageUrl = `${SHIELD_BASE}${shield.file}?alt=media&token=${shield.token}`;
 
   return (
     <div 
-      className={`relative z-30 pointer-events-none transition-all duration-500 hover:scale-110 flex items-center justify-center ${className}`}
-      style={{ width: size, height: size, background: 'transparent' }}
+      className={`relative z-30 pointer-events-none transition-all duration-500 hover:scale-110 flex items-center justify-center bg-transparent ${className}`}
+      style={{ width: size, height: size }}
     >
       <Image
         src={imageUrl}

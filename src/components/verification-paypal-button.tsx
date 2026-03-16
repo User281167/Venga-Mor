@@ -9,6 +9,10 @@ interface Props {
   userId: string;
 }
 
+/**
+ * BOTÓN DE VERIFICACIÓN
+ * Envía el userId como 'custom_id' para que el Webhook sepa a quién activar.
+ */
 export default function VerificationPayPalButton({ userId }: Props) {
     const router = useRouter();
 
@@ -16,12 +20,12 @@ export default function VerificationPayPalButton({ userId }: Props) {
         return actions.order.create({
             purchase_units: [
                 {
-                    description: "Verificación de Perfil - Venga Mor",
+                    description: "Verificación de Perfil Oficial - Venga Mor",
                     amount: {
                         currency_code: "USD",
-                        value: "5.00", // Example price for verification
+                        value: "5.00", // Precio del servicio de verificación
                     },
-                    custom_id: userId,
+                    custom_id: userId, // Vínculo crucial para el Webhook
                 },
             ],
             application_context: {
@@ -31,22 +35,20 @@ export default function VerificationPayPalButton({ userId }: Props) {
     };
 
     const onApprove = (data: OnApproveData, actions: any) => {
-        toast.success("Pago iniciado. Procesando verificación...");
-        // It's better to rely on the webhook for the actual verification.
-        // We redirect the user to a confirmation page.
+        toast.success("Pago procesado. Tu perfil se activará en unos segundos.");
         router.push(`/confirmacion`);
         return Promise.resolve();
     };
 
     const onError = (err: any) => {
-        toast.error("Ocurrió un error con el pago. Por favor, inténtalo de nuevo.");
+        toast.error("Error en la transacción. Intenta nuevamente.");
         console.error("PayPal Error:", err);
     };
 
     return (
         <PayPalScriptProvider
             options={{
-                clientId: "test",
+                clientId: "test", // Reemplazar por ENV.PAYPAL_CLIENT_ID en producción
                 intent: "capture",
                 currency: "USD"
             }}

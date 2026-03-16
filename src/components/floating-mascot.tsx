@@ -38,7 +38,6 @@ const messages = [
   "Mor, vive cada segundo en Venga Mor.",
 ];
 
-// Playlist Oficial Venga Mor
 const appPlaylist = [
   { name: "Venga Mix 1", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.18%20AM%20(1).mp3?alt=media&token=87d19f05-236e-40ef-b37e-cfe0314242c8" },
   { name: "Venga Mix 2", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.18%20AM.mp3?alt=media&token=1e1c0439-4da8-4f8e-a6c4-2ded1cfa0c4c" },
@@ -72,14 +71,12 @@ export function FloatingMascot() {
   const shouldShowMascot = !noMascotRoutes.includes(pathname);
   const isExplorePage = pathname.startsWith("/perfiles");
 
-  // --- LOGICA MUSICA LOCAL ---
   const [selectedSong, setSelectedSong] = useState<File | null>(null);
   const [songUrl, setSongUrl] = useState<string | null>(null);
   const [isLocalPlaying, setIsLocalPlaying] = useState(false);
   const localAudioRef = useRef<HTMLAudioElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // --- LOGICA MUSICA APP ---
   const [currentAppSongIndex, setCurrentAppSongIndex] = useState(0);
   const [isAppMusicPlaying, setIsAppMusicPlaying] = useState(false);
   const appAudioRef = useRef<HTMLAudioElement>(null);
@@ -111,20 +108,18 @@ export function FloatingMascot() {
     }
   }, [shouldShowMascot, popoverOpen]);
 
-  // Manejo de reproducción Local
   useEffect(() => {
     if (isLocalPlaying) {
-      localAudioRef.current?.play().catch((e) => console.log("Audio playback interaction required"));
+      localAudioRef.current?.play().catch(() => {});
       setIsAppMusicPlaying(false);
     } else {
       localAudioRef.current?.pause();
     }
   }, [isLocalPlaying, songUrl]);
 
-  // Manejo de reproducción App
   useEffect(() => {
     if (isAppMusicPlaying) {
-      appAudioRef.current?.play().catch((e) => console.log("Audio playback interaction required"));
+      appAudioRef.current?.play().catch(() => {});
       setIsLocalPlaying(false);
     } else {
       appAudioRef.current?.pause();
@@ -161,44 +156,42 @@ export function FloatingMascot() {
 
   return (
     <div className="fixed top-24 left-4 z-[100] w-auto max-w-xs flex items-center gap-3 justify-start">
+      <audio ref={appAudioRef} src={appPlaylist[currentAppSongIndex].url} onEnded={nextAppSong} />
+      {songUrl && <audio ref={localAudioRef} src={songUrl} onEnded={() => setIsLocalPlaying(false)} />}
+
       <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
         <Popover.Trigger>
           <div className="cursor-pointer relative group">
             {isMusicPlaying && (
               <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping z-0" />
             )}
-            <Image
-              src={mascotImage.imageUrl}
-              alt={mascotImage.description}
-              width={64}
-              height={64}
-              className={`rounded-full object-cover shadow-lg transition-transform duration-500 relative z-10 
-                ${isMusicPlaying ? 'border-2 border-primary' : 'border-0'} 
-                ${popoverOpen ? 'scale-110' : ''}`}
-            />
+            <div className={`rounded-full p-0.5 transition-all duration-500 ${isMusicPlaying ? 'bg-primary' : 'bg-transparent'}`}>
+              <Image
+                src={mascotImage.imageUrl}
+                alt={mascotImage.description}
+                width={64}
+                height={64}
+                className={`rounded-full object-cover shadow-lg relative z-10 
+                  ${popoverOpen ? 'scale-110' : ''}`}
+              />
+            </div>
           </div>
         </Popover.Trigger>
         <Popover.Content side="right" align="start" className="shadow-2xl border border-white/10 backdrop-blur-xl bg-black/80 p-4 rounded-3xl">
           <Flex direction="column" gap="3" className="w-64 sm:w-80">
             <Flex justify="between" align="center">
               <Text size="2" weight="bold" className="text-primary tracking-tight">
-                Estabilizador de Experiencia
+                Estabilizador Mor
               </Text>
               <Radio size={16} className={isMusicPlaying ? "text-green-500 animate-pulse" : "text-gray-500"} />
             </Flex>
             
             <Separator className="w-full opacity-20" />
             
-            {/* --- SECCIÓN MUSICA OFICIAL --- */}
             <Box className="bg-white/5 p-3 rounded-2xl border border-white/5">
               <Text size="1" weight="bold" color="gray" mb="2" as="div" className="uppercase tracking-widest text-[10px]">
                 Playlist Oficial Mor
               </Text>
-              <audio 
-                ref={appAudioRef} 
-                src={appPlaylist[currentAppSongIndex].url} 
-                onEnded={nextAppSong}
-              />
               <Flex direction="column" gap="2">
                 <Text size="1" truncate className="text-white/90 font-medium">
                   {appPlaylist[currentAppSongIndex].name}
@@ -226,67 +219,45 @@ export function FloatingMascot() {
             <Separator className="w-full opacity-20" />
 
             <Text size="1" weight="bold" color="gray" className="uppercase tracking-widest text-[10px]">
-              Personalización Visual
+              Estilo Visual
             </Text>
             
-            <Flex direction="column" gap="2">
-              <Text size="1" className="text-gray-400">Color del Tema</Text>
-              <Flex gap="2" wrap="wrap">
-                {themeColorNames.map((color) => (
-                  <Button key={color} size="1" variant="soft" onClick={() => setThemeColor(color)} className="cursor-pointer">
-                    {color}
-                  </Button>
-                ))}
-              </Flex>
+            <Flex gap="2" wrap="wrap">
+              {themeColorNames.map((color) => (
+                <Button key={color} size="1" variant="soft" onClick={() => setThemeColor(color)} className="cursor-pointer">
+                  {color}
+                </Button>
+              ))}
             </Flex>
 
             <Flex direction="column" gap="2">
               <Text size="1" className="text-gray-400">Brillo Inmersivo</Text>
-              <Slider 
-                value={[bgOpacity]} 
-                onValueChange={(value) => setBgOpacity(value[0])} 
-                min={0} max={100} step={5} 
-                className="cursor-pointer"
-              />
+              <Slider value={[bgOpacity]} onValueChange={(v) => setBgOpacity(v[0])} min={0} max={100} step={5} className="cursor-pointer" />
             </Flex>
 
             {isExplorePage && (
               <Flex direction="column" gap="2">
-                <Text size="1" className="text-gray-400">Ambiente de Explorar</Text>
+                <Text size="1" className="text-gray-400">Fondo Ambiente</Text>
                 <Flex gap="2" wrap="wrap">
                   {availableExploreBgs.map((bg) => (
-                    <Button
-                      key={bg.id}
-                      size="1"
-                      variant="soft"
-                      onClick={() => {
-                        setExploreBackground(bg.imageUrl);
-                        toast.success("Ambiente actualizado");
-                      }}
-                    >
+                    <Button key={bg.id} size="1" variant="soft" onClick={() => setExploreBackground(bg.imageUrl)}>
                       {bg.description}
                     </Button>
                   ))}
-                  <Button size="1" variant="soft" color="gray" onClick={resetExploreBackground}>
-                    Reset
-                  </Button>
                 </Flex>
               </Flex>
             )}
 
             <Separator className="w-full opacity-20" />
 
-            {/* --- SECCIÓN MUSICA LOCAL --- */}
             <Box>
               <Text size="1" weight="bold" color="gray" mb="2" as="div" className="uppercase tracking-widest text-[10px]">
                 Mi Música Local
               </Text>
               <input type="file" accept="audio/*" ref={fileInputRef} onChange={handleLocalFileChange} className="hidden" />
-              {songUrl && <audio ref={localAudioRef} src={songUrl} onEnded={() => setIsLocalPlaying(false)} />}
-              
               <Flex direction="column" gap="2">
                 <Button variant="outline" size="1" onClick={() => fileInputRef.current?.click()} className="w-full border-white/10 hover:bg-white/5 rounded-xl cursor-pointer">
-                  <Music size={14} className="mr-2" /> Cargar Archivo
+                  <Music size={14} className="mr-2" /> Subir MP3
                 </Button>
                 {selectedSong && (
                   <Flex align="center" justify="between" className="bg-white/5 p-2 rounded-xl">
@@ -315,10 +286,8 @@ export function FloatingMascot() {
             key={messageIndex}
             initial={{ opacity: 0, x: -20, scale: 0.9 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 20, scale: 0.9, transition: { duration: 0.4 } }}
-            transition={{ duration: 0.5, type: "spring" }}
+            exit={{ opacity: 0, x: 20, scale: 0.9 }}
             className="bg-black/70 p-4 rounded-2xl backdrop-blur-md border border-white/10 shadow-2xl"
-            style={{ textShadow: "1px 1px 3px rgba(0,0,0,0.5)" }}
           >
             <Text as="p" size="2" weight="bold" className="text-white italic leading-tight">
               "{messages[messageIndex]}"

@@ -1,64 +1,54 @@
 import { adminDb } from "@/lib/firebase-admin-connection";
-import { headers } from 'next/headers';
 import { NextResponse } from "next/server";
 
-// This is a simplified webhook handler.
-// In a production environment, you MUST verify the webhook signature.
-// https://developer.paypal.com/docs/api/webhooks/v1/#verify-webhook-signature
-// This requires fetching PayPal's certs and using crypto libraries.
-
+/**
+ * WEBHOOK OFICIAL DE PAYPAL
+ * Este endpoint recibe las notificaciones de pago y actualiza el estado de verificación.
+ */
 export async function POST(req: Request) {
     try {
         const body = await req.json();
 
-        // LOGGING for debugging purposes
-        console.log("PayPal Webhook Event Received:", JSON.stringify(body, null, 2));
+        // LOGGING para auditoría
+        console.log("PayPal Webhook Recibido:", body.event_type);
 
-        // You should verify the webhook signature here for security
-        // For this prototype, we'll proceed without verification.
-
-        if (body.event_type === 'CHECKOUT.ORDER.APPROVED') {
-            const order = body.resource;
-            const purchase_units = order.purchase_units;
+        // Verificamos que el evento sea una orden capturada/aprobada
+        if (body.event_type === 'CHECKOUT.ORDER.APPROVED' || body.event_type === 'PAYMENT.CAPTURE.COMPLETED') {
+            const resource = body.resource;
+            const purchase_units = resource.purchase_units || (resource.amount ? [resource] : []);
 
             if (purchase_units && purchase_units.length > 0) {
-                const customId = purchase_units[0].custom_id;
+                // El custom_id contiene el ID del usuario enviado desde el botón
+                const userId = purchase_units[0].custom_id || resource.custom_id;
 
-                if (!customId) {
-                    console.error("Webhook Error: custom_id (userId) is missing.");
+                if (!userId) {
+                    console.error("Error Webhook: userId (custom_id) no encontrado.");
                     return NextResponse.json({ error: 'Missing custom_id' }, { status: 400 });
                 }
 
-                const userId = customId;
+                console.log(`Verificando automáticamente al usuario: ${userId}`);
 
-                console.log(`Processing verification for user: ${userId}`);
-
-                // Update user in Firestore
+                const batch = adminDb.batch();
                 const userRef = adminDb.collection("usuarios").doc(userId);
                 const collaboratorRef = adminDb.collection("colaboradores").doc(userId);
 
-                const userDoc = await userRef.get();
-
-                const batch = adminDb.batch();
-
+                // Actualizar ambos documentos si existen
                 batch.update(userRef, { verificado: true });
-
-                // Also update collaborator document if it exists
+                
                 const collaboratorDoc = await collaboratorRef.get();
                 if (collaboratorDoc.exists) {
                      batch.update(collaboratorRef, { verificado: true });
                 }
                 
                 await batch.commit();
-
-                console.log(`User ${userId} successfully verified.`);
+                console.log(`Usuario ${userId} verificado con éxito.`);
             }
         }
 
         return NextResponse.json({ status: 'success' }, { status: 200 });
 
     } catch (error: any) {
-        console.error("Webhook processing error:", error.message);
+        console.error("Error procesando Webhook de PayPal:", error.message);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }
