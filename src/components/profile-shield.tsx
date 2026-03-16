@@ -30,7 +30,8 @@ export function ProfileShield({ collaborator, size = 48, className = "" }: Profi
   const comments = collaborator.comentariosCount || 0;
   const stars = collaborator.estrellas || 0;
 
-  // Lógica de Prestigio Venga Mor: Los nuevos empiezan en Nivel 1
+  // Lógica de Prestigio: Los nuevos empiezan en Nivel 1.
+  // El puntaje sube con la interacción real.
   const prestigeScore = (followers * 2) + comments + (stars * 5);
 
   let level = 1;

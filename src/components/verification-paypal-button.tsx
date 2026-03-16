@@ -26,6 +26,7 @@ export default function VerificationPayPalButton({ userId }: Props) {
                         value: "5.00",
                     },
                     // ESTO ES LO QUE CONECTA EL PAGO CON EL USUARIO EN EL WEBHOOK
+                    // Se envía exactamente como solicitaste: custom_id
                     custom_id: userId, 
                 },
             ],

@@ -12,11 +12,12 @@ import {
   Slider,
   IconButton,
   Box,
+  Radio,
 } from "@radix-ui/themes";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { themeColorNames, useTheme, availableExploreBgs } from "@/context/theme-context";
-import { Play, Pause, Music, SkipBack, SkipForward, Radio } from "lucide-react";
+import { Play, Pause, Music, SkipBack, SkipForward } from "lucide-react";
 
 const messages = [
   "Mor, modelos únicas.",
@@ -47,7 +48,7 @@ const appPlaylist = [
   { name: "Venga Mix 7", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.30%20AM%20(3).mp3?alt=media&token=8a05a12f-589f-4efa-989b-ba197871fea2" },
   { name: "Venga Mix 8", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.30%20AM.mp3?alt=media&token=1c24212e-8a6f-4d0c-bf49-df9e80424573" },
   { name: "Venga Mix 9", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.31%20AM%20(1).mp3?alt=media&token=659b5ca5-2151-4a66-ab3d-328cc76eae00" },
-  { name: "Venga Mix 10", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.31%20AM.mp3?alt=media&token=924a3d27-02aa-4811-a177-230595bf3fe0" },
+  { name: "Venga Mix 10", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.31%20AM%20(1).mp3?alt=media&token=659b5ca5-2151-4a66-ab3d-328cc76eae00" },
 ];
 
 export function FloatingMascot() {
@@ -163,7 +164,13 @@ export function FloatingMascot() {
             {isMusicPlaying && (
               <div className="absolute inset-0 rounded-full bg-primary/30 animate-ping z-0" />
             )}
-            <div className={`rounded-full transition-all duration-500 overflow-hidden ${isMusicPlaying ? 'p-0.5 bg-primary shadow-[0_0_15px_rgba(255,0,85,0.5)] border-2 border-primary' : 'p-0 bg-transparent border-0'}`}>
+            <div 
+              className={`rounded-full transition-all duration-500 overflow-hidden ${
+                isMusicPlaying 
+                  ? 'border-2 border-primary shadow-[0_0_15px_rgba(255,0,85,0.5)] p-0.5' 
+                  : 'border-0 p-0'
+              }`}
+            >
               <Image
                 src={mascotImage.imageUrl}
                 alt={mascotImage.description}
