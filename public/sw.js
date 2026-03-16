@@ -1,12 +1,14 @@
+// Service Worker básico para permitir la instalación PWA
 self.addEventListener('install', (event) => {
-  console.log('Service Worker: Instalado');
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-  console.log('Service Worker: Activado');
+  event.waitUntil(clients.claim());
 });
 
 self.addEventListener('fetch', (event) => {
-  // Necesario para cumplir con los requisitos de PWA instalable
+  // No cachear nada por ahora para evitar problemas de desarrollo, 
+  // solo necesario para que el navegador lo detecte como PWA
+  return;
 });
