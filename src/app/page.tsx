@@ -10,7 +10,8 @@ export default function LoginPage() {
   const introImages = [
     "https://i.ibb.co/4wx2qPMz/In-Shot-20260219-212506821.gif",
     "https://i.ibb.co/2Y6y6v94/69b7864d645a301516c9025e.gif",
-    "https://i.ibb.co/FLYC1Qq8/69b869ba62b15dabc86e9faf.png"
+    "https://i.ibb.co/FLYC1Qq8/69b869ba62b15dabc86e9faf.png",
+    "https://i.ibb.co/jk9tgFjs/In-Shot-20251127-124506071.gif"
   ];
 
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
@@ -85,9 +86,9 @@ export default function LoginPage() {
       </AnimatePresence>
 
       {/* Degradado inferior más profundo para resaltar botones */}
-      <div className="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-black via-black/80 to-transparent z-10" />
+      <div className="absolute inset-x-0 bottom-0 h-[85%] bg-gradient-to-t from-black via-black/80 to-transparent z-10" />
 
-      <div className="relative z-20 w-full max-w-[340px] mx-auto p-4 flex flex-col items-center text-center pb-10">
+      <div className="relative z-20 w-full max-w-[340px] mx-auto p-4 flex flex-col items-center text-center pb-12">
         <Heading
           className="text-7xl md:text-8xl font-headline text-primary mb-10"
           style={{

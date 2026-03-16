@@ -163,7 +163,7 @@ export function FloatingMascot() {
             {isMusicPlaying && (
               <div className="absolute inset-0 rounded-full bg-primary/30 animate-ping z-0" />
             )}
-            <div className={`rounded-full transition-all duration-500 overflow-hidden ${isMusicPlaying ? 'p-0.5 bg-primary shadow-[0_0_15px_rgba(255,0,85,0.5)]' : 'p-0 bg-transparent'}`}>
+            <div className={`rounded-full transition-all duration-500 overflow-hidden ${isMusicPlaying ? 'p-0.5 bg-primary shadow-[0_0_15px_rgba(255,0,85,0.5)] border-2 border-primary' : 'p-0 bg-transparent border-0'}`}>
               <Image
                 src={mascotImage.imageUrl}
                 alt={mascotImage.description}
