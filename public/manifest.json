@@ -1,3 +1,4 @@
+
 {
   "name": "Venga Mor",
   "short_name": "Venga Mor",
@@ -10,8 +11,7 @@
     {
       "src": "https://i.ibb.co/jk9tgFjs/In-Shot-20251127-124506071.gif",
       "sizes": "192x192",
-      "type": "image/gif",
-      "purpose": "any maskable"
+      "type": "image/gif"
     },
     {
       "src": "https://i.ibb.co/jk9tgFjs/In-Shot-20251127-124506071.gif",

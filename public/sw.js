@@ -1,14 +1,20 @@
-// Service Worker básico para permitir la instalación de la PWA
-self.addEventListener('install', (event) => {
-  console.log('Venga Mor SW: Instalado');
-  self.skipWaiting();
+
+const CACHE_NAME = 'venga-mor-cache-v1';
+const urlsToCache = [
+  '/',
+  '/manifest.json'
+];
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(urlsToCache))
+  );
 });
 
-self.addEventListener('activate', (event) => {
-  console.log('Venga Mor SW: Activo');
-});
-
-self.addEventListener('fetch', (event) => {
-  // Estrategia simple de red para asegurar contenido actualizado
-  event.respondWith(fetch(event.request));
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request)
+      .then(response => response || fetch(event.request))
+  );
 });

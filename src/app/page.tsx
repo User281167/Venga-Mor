@@ -1,3 +1,4 @@
+
 "use client";
 import Link from "next/link";
 import { Button, Flex, Heading, Section, Dialog } from "@radix-ui/themes";
@@ -5,9 +6,15 @@ import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { useEffect, useState } from "react";
 import { Download } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function LoginPage() {
-  const introGif = PlaceHolderImages.find((p) => p.id === "intro-gif");
+  const introGifs = [
+    PlaceHolderImages.find((p) => p.id === "intro-gif")?.imageUrl,
+    PlaceHolderImages.find((p) => p.id === "intro-gif-alt")?.imageUrl,
+  ].filter(Boolean);
+
+  const [currentGifIndex, setCurrentGifIndex] = useState(0);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showIosTip, setShowIosTip] = useState(false);
 
@@ -21,34 +28,32 @@ export default function LoginPage() {
     }
 
     const handleBeforeInstallPrompt = (e: any) => {
-      // Evita que el navegador muestre su propio aviso automático
       e.preventDefault();
-      // Guardamos el evento para dispararlo cuando el usuario toque nuestro botón
       setDeferredPrompt(e);
-      console.log("Evento beforeinstallprompt capturado");
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
+    // Rotación de GIFs
+    const interval = setInterval(() => {
+      setCurrentGifIndex((prev) => (prev + 1) % introGifs.length);
+    }, 5000);
+
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      clearInterval(interval);
     };
-  }, []);
+  }, [introGifs.length]);
 
   const handleInstallClick = async () => {
     if (deferredPrompt) {
-      // Muestra la ventana REAL de instalación del sistema
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
-      console.log(`Usuario eligió: ${outcome}`);
-      
       if (outcome === 'accepted') {
         console.log('App instalada con éxito');
       }
-      // Limpiamos el evento una vez usado
       setDeferredPrompt(null);
     } else {
-      // Si no hay evento (iPhone o navegador ya tiene la app instalada)
       const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
       if (isIos) {
         setShowIosTip(true);
@@ -62,19 +67,30 @@ export default function LoginPage() {
 
   return (
     <Section className="relative h-screen w-full flex flex-col items-center justify-end p-0 overflow-hidden bg-black">
-      {/* Background GIF - Aligned to top */}
-      {introGif && (
-        <Image
-          src={introGif.imageUrl}
-          alt={introGif.description}
-          layout="fill"
-          objectFit="cover"
-          objectPosition="top"
-          className="z-0"
-          unoptimized
-          priority
-        />
-      )}
+      {/* Background GIFs Rotativos */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentGifIndex}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1.5 }}
+          className="absolute inset-0"
+        >
+          {introGifs[currentGifIndex] && (
+            <Image
+              src={introGifs[currentGifIndex]!}
+              alt="Intro Venga Mor"
+              layout="fill"
+              objectFit="cover"
+              objectPosition="top"
+              className="z-0"
+              unoptimized
+              priority
+            />
+          )}
+        </motion.div>
+      </AnimatePresence>
 
       {/* Gradient Overlay */}
       <div className="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-black via-black/80 to-transparent z-10" />
@@ -111,7 +127,6 @@ export default function LoginPage() {
             </Button>
           </Link>
 
-          {/* Botón de Descarga Profesional */}
           <Button
             size="3"
             variant="outline"
@@ -122,7 +137,6 @@ export default function LoginPage() {
             Descargar App
           </Button>
 
-          {/* Guía visual para iPhone */}
           <Dialog.Root open={showIosTip} onOpenChange={setShowIosTip}>
             <Dialog.Content style={{ maxWidth: 450 }}>
               <Dialog.Title>Instalar en tu iPhone</Dialog.Title>
