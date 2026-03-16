@@ -1,8 +1,13 @@
+// Service Worker básico para permitir la instalación PWA
 self.addEventListener('install', (event) => {
-  console.log('Venga Mor PWA: Service Worker instalado.');
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(clients.claim());
 });
 
 self.addEventListener('fetch', (event) => {
-  // Pass-through simple para permitir el funcionamiento de la PWA
+  // En este prototipo, simplemente pasamos las peticiones a la red
   event.respondWith(fetch(event.request));
 });
