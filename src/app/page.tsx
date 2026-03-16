@@ -1,7 +1,6 @@
-
 "use client";
 import Link from "next/link";
-import { Button, Flex, Heading, Section, Dialog } from "@radix-ui/themes";
+import { Button, Flex, Heading, Section, Dialog, Text } from "@radix-ui/themes";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { useEffect, useState } from "react";
@@ -19,7 +18,7 @@ export default function LoginPage() {
   const [showIosTip, setShowIosTip] = useState(false);
 
   useEffect(() => {
-    // Registro del Service Worker
+    // Registro del Service Worker para PWA
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
         .register("/sw.js")
@@ -27,6 +26,7 @@ export default function LoginPage() {
         .catch((err) => console.log("Error registrando SW:", err));
     }
 
+    // Capturar el evento de instalación
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -34,7 +34,7 @@ export default function LoginPage() {
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
-    // Rotación de GIFs
+    // Rotación de GIFs cada 5 segundos
     const interval = setInterval(() => {
       setCurrentGifIndex((prev) => (prev + 1) % introGifs.length);
     }, 5000);
@@ -47,6 +47,7 @@ export default function LoginPage() {
 
   const handleInstallClick = async () => {
     if (deferredPrompt) {
+      // Mostrar el diálogo nativo de instalación (Android/PC)
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
@@ -54,6 +55,7 @@ export default function LoginPage() {
       }
       setDeferredPrompt(null);
     } else {
+      // Detección de iOS para mostrar instrucciones manuales
       const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
       if (isIos) {
         setShowIosTip(true);
@@ -67,7 +69,7 @@ export default function LoginPage() {
 
   return (
     <Section className="relative h-screen w-full flex flex-col items-center justify-end p-0 overflow-hidden bg-black">
-      {/* Background GIFs Rotativos */}
+      {/* Background GIFs Rotativos con ajuste de cobertura total */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentGifIndex}
@@ -81,10 +83,8 @@ export default function LoginPage() {
             <Image
               src={introGifs[currentGifIndex]!}
               alt="Intro Venga Mor"
-              layout="fill"
-              objectFit="cover"
-              objectPosition="top"
-              className="z-0"
+              fill
+              className="z-0 object-cover object-center"
               unoptimized
               priority
             />
@@ -92,13 +92,13 @@ export default function LoginPage() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Gradient Overlay */}
-      <div className="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-black via-black/80 to-transparent z-10" />
+      {/* Gradient Overlay inferior */}
+      <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black via-black/60 to-transparent z-10" />
 
-      {/* Content container */}
-      <div className="relative z-20 w-full max-w-sm mx-auto p-6 flex flex-col items-center text-center">
+      {/* Contenedor de contenido ajustado para móviles */}
+      <div className="relative z-20 w-full max-w-sm mx-auto p-6 flex flex-col items-center text-center pb-12">
         <Heading
-          className="text-8xl md:text-9xl font-headline text-primary mb-8"
+          className="text-7xl md:text-9xl font-headline text-primary mb-6"
           style={{
             fontFamily: "'Playball', cursive",
             textShadow: "2px 2px 8px rgba(0,0,0,0.7)",
@@ -107,11 +107,11 @@ export default function LoginPage() {
           Venga Mor
         </Heading>
 
-        <Flex direction="column" gap="3" className="w-full">
+        <Flex direction="column" gap="2" className="w-full">
           <Link href="/iniciar-sesion" className="w-full">
             <Button
               size="3"
-              className="w-full cursor-pointer bg-primary text-primary-foreground h-12 text-lg font-semibold"
+              className="w-full cursor-pointer bg-primary text-primary-foreground h-10 md:h-12 text-md md:text-lg font-semibold rounded-xl"
             >
               Ingresar
             </Button>
@@ -120,8 +120,8 @@ export default function LoginPage() {
           <Link href="/perfiles" className="w-full">
             <Button
               size="3"
-              variant="soft"
-              className="w-full cursor-pointer h-12 text-lg font-semibold bg-black/50 text-white"
+              variant="ghost"
+              className="w-full cursor-pointer h-10 md:h-12 text-md md:text-lg font-semibold text-white hover:bg-white/10"
             >
               Ver perfiles
             </Button>
@@ -130,28 +130,27 @@ export default function LoginPage() {
           <Button
             size="3"
             variant="outline"
-            className="w-full cursor-pointer h-12 text-lg font-semibold bg-black/30 border-primary text-white"
+            className="w-full cursor-pointer h-10 md:h-12 text-md md:text-lg font-semibold bg-black/20 border-white/20 text-white rounded-xl mt-2"
             onClick={handleInstallClick}
           >
-            <Download className="mr-2 h-5 w-5" />
+            <Download className="mr-2 h-4 w-4 md:h-5 md:w-5" />
             Descargar App
           </Button>
 
+          {/* Modal de ayuda para instalación en iPhone */}
           <Dialog.Root open={showIosTip} onOpenChange={setShowIosTip}>
-            <Dialog.Content style={{ maxWidth: 450 }}>
+            <Dialog.Content style={{ maxWidth: 400 }} className="rounded-3xl">
               <Dialog.Title>Instalar en tu iPhone</Dialog.Title>
               <Dialog.Description size="2" mb="4">
-                Para instalar la app en tu menú: Toca el icono de compartir{" "}
-                <img
-                  src="https://img.icons8.com/ios/18/ffffff/upload.png"
-                  alt="compartir"
-                  className="inline align-middle mx-1"
-                />{" "}
-                en tu navegador Safari y elige la opción <b>"Añadir a pantalla de inicio"</b>.
+                Sigue estos pasos para tener Venga Mor en tu menú:
+                <br /><br />
+                1. Toca el botón <b>Compartir</b> <img src="https://img.icons8.com/ios/18/ffffff/upload.png" alt="compartir" className="inline align-middle mx-1" /> abajo.
+                <br />
+                2. Desliza y elige <b>"Añadir a pantalla de inicio"</b>.
               </Dialog.Description>
               <Flex justify="end">
                 <Dialog.Close>
-                  <Button variant="soft">Entendido</Button>
+                  <Button variant="soft" className="cursor-pointer">Entendido</Button>
                 </Dialog.Close>
               </Flex>
             </Dialog.Content>
