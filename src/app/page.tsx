@@ -1,29 +1,78 @@
 "use client";
 import Link from "next/link";
-import { Button, Flex, Heading, Section } from "@radix-ui/themes";
+import { Button, Flex, Heading, Section, Dialog } from "@radix-ui/themes";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { useEffect, useState } from "react";
+import { Download } from "lucide-react";
 
 export default function LoginPage() {
   const introGif = PlaceHolderImages.find((p) => p.id === "intro-gif");
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showIosTip, setShowIosTip] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      // Prevenir que el navegador muestre su propio prompt automáticamente
+      e.preventDefault();
+      // Guardar el evento para dispararlo luego
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+
+    // Registro del Service Worker para PWA
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then(() => console.log("Service Worker registrado correctamente"))
+        .catch((err) => console.log("Error al registrar SW:", err));
+    }
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      // Mostrar el prompt de instalación nativo (Android/Chrome)
+      deferredPrompt.prompt();
+      // Esperar la respuesta del usuario
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`Usuario eligió: ${outcome}`);
+      // Limpiar el evento guardado
+      setDeferredPrompt(null);
+    } else {
+      // Detección manual para iOS o navegadores que no soportan beforeinstallprompt
+      const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
+      if (isIos) {
+        setShowIosTip(true);
+      } else {
+        alert(
+          'Busca la opción "Instalar aplicación" o "Añadir a pantalla de inicio" en el menú de tu navegador.'
+        );
+      }
+    }
+  };
 
   return (
     <Section className="relative h-screen w-full flex flex-col items-center justify-end p-0 overflow-hidden bg-black">
-      {/* Background GIF - Fill the screen and align to top */}
+      {/* Background GIF - Aligned to top */}
       {introGif && (
         <Image
           src={introGif.imageUrl}
           alt={introGif.description}
           layout="fill"
           objectFit="cover"
-          objectPosition="center top"
+          objectPosition="top"
           className="z-0"
           unoptimized
           priority
         />
       )}
 
-      {/* Gradient Overlay for readability and style */}
+      {/* Gradient Overlay for readability */}
       <div className="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-black via-black/80 to-transparent z-10" />
 
       {/* Content container */}
@@ -57,6 +106,38 @@ export default function LoginPage() {
               Ver perfiles
             </Button>
           </Link>
+
+          {/* Tercer botón: Descargar App */}
+          <Button
+            size="3"
+            variant="outline"
+            className="w-full cursor-pointer h-12 text-lg font-semibold bg-black/30 border-primary text-white"
+            onClick={handleInstallClick}
+          >
+            <Download className="mr-2 h-5 w-5" />
+            Descargar App
+          </Button>
+
+          {/* Tip para iOS (iPhone) */}
+          <Dialog.Root open={showIosTip} onOpenChange={setShowIosTip}>
+            <Dialog.Content style={{ maxWidth: 450 }}>
+              <Dialog.Title>Instalar en tu iPhone</Dialog.Title>
+              <Dialog.Description size="2" mb="4">
+                Para instalar la app en tu menú: Toca el icono de compartir{" "}
+                <img
+                  src="https://img.icons8.com/ios/18/ffffff/upload.png"
+                  alt="compartir"
+                  className="inline align-middle mx-1"
+                />{" "}
+                en tu navegador Safari y elige la opción <b>"Añadir a pantalla de inicio"</b>.
+              </Dialog.Description>
+              <Flex justify="end">
+                <Dialog.Close>
+                  <Button variant="soft">Entendido</Button>
+                </Dialog.Close>
+              </Flex>
+            </Dialog.Content>
+          </Dialog.Root>
         </Flex>
       </div>
     </Section>

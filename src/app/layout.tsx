@@ -26,6 +26,7 @@ const playball = Playball({
 export const metadata: Metadata = {
   title: "Venga Mor",
   description: "Tu compañía de élite en Bogotá.",
+  manifest: "/manifest.json",
   icons: {
     icon: "/favicon.ico",
     apple: "/favicon.ico",
