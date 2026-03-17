@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState, useRef } from "react";
@@ -130,7 +131,7 @@ export function FloatingMascot() {
 
       <Popover.Root open={popoverOpen} onOpenChange={setPopoverOpen}>
         <Popover.Trigger>
-          <div className="cursor-pointer relative group">
+          <div className="cursor-pointer relative outline-none focus:outline-none ring-0">
             <AnimatePresence>
               {isMusicPlaying && (
                 <motion.div 
@@ -141,7 +142,7 @@ export function FloatingMascot() {
                 />
               )}
             </AnimatePresence>
-            <div className={`rounded-full transition-all duration-500 overflow-hidden bg-transparent flex items-center justify-center border-0 outline-none ${isMusicPlaying ? 'border-2 border-primary shadow-[0_0_15px_rgba(255,0,85,0.5)]' : ''}`}>
+            <div className={`rounded-full transition-all duration-500 overflow-hidden bg-transparent border-0 outline-none flex items-center justify-center ${isMusicPlaying ? 'border-2 border-primary shadow-[0_0_15px_rgba(255,0,85,0.5)]' : 'border-0 shadow-none'}`}>
               <Image
                 src={mascotImage.imageUrl}
                 alt={mascotImage.description}
