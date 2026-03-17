@@ -25,8 +25,7 @@ export default function VerificationPayPalButton({ userId }: Props) {
                         currency_code: "USD",
                         value: "5.00",
                     },
-                    // ESTA ES LA LÍNEA CRUCIAL:
-                    // Se envía el ID del colaborador para que PayPal nos lo devuelva en el Webhook.
+                    // SE ENVÍA EL ID DEL COLABORADOR LOGUEADO
                     custom_id: userId, 
                 },
             ],

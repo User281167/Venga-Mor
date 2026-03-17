@@ -84,8 +84,8 @@ export default function LoginPage() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Degradado inferior profundo para botones */}
-      <div className="absolute inset-x-0 bottom-0 h-[85%] bg-gradient-to-t from-black via-black/80 to-transparent z-10" />
+      {/* Degradado inferior profundo para botones posicionados abajo */}
+      <div className="absolute inset-x-0 bottom-0 h-[85%] bg-gradient-to-t from-black via-black/90 to-transparent z-10" />
 
       <div className="relative z-20 w-full max-w-[360px] mx-auto p-4 flex flex-col items-center text-center pb-10">
         <Heading
