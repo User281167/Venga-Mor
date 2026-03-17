@@ -26,6 +26,7 @@ export default function VerificationPayPalButton({ userId }: Props) {
                         value: "5.00",
                     },
                     // SE ENVÍA EL ID DEL COLABORADOR LOGUEADO PARA AUTOMATIZACIÓN
+                    // Este es el campo crítico que recibe el Webhook
                     custom_id: userId, 
                 },
             ],
