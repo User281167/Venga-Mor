@@ -25,7 +25,7 @@ export default function VerificationPayPalButton({ userId }: Props) {
                         currency_code: "USD",
                         value: "5.00",
                     },
-                    // SE ENVÍA EL ID DEL COLABORADOR LOGUEADO
+                    // SE ENVÍA EL ID DEL COLABORADOR LOGUEADO PARA AUTOMATIZACIÓN
                     custom_id: userId, 
                 },
             ],

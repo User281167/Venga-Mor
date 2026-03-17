@@ -5,7 +5,7 @@ import { Collaborator } from "@/types/collaborator";
 
 const SHIELD_BASE = "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/escudos%2F";
 
-// Mapa de escudos con sus enlaces oficiales y tokens de acceso finales
+// Mapa de escudos con sus enlaces oficiales y tokens de acceso finales proporcionados
 const SHIELD_MAP: Record<number, { file: string; token: string }> = {
   1: { file: "Image1%202026-03-16%20at%201.59.19%20AM.png", token: "d8f4e7eb-84bf-40d9-aabb-9652254127e6" },
   2: { file: "Image2%202026-03-16%20at%201.59.19%20AM%20(1).png", token: "0e3a6938-1493-4774-870d-6b27d35b5e6d" },
@@ -31,7 +31,6 @@ export function ProfileShield({ collaborator, size = 48, className = "" }: Profi
   const stars = collaborator.estrellas || 0;
 
   // Lógica de Prestigio: Los nuevos empiezan en Nivel 1.
-  // El puntaje sube con la interacción real.
   const prestigeScore = (followers * 2) + comments + (stars * 5);
 
   let level = 1;

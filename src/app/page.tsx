@@ -16,7 +16,6 @@ export default function LoginPage() {
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showIosTip, setShowIosTip] = useState(false);
-  const [isInstallable, setIsInstallable] = useState(false);
 
   useEffect(() => {
     // Registro del Service Worker para PWA
@@ -30,7 +29,6 @@ export default function LoginPage() {
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      setIsInstallable(true);
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
@@ -51,7 +49,6 @@ export default function LoginPage() {
       const { outcome } = await deferredPrompt.userChoice;
       console.log(`Instalación: ${outcome}`);
       setDeferredPrompt(null);
-      setIsInstallable(false);
     } else {
       const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
       if (isIos) {
