@@ -23,24 +23,23 @@ export default function VerificationPayPalButton({ userId }: Props) {
             
             const data = await response.json();
             
-            // 🔥 SOLUCIÓN CRÍTICA: Debemos devolver data.id para que el SDK de PayPal funcione
             if (!data.id) {
                 console.error("Error: No se recibió ID de orden de PayPal", data);
                 toast.error("Error al generar la orden de pago.");
                 throw new Error("No order ID returned from server");
             }
 
-            console.log("Orden capturada correctamente en el cliente:", data.id);
+            console.log("Orden capturada correctamente:", data.id);
             return data.id; 
         } catch (error) {
-            console.error("Error en createOrder del frontend:", error);
+            console.error("Error en createOrder:", error);
             throw error;
         }
     };
 
     const onApprove = async (data: any) => {
         try {
-            toast.message("Procesando pago...");
+            toast.loading("Procesando pago...");
             
             const response = await fetch("/api/paypal/capture-order", {
                 method: "POST",
@@ -51,7 +50,6 @@ export default function VerificationPayPalButton({ userId }: Props) {
             const details = await response.json();
             
             if (details.status === "COMPLETED") {
-                // Actualización inmediata en el cliente para UX fluida
                 const userRef = doc(db, "usuarios", userId);
                 const colabRef = doc(db, "colaboradores", userId);
                 
@@ -59,17 +57,20 @@ export default function VerificationPayPalButton({ userId }: Props) {
                 try {
                     await updateDoc(colabRef, { verificado: true });
                 } catch(e) {
-                    console.warn("Sincronización menor: Perfil de colaborador pendiente.");
+                    console.warn("Colaborador doc no existe aún.");
                 }
 
-                toast.success("¡Tu perfil ha sido verificado con éxito!");
+                toast.dismiss();
+                toast.success("¡Perfil verificado con éxito!");
                 router.push("/confirmacion");
             } else {
+                toast.dismiss();
                 toast.error("El pago no pudo ser completado.");
             }
         } catch (error) {
+            toast.dismiss();
             console.error("Error confirmando pago:", error);
-            toast.error("Error al procesar la confirmación del pago.");
+            toast.error("Error al procesar la confirmación.");
         }
     };
 
@@ -86,7 +87,7 @@ export default function VerificationPayPalButton({ userId }: Props) {
                 createOrder={createOrder}
                 onApprove={onApprove}
                 onError={(err) => {
-                    toast.error("Hubo un problema con la plataforma de pago.");
+                    toast.error("Problema con la plataforma de pago.");
                     console.error("PayPal SDK Error:", err);
                 }}
             />

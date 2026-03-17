@@ -72,15 +72,14 @@ export default function LoginPage() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Gradiente profundo para lectura óptima de botones en zona baja */}
-      <div className="absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-black via-black/85 to-transparent z-10" />
+      <div className="absolute inset-x-0 bottom-0 h-[70%] bg-gradient-to-t from-black via-black/90 to-transparent z-10" />
 
-      <div className="relative z-20 w-full max-w-[420px] mx-auto p-6 flex flex-col items-center text-center pb-12 mb-2">
+      <div className="relative z-20 w-full max-w-[420px] mx-auto p-6 flex flex-col items-center text-center pb-16">
         <Heading
-          className="text-6xl md:text-7xl font-headline text-primary mb-8 leading-none"
+          className="text-6xl md:text-7xl font-headline text-primary mb-10 leading-none"
           style={{
             fontFamily: "'Playball', cursive",
-            textShadow: "0px 0px 25px rgba(255,0,85,0.6)",
+            textShadow: "0px 0px 30px rgba(255,0,85,0.7)",
           }}
         >
           Venga Mor
@@ -90,7 +89,7 @@ export default function LoginPage() {
           <Link href="/iniciar-sesion" className="w-full">
             <Button
               size="4"
-              className="w-full cursor-pointer bg-primary text-primary-foreground h-16 text-xl font-bold rounded-2xl shadow-xl transition-transform active:scale-95"
+              className="w-full cursor-pointer bg-primary text-primary-foreground h-16 text-xl font-bold rounded-2xl shadow-[0_0_20px_rgba(255,0,85,0.4)] transition-transform active:scale-95"
             >
               INGRESAR
             </Button>
@@ -100,16 +99,16 @@ export default function LoginPage() {
             <Button
               size="3"
               variant="ghost"
-              className="w-full cursor-pointer h-12 text-lg font-bold text-white hover:bg-white/10"
+              className="w-full cursor-pointer h-12 text-lg font-bold text-white/90 hover:bg-white/10"
             >
               VER PERFILES
             </Button>
           </Link>
 
           <Button
-            size="3"
+            size="2"
             variant="outline"
-            className="w-full cursor-pointer h-10 text-[10px] font-bold bg-black/40 border-white/10 text-white/70 rounded-xl backdrop-blur-md"
+            className="w-full cursor-pointer h-10 text-[10px] font-bold bg-black/40 border-white/10 text-white/60 rounded-xl backdrop-blur-md mt-2"
             onClick={handleInstallClick}
           >
             <Download className="mr-2 h-3 w-3" />
