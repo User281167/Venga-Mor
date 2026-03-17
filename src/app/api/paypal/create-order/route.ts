@@ -46,7 +46,7 @@ export async function POST(req: Request) {
               currency_code: "USD",
               value: "5.00",
             },
-            custom_id: userId, // Vínculo para el webhook
+            custom_id: userId, // Vínculo para el webhook y verificación
             description: "Verificación Oficial Venga Mor"
           },
         ],
