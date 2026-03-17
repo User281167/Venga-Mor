@@ -1,4 +1,3 @@
-
 "use client";
 import Link from "next/link";
 import { Button, Flex, Heading, Section, Dialog } from "@radix-ui/themes";
@@ -74,25 +73,25 @@ export default function LoginPage() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Gradiente profundo para lectura de botones en la parte baja */}
-      <div className="absolute inset-x-0 bottom-0 h-[80%] bg-gradient-to-t from-black via-black/90 to-transparent z-10" />
+      {/* Gradiente profundo para lectura de botones */}
+      <div className="absolute inset-x-0 bottom-0 h-[85%] bg-gradient-to-t from-black via-black/95 to-transparent z-10" />
 
-      <div className="relative z-20 w-full max-w-[380px] mx-auto p-4 flex flex-col items-center text-center pb-8 mb-4">
+      <div className="relative z-20 w-full max-w-[420px] mx-auto p-4 flex flex-col items-center text-center pb-12 mb-2">
         <Heading
-          className="text-8xl md:text-9xl font-headline text-primary mb-12"
+          className="text-8xl md:text-9xl font-headline text-primary mb-16 leading-none"
           style={{
             fontFamily: "'Playball', cursive",
-            textShadow: "0px 0px 50px rgba(255,0,85,1)",
+            textShadow: "0px 0px 60px rgba(255,0,85,1)",
           }}
         >
           Venga Mor
         </Heading>
 
-        <Flex direction="column" gap="3" className="w-full">
+        <Flex direction="column" gap="4" className="w-full">
           <Link href="/iniciar-sesion" className="w-full">
             <Button
               size="4"
-              className="w-full cursor-pointer bg-primary text-primary-foreground h-16 text-3xl font-bold rounded-2xl shadow-[0_0_30px_rgba(255,0,85,0.4)] transition-transform active:scale-95"
+              className="w-full cursor-pointer bg-primary text-primary-foreground h-20 text-4xl font-bold rounded-2xl shadow-[0_0_40px_rgba(255,0,85,0.5)] transition-transform active:scale-95"
             >
               INGRESAR
             </Button>
@@ -102,7 +101,7 @@ export default function LoginPage() {
             <Button
               size="3"
               variant="ghost"
-              className="w-full cursor-pointer h-12 text-xl font-bold text-white hover:bg-white/10"
+              className="w-full cursor-pointer h-14 text-2xl font-bold text-white hover:bg-white/10"
             >
               VER PERFILES
             </Button>
@@ -111,7 +110,7 @@ export default function LoginPage() {
           <Button
             size="3"
             variant="outline"
-            className="w-full cursor-pointer h-12 text-sm font-bold bg-black/40 border-white/20 text-white rounded-xl backdrop-blur-md"
+            className="w-full cursor-pointer h-14 text-sm font-bold bg-black/40 border-white/20 text-white rounded-xl backdrop-blur-md"
             onClick={handleInstallClick}
           >
             <Download className="mr-2 h-4 w-4" />

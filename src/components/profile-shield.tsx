@@ -1,4 +1,3 @@
-
 "use client";
 
 import Image from "next/image";
@@ -30,7 +29,7 @@ export function ProfileShield({ collaborator, size = 48, className = "" }: Profi
   const comments = collaborator.comentariosCount || 0;
   const stars = collaborator.estrellas || 0;
 
-  // Lógica de prestigio exigente para modelos nuevas
+  // Lógica de prestigio exigente
   const prestigeScore = (followers * 2) + (comments * 0.5) + (stars * 10);
 
   let level = 1;
@@ -50,7 +49,7 @@ export function ProfileShield({ collaborator, size = 48, className = "" }: Profi
 
   return (
     <div 
-      className={`relative z-30 pointer-events-none flex items-center justify-center bg-transparent ${className}`}
+      className={`relative z-30 pointer-events-none flex items-center justify-center bg-transparent border-0 shadow-none ${className}`}
       style={{ width: size, height: size }}
     >
       <Image
@@ -58,7 +57,7 @@ export function ProfileShield({ collaborator, size = 48, className = "" }: Profi
         alt={`Nivel ${level}`}
         width={size}
         height={size}
-        className="object-contain"
+        className="object-contain bg-transparent border-0"
         unoptimized
       />
     </div>

@@ -3,19 +3,17 @@ import { NextResponse } from "next/server";
 
 /**
  * WEBHOOK OFICIAL DE PAYPAL
- * Este endpoint recibe las notificaciones de pago y actualiza el estado de verificación.
+ * Recibe notificaciones de pago y actualiza el estado de verificación del colaborador.
  */
 export async function POST(req: Request) {
     try {
         const body = await req.json();
 
-        // LOGGING para auditoría
         console.log("PayPal Webhook Recibido:", body.event_type);
 
-        // Verificamos que el evento sea una orden capturada/aprobada
+        // Verificamos eventos de orden capturada o pago completado
         if (body.event_type === 'CHECKOUT.ORDER.APPROVED' || body.event_type === 'PAYMENT.CAPTURE.COMPLETED') {
             const resource = body.resource;
-            // El custom_id puede venir en purchase_units o en el resource directamente
             const purchase_units = resource.purchase_units || (resource.amount ? [resource] : []);
             
             let userId = null;
@@ -26,17 +24,16 @@ export async function POST(req: Request) {
             }
 
             if (!userId) {
-                console.error("Error Webhook: userId (custom_id) no encontrado en el cuerpo del mensaje.");
-                return NextResponse.json({ error: 'Missing custom_id' }, { status: 200 }); // Retornamos 200 para que PayPal no reintente
+                console.error("Error Webhook: userId (custom_id) no encontrado.");
+                return NextResponse.json({ error: 'Missing custom_id' }, { status: 200 });
             }
 
-            console.log(`Verificando automáticamente al usuario: ${userId}`);
+            console.log(`Verificando automáticamente al colaborador: ${userId}`);
 
             const batch = adminDb.batch();
             const userRef = adminDb.collection("usuarios").doc(userId);
             const collaboratorRef = adminDb.collection("colaboradores").doc(userId);
 
-            // Actualizar ambos documentos
             batch.update(userRef, { verificado: true });
             
             const collaboratorDoc = await collaboratorRef.get();
@@ -45,7 +42,7 @@ export async function POST(req: Request) {
             }
             
             await batch.commit();
-            console.log(`Usuario ${userId} verificado con éxito.`);
+            console.log(`Colaborador ${userId} verificado con éxito.`);
         }
 
         return NextResponse.json({ status: 'success' }, { status: 200 });
