@@ -1,8 +1,6 @@
-
 "use client";
 
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-import { ENV } from "@/lib/env";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { doc, updateDoc } from "firebase/firestore";
@@ -26,12 +24,12 @@ export default function VerificationPayPalButton({ userId }: Props) {
             const data = await response.json();
             
             if (!data.id) {
-                console.error("No se recibió ID de orden:", data);
-                throw new Error("No order ID returned");
+                console.error("Error: No se recibió ID de orden de PayPal", data);
+                throw new Error("No order ID returned from server");
             }
 
-            console.log("Orden creada:", data.id);
-            return data.id; // 🔥 RETORNO CLAVE PARA EL SDK
+            console.log("Orden de PayPal creada exitosamente:", data.id);
+            return data.id; // 🔥 RETORNO CRÍTICO PARA EL SDK
         } catch (error) {
             console.error("Error en createOrder:", error);
             toast.error("No se pudo iniciar el proceso de pago.");
@@ -50,7 +48,7 @@ export default function VerificationPayPalButton({ userId }: Props) {
             const details = await response.json();
             
             if (details.status === "COMPLETED") {
-                // Actualización inmediata en el cliente
+                // Actualización inmediata en el cliente para UX fluida
                 const userRef = doc(db, "usuarios", userId);
                 const colabRef = doc(db, "colaboradores", userId);
                 
@@ -58,24 +56,24 @@ export default function VerificationPayPalButton({ userId }: Props) {
                 try {
                     await updateDoc(colabRef, { verificado: true });
                 } catch(e) {
-                    console.log("Documento de colaborador no existe aún.");
+                    console.warn("Documento de colaborador no existe aún o error menor de sincronización.");
                 }
 
-                toast.success("¡Perfil verificado con éxito!");
+                toast.success("¡Tu perfil ha sido verificado con éxito!");
                 router.push("/confirmacion");
             } else {
-                toast.error("El pago no se pudo completar.");
+                toast.error("El pago no pudo ser capturado correctamente.");
             }
         } catch (error) {
             console.error("Error confirmando pago:", error);
-            toast.error("Error al procesar la confirmación.");
+            toast.error("Error al procesar la confirmación del pago.");
         }
     };
 
     return (
         <PayPalScriptProvider
             options={{
-                clientId: ENV.PAYPAL_CLIENT_ID || "ASWoUY2hASGLV457PLVjFP-GpQHdyFUQjfs07h7NnzvuAeMRUiz2GOa_347qPhsvKqAJk9U-ukrRXG_6",
+                clientId: "ASWoUY2hASGLV457PLVjFP-GpQHdyFUQjfs07h7NnzvuAeMRUiz2GOa_347qPhsvKqAJk9U-ukrRXG_6",
                 intent: "capture",
                 currency: "USD"
             }}
@@ -85,7 +83,7 @@ export default function VerificationPayPalButton({ userId }: Props) {
                 createOrder={createOrder}
                 onApprove={onApprove}
                 onError={(err) => {
-                    toast.error("Problema con la transacción de PayPal.");
+                    toast.error("Hubo un problema técnico con la transacción.");
                     console.error("PayPal SDK Error:", err);
                 }}
             />

@@ -1,4 +1,3 @@
-
 "use client";
 import Link from "next/link";
 import { Button, Flex, Heading, Section, Dialog } from "@radix-ui/themes";
@@ -28,7 +27,7 @@ export default function LoginPage() {
 
     const interval = setInterval(() => {
       setCurrentImgIndex((prev) => (prev + 1) % introImages.length);
-    }, 6000);
+    }, 6500);
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
@@ -59,12 +58,12 @@ export default function LoginPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 2 }}
+          transition={{ duration: 2.5 }}
           className="absolute inset-0 flex items-start justify-center"
         >
           <Image
             src={introImages[currentImgIndex]}
-            alt="Venga Mor Intro"
+            alt="Venga Mor Background"
             fill
             className="z-0 object-contain object-top"
             unoptimized
@@ -73,15 +72,15 @@ export default function LoginPage() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Gradiente profundo para lectura de botones */}
-      <div className="absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-black via-black/80 to-transparent z-10" />
+      {/* Gradiente profundo para lectura óptima de botones */}
+      <div className="absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-black via-black/80 to-transparent z-10" />
 
-      <div className="relative z-20 w-full max-w-[420px] mx-auto p-6 flex flex-col items-center text-center pb-12 mb-6">
+      <div className="relative z-20 w-full max-w-[420px] mx-auto p-6 flex flex-col items-center text-center pb-16 mb-4">
         <Heading
-          className="text-5xl md:text-6xl font-headline text-primary mb-12 leading-none"
+          className="text-6xl md:text-7xl font-headline text-primary mb-10 leading-none"
           style={{
             fontFamily: "'Playball', cursive",
-            textShadow: "0px 0px 30px rgba(255,0,85,0.6)",
+            textShadow: "0px 0px 30px rgba(255,0,85,0.7)",
           }}
         >
           Venga Mor
@@ -91,7 +90,7 @@ export default function LoginPage() {
           <Link href="/iniciar-sesion" className="w-full">
             <Button
               size="4"
-              className="w-full cursor-pointer bg-primary text-primary-foreground h-16 text-xl font-bold rounded-2xl shadow-lg transition-transform active:scale-95"
+              className="w-full cursor-pointer bg-primary text-primary-foreground h-16 text-xl font-bold rounded-2xl shadow-xl transition-transform active:scale-95"
             >
               INGRESAR
             </Button>

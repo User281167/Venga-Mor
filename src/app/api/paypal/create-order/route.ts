@@ -1,15 +1,14 @@
-
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
     const { userId } = await req.json();
     
-    const CLIENT = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
+    const CLIENT = "ASWoUY2hASGLV457PLVjFP-GpQHdyFUQjfs07h7NnzvuAeMRUiz2GOa_347qPhsvKqAJk9U-ukrRXG_6";
     const SECRET = process.env.PAYPAL_SECRET;
 
     if (!CLIENT || !SECRET) {
-      return NextResponse.json({ error: "PayPal credentials missing" }, { status: 500 });
+      return NextResponse.json({ error: "PayPal credentials missing in server" }, { status: 500 });
     }
 
     const auth = Buffer.from(CLIENT + ":" + SECRET).toString("base64");
@@ -42,7 +41,7 @@ export async function POST(req: Request) {
               currency_code: "USD",
               value: "5.00",
             },
-            custom_id: userId, // Vínculo directo con Firebase UID
+            custom_id: userId, // Vínculo directo con el UID del colaborador
             description: "Verificación Oficial Venga Mor"
           },
         ],
@@ -50,7 +49,9 @@ export async function POST(req: Request) {
     });
 
     const orderData = await orderRes.json();
-    return NextResponse.json(orderData);
+    
+    // Retornamos el ID de la orden para que el frontend lo use
+    return NextResponse.json({ id: orderData.id });
   } catch (error: any) {
     console.error("Error creating PayPal order:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
