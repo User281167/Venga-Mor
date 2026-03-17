@@ -7,7 +7,7 @@ import { Download } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function LoginPage() {
-  // Eliminado el GIF de los labios neón por petición del usuario
+  // Rotación de fondos elegantes (Eliminado el GIF de labios neón)
   const introImages = [
     "https://i.ibb.co/2Y6y6v94/69b7864d645a301516c9025e.gif",
     "https://i.ibb.co/FLYC1Qq8/69b869ba62b15dabc86e9faf.png"
@@ -65,7 +65,7 @@ export default function LoginPage() {
             src={introImages[currentImgIndex]}
             alt="Venga Mor Background"
             fill
-            className="z-0 object-contain object-top"
+            className="z-0 object-contain object-top pt-10"
             unoptimized
             priority
           />

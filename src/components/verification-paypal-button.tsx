@@ -11,7 +11,8 @@ interface Props {
 export default function VerificationPayPalButton({ userId }: Props) {
   const router = useRouter();
 
-  const clientId = "ASWoUY2hASGLV457PLVjFP-GpQHdyFUQjfs07h7NnzvuAeMRUiz2GOa_347qPhsvKqAJk9U-ukrRXG_6";
+  // Credenciales oficiales proporcionadas por el usuario
+  const clientId = "Ab_0iZLzoYn4A2tVkVV_FR2_Bs7-QgMsYOuoxCZGhW-Z2GvzdTNJlvq_aAR-ajpMRqDtPXYrRVrWS5MA";
   const planId = "P-1NL369384W076884CNG4HDUQ";
 
   return (
@@ -34,7 +35,7 @@ export default function VerificationPayPalButton({ userId }: Props) {
         createSubscription={(data, actions) => {
           return actions.subscription.create({
             plan_id: planId,
-            custom_id: userId // Vinculamos el pago al ID del colaborador
+            custom_id: userId // Vínculo crítico para la verificación automática
           });
         }}
 

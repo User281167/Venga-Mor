@@ -60,7 +60,8 @@ export function FloatingMascot() {
 
   const { setThemeColor, bgOpacity, setBgOpacity } = useTheme();
 
-  const noMascotRoutes = ["/iniciar-sesion", "/registrarse", "/restablecer-cuenta", "/"];
+  // La mascota ahora SI aparece en el ingreso ("/")
+  const noMascotRoutes = ["/iniciar-sesion", "/registrarse", "/restablecer-cuenta"];
   const shouldShowMascot = !noMascotRoutes.includes(pathname);
 
   const [songUrl, setSongUrl] = useState<string | null>(null);
