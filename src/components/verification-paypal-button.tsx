@@ -29,7 +29,7 @@ export default function VerificationPayPalButton({ userId }: Props) {
                 throw new Error("No order ID returned");
             }
 
-            return data.id; // 🔥 RETORNO CLAVE PARA EL SDK
+            return data.id; // 🔥 RETORNO CLAVE PARA EL SDK DE PAYPAL
         } catch (error) {
             console.error("Error en createOrder:", error);
             throw error;
@@ -49,7 +49,7 @@ export default function VerificationPayPalButton({ userId }: Props) {
             const details = await response.json();
             
             if (details.status === "COMPLETED") {
-                // Actualización inmediata del colaborador
+                // Actualización inmediata del colaborador en el cliente
                 const userRef = doc(db, "usuarios", userId);
                 const colabRef = doc(db, "colaboradores", userId);
                 
@@ -57,7 +57,7 @@ export default function VerificationPayPalButton({ userId }: Props) {
                 try {
                     await updateDoc(colabRef, { verificado: true });
                 } catch(e) {
-                    console.log("Doc de colaborador no existe aún.");
+                    console.log("Doc de colaborador no existe aún o error menor.");
                 }
 
                 toast.dismiss();

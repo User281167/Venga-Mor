@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     const { userId } = await req.json();
     console.log("🔥 INICIO create-order para usuario:", userId);
 
-    // Credenciales oficiales
+    // Credenciales oficiales proporcionadas
     const CLIENT = "ASWoUY2hASGLV457PLVjFP-GpQHdyFUQjfs07h7NnzvuAeMRUiz2GOa_347qPhsvKqAJk9U-ukrRXG_6";
     const SECRET = process.env.PAYPAL_SECRET || "ENPCkFzau8A0j4TV51UfP5Shb3i3LU247Myr9m5udpNyI-truW4OvOqgsgtI3PDMU0UodPMKOYShdjMU";
 

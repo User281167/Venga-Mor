@@ -47,7 +47,7 @@ const appPlaylist = [
   { name: "Venga Mix 7", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.30%20AM%20(3).mp3?alt=media&token=3098bc73-2dc0-4e12-ac8e-179999b786de" },
   { name: "Venga Mix 8", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.30%20AM.mp3?alt=media&token=1c24212e-8a6f-4d0c-bf49-df9e80424573" },
   { name: "Venga Mix 9", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.31%20AM%20(1).mp3?alt=media&token=659b5ca5-2151-4a66-ab3d-328cc76eae00" },
-  { name: "Venga Mix 10", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.31%20AM.mp3?alt=media&token=924a3d27-02aa-4811-a177-230595bf3fe0" },
+  { name: "Venga Mix 10", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.31%20AM%20(1).mp3?alt=media&token=659b5ca5-2151-4a66-ab3d-328cc76eae00" },
 ];
 
 export function FloatingMascot() {

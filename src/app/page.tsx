@@ -74,9 +74,9 @@ export default function LoginPage() {
 
       <div className="absolute inset-x-0 bottom-0 h-[70%] bg-gradient-to-t from-black via-black/90 to-transparent z-10" />
 
-      <div className="relative z-20 w-full max-w-[420px] mx-auto p-6 flex flex-col items-center text-center pb-16">
+      <div className="relative z-20 w-full max-w-[420px] mx-auto p-6 flex flex-col items-center text-center pb-24">
         <Heading
-          className="text-6xl md:text-7xl font-headline text-primary mb-10 leading-none"
+          className="text-6xl md:text-7xl font-headline text-primary mb-12 leading-none"
           style={{
             fontFamily: "'Playball', cursive",
             textShadow: "0px 0px 30px rgba(255,0,85,0.7)",
