@@ -141,6 +141,7 @@ export function FloatingMascot() {
                 />
               )}
             </AnimatePresence>
+            {/* Contenedor limpio: Sin delineado ni bordes a menos que haya música activa */}
             <div className={`rounded-full transition-all duration-500 overflow-hidden bg-transparent border-0 outline-none flex items-center justify-center ${isMusicPlaying ? 'border-2 border-primary shadow-[0_0_15px_rgba(255,0,85,0.5)]' : 'border-0 shadow-none'}`}>
               <Image
                 src={mascotImage.imageUrl}

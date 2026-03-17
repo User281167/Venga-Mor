@@ -72,15 +72,15 @@ export default function LoginPage() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Gradiente profundo para lectura óptima de botones */}
-      <div className="absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-black via-black/80 to-transparent z-10" />
+      {/* Gradiente profundo para lectura óptima de botones en zona baja */}
+      <div className="absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-black via-black/85 to-transparent z-10" />
 
-      <div className="relative z-20 w-full max-w-[420px] mx-auto p-6 flex flex-col items-center text-center pb-16 mb-4">
+      <div className="relative z-20 w-full max-w-[420px] mx-auto p-6 flex flex-col items-center text-center pb-12 mb-2">
         <Heading
-          className="text-6xl md:text-7xl font-headline text-primary mb-10 leading-none"
+          className="text-6xl md:text-7xl font-headline text-primary mb-8 leading-none"
           style={{
             fontFamily: "'Playball', cursive",
-            textShadow: "0px 0px 30px rgba(255,0,85,0.7)",
+            textShadow: "0px 0px 25px rgba(255,0,85,0.6)",
           }}
         >
           Venga Mor

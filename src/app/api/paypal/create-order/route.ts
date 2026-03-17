@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 
+/**
+ * API para crear una orden de PayPal desde el servidor.
+ * Esto protege las credenciales y asegura que el ID de la orden sea válido.
+ */
 export async function POST(req: Request) {
   try {
     const { userId } = await req.json();
     
+    // Credenciales oficiales proporcionadas por el usuario
     const CLIENT = "ASWoUY2hASGLV457PLVjFP-GpQHdyFUQjfs07h7NnzvuAeMRUiz2GOa_347qPhsvKqAJk9U-ukrRXG_6";
-    const SECRET = process.env.PAYPAL_SECRET;
+    const SECRET = process.env.PAYPAL_SECRET || "ENPCkFzau8A0j4TV51UfP5Shb3i3LU247Myr9m5udpNyI-truW4OvOqgsgtI3PDMU0UodPMKOYShdjMU";
 
     if (!CLIENT || !SECRET) {
       return NextResponse.json({ error: "PayPal credentials missing in server" }, { status: 500 });
@@ -13,7 +18,7 @@ export async function POST(req: Request) {
 
     const auth = Buffer.from(CLIENT + ":" + SECRET).toString("base64");
 
-    // 1. Obtener Access Token
+    // 1. Obtener Access Token (Producción)
     const tokenRes = await fetch("https://api-m.paypal.com/v1/oauth2/token", {
       method: "POST",
       headers: {
@@ -24,6 +29,12 @@ export async function POST(req: Request) {
     });
 
     const tokenData = await tokenRes.json();
+    
+    if (!tokenData.access_token) {
+      console.error("Fallo al obtener token de PayPal:", tokenData);
+      return NextResponse.json({ error: "Failed to authenticate with PayPal" }, { status: 500 });
+    }
+
     const accessToken = tokenData.access_token;
 
     // 2. Crear Orden con custom_id para identificar al colaborador
@@ -50,8 +61,10 @@ export async function POST(req: Request) {
 
     const orderData = await orderRes.json();
     
-    // Retornamos el ID de la orden para que el frontend lo use
-    return NextResponse.json({ id: orderData.id });
+    console.log("🧾 ORDEN CREADA EN SERVIDOR:", orderData.id);
+    
+    // Retornamos el objeto completo de la orden para que el frontend extraiga el .id
+    return NextResponse.json(orderData);
   } catch (error: any) {
     console.error("Error creating PayPal order:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
