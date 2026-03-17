@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Button, Flex, Heading, Section, Dialog, Text } from "@radix-ui/themes";
+import { Button, Flex, Heading, Section, Dialog } from "@radix-ui/themes";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Download } from "lucide-react";
@@ -77,7 +77,7 @@ export default function LoginPage() {
             src={introImages[currentImgIndex]}
             alt="Intro Venga Mor"
             fill
-            className="z-0 object-contain object-top pt-4"
+            className="z-0 object-contain object-top"
             unoptimized
             priority
           />
@@ -85,7 +85,7 @@ export default function LoginPage() {
       </AnimatePresence>
 
       {/* Degradado inferior profundo para botones */}
-      <div className="absolute inset-x-0 bottom-0 h-[90%] bg-gradient-to-t from-black via-black/80 to-transparent z-10" />
+      <div className="absolute inset-x-0 bottom-0 h-[85%] bg-gradient-to-t from-black via-black/80 to-transparent z-10" />
 
       <div className="relative z-20 w-full max-w-[360px] mx-auto p-4 flex flex-col items-center text-center pb-10">
         <Heading

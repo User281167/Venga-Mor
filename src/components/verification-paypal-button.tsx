@@ -10,8 +10,8 @@ interface Props {
 }
 
 /**
- * BOTÓN DE VERIFICACIÓN OFICIAL
- * Envía el userId como 'custom_id' para que el Webhook automático sepa a quién activar.
+ * BOTÓN DE VERIFICACIÓN OFICIAL PARA COLABORADORES
+ * Envía el ID del colaborador como 'custom_id' para que el Webhook automático sepa a quién activar.
  */
 export default function VerificationPayPalButton({ userId }: Props) {
     const router = useRouter();
@@ -25,8 +25,8 @@ export default function VerificationPayPalButton({ userId }: Props) {
                         currency_code: "USD",
                         value: "5.00",
                     },
-                    // ESTO ES LO QUE CONECTA EL PAGO CON EL USUARIO EN EL WEBHOOK
-                    // Se envía exactamente como solicitaste: custom_id
+                    // ESTA ES LA LÍNEA CRUCIAL:
+                    // Se envía el ID del colaborador para que PayPal nos lo devuelva en el Webhook.
                     custom_id: userId, 
                 },
             ],

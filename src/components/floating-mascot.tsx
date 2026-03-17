@@ -44,7 +44,7 @@ const appPlaylist = [
   { name: "Venga Mix 4", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.26%20AM.mp3?alt=media&token=6c8b0865-75cf-4f03-955d-eee56d6f9389" },
   { name: "Venga Mix 5", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.30%20AM%20(1).mp3?alt=media&token=7e467858-f12a-4c07-afd8-cc6e33d49787" },
   { name: "Venga Mix 6", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.30%20AM%20(2).mp3?alt=media&token=84ce5c93-af03-4f2e-b910-c45d36a22a7a" },
-  { name: "Venga Mix 7", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.30%20AM%20(3).mp3?alt=media&token=8a05a12f-589f-4efa-989b-ba197871fea2" },
+  { name: "Venga Mix 7", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.30%20AM%20(3).mp3?alt=media&token=3098bc73-2dc0-4e12-ac8e-179999b786de" },
   { name: "Venga Mix 8", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.30%20AM.mp3?alt=media&token=1c24212e-8a6f-4d0c-bf49-df9e80424573" },
   { name: "Venga Mix 9", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.31%20AM%20(1).mp3?alt=media&token=659b5ca5-2151-4a66-ab3d-328cc76eae00" },
   { name: "Venga Mix 10", url: "https://firebasestorage.googleapis.com/v0/b/studio-7857394445-e1558.firebasestorage.app/o/musica%2FWhatsApp%20Audio%202026-03-16%20at%202.43.31%20AM.mp3?alt=media&token=924a3d27-02aa-4811-a177-230595bf3fe0" },
@@ -163,7 +163,7 @@ export function FloatingMascot() {
             {isMusicPlaying && (
               <div className="absolute inset-0 rounded-full bg-primary/30 animate-ping z-0" />
             )}
-            <div className={`rounded-full transition-all duration-500 overflow-hidden ${isMusicPlaying ? 'p-0.5 bg-primary shadow-[0_0_15px_rgba(255,0,85,0.5)]' : 'p-0 bg-transparent'}`}>
+            <div className={`rounded-full transition-all duration-500 overflow-hidden ${isMusicPlaying ? 'p-0.5 border-2 border-primary shadow-[0_0_15px_rgba(255,0,85,0.5)]' : 'border-0 p-0'}`}>
               <Image
                 src={mascotImage.imageUrl}
                 alt={mascotImage.description}
