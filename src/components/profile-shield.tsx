@@ -29,7 +29,9 @@ export function ProfileShield({ collaborator, size = 48, className = "" }: Profi
   const comments = collaborator.comentariosCount || 0;
   const stars = collaborator.estrellas || 0;
 
-  // Lógica de prestigio exigente
+  // Lógica de prestigio exigente: si es 0 en todo, no hay escudo
+  if (followers === 0 && comments === 0 && stars === 0) return null;
+
   const prestigeScore = (followers * 2) + (comments * 0.5) + (stars * 10);
 
   let level = 1;
@@ -49,7 +51,7 @@ export function ProfileShield({ collaborator, size = 48, className = "" }: Profi
 
   return (
     <div 
-      className={`relative z-30 pointer-events-none flex items-center justify-center bg-transparent border-0 shadow-none ${className}`}
+      className={`relative z-30 pointer-events-none flex items-center justify-center bg-transparent border-0 outline-none shadow-none ${className}`}
       style={{ width: size, height: size }}
     >
       <Image
@@ -57,7 +59,7 @@ export function ProfileShield({ collaborator, size = 48, className = "" }: Profi
         alt={`Nivel ${level}`}
         width={size}
         height={size}
-        className="object-contain bg-transparent border-0"
+        className="object-contain bg-transparent border-none outline-none"
         unoptimized
       />
     </div>

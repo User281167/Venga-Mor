@@ -10,8 +10,7 @@ export default function LoginPage() {
   const introImages = [
     "https://i.ibb.co/4wx2qPMz/In-Shot-20260219-212506821.gif",
     "https://i.ibb.co/2Y6y6v94/69b7864d645a301516c9025e.gif",
-    "https://i.ibb.co/FLYC1Qq8/69b869ba62b15dabc86e9faf.png",
-    "https://i.ibb.co/jk9tgFjs/In-Shot-20251127-124506071.gif"
+    "https://i.ibb.co/FLYC1Qq8/69b869ba62b15dabc86e9faf.png"
   ];
 
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
@@ -74,14 +73,14 @@ export default function LoginPage() {
       </AnimatePresence>
 
       {/* Gradiente profundo para lectura de botones */}
-      <div className="absolute inset-x-0 bottom-0 h-[85%] bg-gradient-to-t from-black via-black/95 to-transparent z-10" />
+      <div className="absolute inset-x-0 bottom-0 h-[70%] bg-gradient-to-t from-black via-black/90 to-transparent z-10" />
 
-      <div className="relative z-20 w-full max-w-[420px] mx-auto p-4 flex flex-col items-center text-center pb-12 mb-2">
+      <div className="relative z-20 w-full max-w-[420px] mx-auto p-6 flex flex-col items-center text-center pb-10 mb-4">
         <Heading
-          className="text-8xl md:text-9xl font-headline text-primary mb-16 leading-none"
+          className="text-6xl md:text-7xl font-headline text-primary mb-10 leading-none"
           style={{
             fontFamily: "'Playball', cursive",
-            textShadow: "0px 0px 60px rgba(255,0,85,1)",
+            textShadow: "0px 0px 40px rgba(255,0,85,0.8)",
           }}
         >
           Venga Mor
@@ -91,7 +90,7 @@ export default function LoginPage() {
           <Link href="/iniciar-sesion" className="w-full">
             <Button
               size="4"
-              className="w-full cursor-pointer bg-primary text-primary-foreground h-20 text-4xl font-bold rounded-2xl shadow-[0_0_40px_rgba(255,0,85,0.5)] transition-transform active:scale-95"
+              className="w-full cursor-pointer bg-primary text-primary-foreground h-16 text-2xl font-bold rounded-2xl shadow-lg transition-transform active:scale-95"
             >
               INGRESAR
             </Button>
@@ -101,7 +100,7 @@ export default function LoginPage() {
             <Button
               size="3"
               variant="ghost"
-              className="w-full cursor-pointer h-14 text-2xl font-bold text-white hover:bg-white/10"
+              className="w-full cursor-pointer h-12 text-xl font-bold text-white hover:bg-white/10"
             >
               VER PERFILES
             </Button>
@@ -110,7 +109,7 @@ export default function LoginPage() {
           <Button
             size="3"
             variant="outline"
-            className="w-full cursor-pointer h-14 text-sm font-bold bg-black/40 border-white/20 text-white rounded-xl backdrop-blur-md"
+            className="w-full cursor-pointer h-12 text-xs font-bold bg-black/40 border-white/20 text-white rounded-xl backdrop-blur-md"
             onClick={handleInstallClick}
           >
             <Download className="mr-2 h-4 w-4" />
