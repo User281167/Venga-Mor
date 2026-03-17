@@ -1,7 +1,7 @@
 
 "use client";
 
-import { PayPalScriptProvider, PayPalButtons, OnApproveData } from "@paypal/react-paypal-js";
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { ENV } from "@/lib/env";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -13,34 +13,40 @@ interface Props {
 export default function VerificationPayPalButton({ userId }: Props) {
     const router = useRouter();
 
-    const createOrder = (data: Record<string, unknown>, actions: any) => {
-        return actions.order.create({
-            purchase_units: [
-                {
-                    description: "Verificación de Perfil Oficial - Venga Mor",
-                    amount: {
-                        currency_code: "USD",
-                        value: "5.00",
-                    },
-                    // ENVIAMOS EL ID DEL COLABORADOR LOGUEADO
-                    custom_id: userId, 
-                },
-            ],
-            application_context: {
-                shipping_preference: "NO_SHIPPING",
-            },
-        });
+    const createOrder = async () => {
+        try {
+            const response = await fetch("/api/paypal/create-order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId }),
+            });
+            const order = await response.json();
+            return order.id;
+        } catch (error) {
+            console.error("Error calling create-order API:", error);
+            toast.error("No se pudo iniciar el proceso de pago.");
+        }
     };
 
-    const onApprove = (data: OnApproveData, actions: any) => {
-        toast.success("¡Pago aprobado! Tu perfil se activará en unos segundos.");
-        router.push(`/confirmacion`);
-        return Promise.resolve();
-    };
-
-    const onError = (err: any) => {
-        toast.error("Hubo un problema con la transacción. Intenta de nuevo.");
-        console.error("PayPal Error:", err);
+    const onApprove = async (data: any) => {
+        try {
+            const response = await fetch("/api/paypal/capture-order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ orderID: data.orderID }),
+            });
+            const details = await response.json();
+            
+            if (details.status === "COMPLETED") {
+                toast.success("¡Verificación completada con éxito!");
+                router.push("/confirmacion");
+            } else {
+                toast.error("El pago no se pudo completar.");
+            }
+        } catch (error) {
+            console.error("Error calling capture-order API:", error);
+            toast.error("Error al procesar la confirmación del pago.");
+        }
     };
 
     return (
@@ -55,7 +61,10 @@ export default function VerificationPayPalButton({ userId }: Props) {
                 style={{ layout: "vertical", color: "blue", shape: "rect", label: "pay" }}
                 createOrder={createOrder}
                 onApprove={onApprove}
-                onError={onError}
+                onError={(err) => {
+                    toast.error("Hubo un problema con la transacción.");
+                    console.error("PayPal Error:", err);
+                }}
             />
         </PayPalScriptProvider>
     );

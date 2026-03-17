@@ -30,6 +30,7 @@ export function ProfileShield({ collaborator, size = 48, className = "" }: Profi
   const comments = collaborator.comentariosCount || 0;
   const stars = collaborator.estrellas || 0;
 
+  // Lógica de prestigio para determinar nivel
   const prestigeScore = (followers * 2) + comments + (stars * 5);
 
   let level = 1;

@@ -75,6 +75,7 @@ export default function LoginPage() {
         </motion.div>
       </AnimatePresence>
 
+      {/* Gradiente profundo para lectura de botones */}
       <div className="absolute inset-x-0 bottom-0 h-[90%] bg-gradient-to-t from-black via-black/95 to-transparent z-10" />
 
       <div className="relative z-20 w-full max-w-[380px] mx-auto p-4 flex flex-col items-center text-center pb-6">
