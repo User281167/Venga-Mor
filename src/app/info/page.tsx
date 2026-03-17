@@ -7,7 +7,7 @@ export default function InfoPage() {
   const logoGif = "https://i.ibb.co/jk9tgFjs/In-Shot-20251127-124506071.gif";
 
   return (
-    <SectionImg imageUrl={logoGif} alt="Info Background" imageHint="logo animation">
+    <SectionImg imageUrl={logoGif} alt="Venga Mor Info" imageHint="logo animation">
       <Flex
         width="95%"
         maxWidth="900px"

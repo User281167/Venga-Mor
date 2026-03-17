@@ -3,94 +3,52 @@
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 
 interface Props {
   userId: string;
 }
 
 export default function VerificationPayPalButton({ userId }: Props) {
-    const router = useRouter();
+  const router = useRouter();
 
-    const createOrder = async () => {
-        try {
-            const response = await fetch("/api/paypal/create-order", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId }),
-            });
-            
-            const data = await response.json();
-            
-            if (!data.id) {
-                console.error("Error: No se recibió ID de orden de PayPal", data);
-                toast.error("Error al generar la orden de pago.");
-                throw new Error("No order ID returned");
-            }
+  const clientId = "ASWoUY2hASGLV457PLVjFP-GpQHdyFUQjfs07h7NnzvuAeMRUiz2GOa_347qPhsvKqAJk9U-ukrRXG_6";
+  const planId = "P-1NL369384W076884CNG4HDUQ";
 
-            return data.id; // 🔥 RETORNO CLAVE PARA EL SDK DE PAYPAL
-        } catch (error) {
-            console.error("Error en createOrder:", error);
-            throw error;
-        }
-    };
+  return (
+    <PayPalScriptProvider
+      options={{
+        clientId: clientId,
+        vault: true,
+        intent: "subscription",
+        currency: "USD"
+      }}
+    >
+      <PayPalButtons
+        style={{ 
+          layout: "vertical",
+          color: "gold",
+          shape: "rect",
+          label: "subscribe"
+        }}
 
-    const onApprove = async (data: any) => {
-        try {
-            toast.loading("Procesando pago...");
-            
-            const response = await fetch("/api/paypal/capture-order", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ orderID: data.orderID }),
-            });
-            
-            const details = await response.json();
-            
-            if (details.status === "COMPLETED") {
-                // Actualización inmediata del colaborador en el cliente
-                const userRef = doc(db, "usuarios", userId);
-                const colabRef = doc(db, "colaboradores", userId);
-                
-                await updateDoc(userRef, { verificado: true });
-                try {
-                    await updateDoc(colabRef, { verificado: true });
-                } catch(e) {
-                    console.log("Doc de colaborador no existe aún o error menor.");
-                }
+        createSubscription={(data, actions) => {
+          return actions.subscription.create({
+            plan_id: planId,
+            custom_id: userId // Vinculamos el pago al ID del colaborador
+          });
+        }}
 
-                toast.dismiss();
-                toast.success("¡Perfil verificado con éxito!");
-                router.push("/confirmacion");
-            } else {
-                toast.dismiss();
-                toast.error("El pago no pudo ser completado.");
-            }
-        } catch (error) {
-            toast.dismiss();
-            console.error("Error confirmando pago:", error);
-            toast.error("Error al procesar la confirmación.");
-        }
-    };
+        onApprove={async (data) => {
+          console.log("🔥 SUSCRIPCIÓN ACTIVADA:", data);
+          toast.success("¡Suscripción activada con éxito!");
+          router.push("/confirmacion");
+        }}
 
-    return (
-        <PayPalScriptProvider
-            options={{
-                clientId: "ASWoUY2hASGLV457PLVjFP-GpQHdyFUQjfs07h7NnzvuAeMRUiz2GOa_347qPhsvKqAJk9U-ukrRXG_6",
-                intent: "capture",
-                currency: "USD"
-            }}
-        >
-            <PayPalButtons
-                style={{ layout: "vertical", color: "gold", shape: "rect", label: "pay" }}
-                createOrder={createOrder}
-                onApprove={onApprove}
-                onError={(err) => {
-                    toast.error("Problema con la plataforma de pago.");
-                    console.error("PayPal SDK Error:", err);
-                }}
-            />
-        </PayPalScriptProvider>
-    );
+        onError={(err) => {
+          console.error("❌ Error PayPal:", err);
+          toast.error("Hubo un problema con la suscripción. Intenta de nuevo.");
+        }}
+      />
+    </PayPalScriptProvider>
+  );
 }

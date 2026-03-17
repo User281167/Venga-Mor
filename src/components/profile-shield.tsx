@@ -29,7 +29,7 @@ export function ProfileShield({ collaborator, size = 48, className = "" }: Profi
   const comments = collaborator.comentariosCount || 0;
   const stars = collaborator.estrellas || 0;
 
-  // No mostrar nada si no hay prestigio acumulado (stats en 0)
+  // REQUISITO: Si todo está en 0, no mostrar ningún escudo.
   if (followers === 0 && comments === 0 && stars === 0) return null;
 
   const prestigeScore = (followers * 2) + (comments * 0.5) + (stars * 10);
