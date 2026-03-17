@@ -1,3 +1,4 @@
+
 "use client";
 
 import { PayPalScriptProvider, PayPalButtons, OnApproveData } from "@paypal/react-paypal-js";
@@ -9,10 +10,6 @@ interface Props {
   userId: string;
 }
 
-/**
- * BOTÓN DE VERIFICACIÓN OFICIAL PARA COLABORADORES
- * Envía el ID del colaborador como 'custom_id' para que el Webhook automático sepa a quién activar.
- */
 export default function VerificationPayPalButton({ userId }: Props) {
     const router = useRouter();
 
@@ -25,8 +22,7 @@ export default function VerificationPayPalButton({ userId }: Props) {
                         currency_code: "USD",
                         value: "5.00",
                     },
-                    // SE ENVÍA EL ID DEL COLABORADOR LOGUEADO PARA AUTOMATIZACIÓN
-                    // Este es el campo crítico que recibe el Webhook
+                    // ENVIAMOS EL ID DEL COLABORADOR LOGUEADO
                     custom_id: userId, 
                 },
             ],

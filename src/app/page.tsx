@@ -1,3 +1,4 @@
+
 "use client";
 import Link from "next/link";
 import { Button, Flex, Heading, Section, Dialog } from "@radix-ui/themes";
@@ -10,7 +11,8 @@ export default function LoginPage() {
   const introImages = [
     "https://i.ibb.co/4wx2qPMz/In-Shot-20260219-212506821.gif",
     "https://i.ibb.co/2Y6y6v94/69b7864d645a301516c9025e.gif",
-    "https://i.ibb.co/FLYC1Qq8/69b869ba62b15dabc86e9faf.png"
+    "https://i.ibb.co/FLYC1Qq8/69b869ba62b15dabc86e9faf.png",
+    "https://i.ibb.co/jk9tgFjs/In-Shot-20251127-124506071.gif"
   ];
 
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
@@ -18,14 +20,6 @@ export default function LoginPage() {
   const [showIosTip, setShowIosTip] = useState(false);
 
   useEffect(() => {
-    // Registro del Service Worker para PWA
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker
-        .register("/sw.js")
-        .then(() => console.log("PWA: Service Worker registrado"))
-        .catch((err) => console.log("PWA: Error registrando SW:", err));
-    }
-
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -54,7 +48,7 @@ export default function LoginPage() {
       if (isIos) {
         setShowIosTip(true);
       } else {
-        alert('Busca la opción "Instalar App" o "Añadir a pantalla de inicio" en el menú de tu navegador.');
+        alert('Busca la opción "Instalar App" en el menú de tu navegador.');
       }
     }
   };
@@ -72,7 +66,7 @@ export default function LoginPage() {
         >
           <Image
             src={introImages[currentImgIndex]}
-            alt="Intro Venga Mor"
+            alt="Venga Mor Intro"
             fill
             className="z-0 object-contain object-top"
             unoptimized
@@ -81,15 +75,14 @@ export default function LoginPage() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Degradado inferior profundo para botones posicionados abajo */}
-      <div className="absolute inset-x-0 bottom-0 h-[85%] bg-gradient-to-t from-black via-black/90 to-transparent z-10" />
+      <div className="absolute inset-x-0 bottom-0 h-[90%] bg-gradient-to-t from-black via-black/95 to-transparent z-10" />
 
-      <div className="relative z-20 w-full max-w-[360px] mx-auto p-4 flex flex-col items-center text-center pb-10">
+      <div className="relative z-20 w-full max-w-[380px] mx-auto p-4 flex flex-col items-center text-center pb-6">
         <Heading
-          className="text-7xl md:text-8xl font-headline text-primary mb-8"
+          className="text-8xl font-headline text-primary mb-10"
           style={{
             fontFamily: "'Playball', cursive",
-            textShadow: "0px 0px 30px rgba(255,0,85,0.8)",
+            textShadow: "0px 0px 40px rgba(255,0,85,0.9)",
           }}
         >
           Venga Mor
@@ -99,7 +92,7 @@ export default function LoginPage() {
           <Link href="/iniciar-sesion" className="w-full">
             <Button
               size="4"
-              className="w-full cursor-pointer bg-primary text-primary-foreground h-14 text-xl font-bold rounded-2xl shadow-2xl transition-transform active:scale-95"
+              className="w-full cursor-pointer bg-primary text-primary-foreground h-16 text-2xl font-bold rounded-2xl shadow-2xl transition-transform active:scale-95"
             >
               INGRESAR
             </Button>
@@ -109,7 +102,7 @@ export default function LoginPage() {
             <Button
               size="3"
               variant="ghost"
-              className="w-full cursor-pointer h-12 text-lg font-bold text-white hover:bg-white/10"
+              className="w-full cursor-pointer h-12 text-xl font-bold text-white hover:bg-white/10"
             >
               VER PERFILES
             </Button>
@@ -129,8 +122,7 @@ export default function LoginPage() {
             <Dialog.Content style={{ maxWidth: 350 }} className="rounded-3xl bg-zinc-900 border border-white/10">
               <Dialog.Title className="text-white">Instalar en iPhone</Dialog.Title>
               <Dialog.Description size="2" mb="4" className="text-gray-300">
-                Pasos para instalar:<br /><br />
-                1. Toca <b>Compartir</b> <img src="https://img.icons8.com/ios/18/ffffff/upload.png" alt="compartir" className="inline align-middle mx-1" /> abajo.<br />
+                1. Toca <b>Compartir</b> <img src="https://img.icons8.com/ios/18/ffffff/upload.png" alt="compartir" className="inline align-middle mx-1" />.<br />
                 2. Selecciona <b>"Añadir a pantalla de inicio"</b>.
               </Dialog.Description>
               <Flex justify="end">
