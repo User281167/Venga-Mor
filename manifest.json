@@ -1,0 +1,17 @@
+{
+  "name": "Venga Mor",
+  "short_name": "Venga Mor",
+  "description": "Tu compañía de élite en Bogotá.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#ff0055",
+  "icons": [
+    {
+      "src": "https://i.ibb.co/jk9tgFjs/In-Shot-20251127-124506071.gif",
+      "sizes": "512x512",
+      "type": "image/gif",
+      "purpose": "any maskable"
+    }
+  ]
+}

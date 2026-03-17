@@ -26,28 +26,28 @@ const playball = Playball({
 export const metadata: Metadata = {
   title: "Venga Mor",
   description: "Tu compañía de élite en Bogotá.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Venga Mor",
+  },
   icons: {
-    icon: "/favicon.ico",
-    apple: "/favicon.ico",
+    icon: "https://i.ibb.co/jk9tgFjs/In-Shot-20251127-124506071.gif",
+    apple: "https://i.ibb.co/jk9tgFjs/In-Shot-20251127-124506071.gif",
   },
   openGraph: {
     title: "Venga Mor",
     description: "Tu compañía de élite en Bogotá.",
     images: [
       {
-        url: "/favicon.ico",
-        width: 574,
-        height: 571,
+        url: "https://i.ibb.co/jk9tgFjs/In-Shot-20251127-124506071.gif",
+        width: 512,
+        height: 512,
         alt: "Venga Mor Logo",
       },
     ],
     type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Venga Mor",
-    description: "Tu compañía de élite en Bogotá.",
-    images: ["/favicon.ico"],
   },
 };
 
@@ -56,6 +56,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  themeColor: "#000000",
 };
 
 export default function RootLayout({
@@ -64,7 +65,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${poppins.variable} ${playball.variable} dark`}>
+    <html lang="es" className={`${poppins.variable} ${playball.variable} dark`}>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      </head>
       <body className="font-body antialiased bg-background">
         <main className="flex flex-col min-h-screen">
           <Providers>

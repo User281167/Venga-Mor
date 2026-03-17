@@ -13,6 +13,18 @@
       "imageHint": "woman neon wings"
     },
     {
+      "id": "intro-gif-alt",
+      "description": "Second intro animation",
+      "imageUrl": "https://i.ibb.co/2Y6y6v94/69b7864d645a301516c9025e.gif",
+      "imageHint": "woman neon"
+    },
+    {
+      "id": "ranking-intro-gif",
+      "description": "Ranking intro animation",
+      "imageUrl": "https://i.ibb.co/bg5CphYS/69b78cc3622710ffba2f3c71.gif",
+      "imageHint": "ranking intro"
+    },
+    {
       "id": "promo-1",
       "description": "Promotional image one",
       "imageUrl": "https://i.ibb.co/7JtbMFgj/milena-2874916-prepago-bogota-4619f295c5dfe2dada00-308x500.jpg",

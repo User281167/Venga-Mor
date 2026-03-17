@@ -14,9 +14,10 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { useProfilesList } from "@/context/use-profiles-data";
 import { Trophy, Star, Heart, Gem } from "lucide-react";
 import { Collaborator } from "@/types/collaborator";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
-// Component to render a single ranked user
 const RankingCard = ({
   collaborator,
   rank,
@@ -55,7 +56,6 @@ const RankingCard = ({
   );
 };
 
-// Component for a list
 const RankingList = ({
   title,
   icon,
@@ -90,8 +90,15 @@ const RankingList = ({
 
 export default function RankingPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "profile-bg");
+  const introGifUrl = "https://i.ibb.co/bg5CphYS/69b78cc3622710ffba2f3c71.gif";
+  
+  const [showIntro, setShowIntro] = useState(true);
 
-  // Fetching profiles without filters
+  useEffect(() => {
+    const timer = setTimeout(() => setShowIntro(false), 3500);
+    return () => clearTimeout(timer);
+  }, []);
+
   const { data, isLoading, isError } = useProfilesList([], [], 0, {});
   const allCollaborators = useMemo(
     () => data?.pages.flatMap((page) => page?.data || []) || [],
@@ -107,69 +114,98 @@ export default function RankingPage() {
   );
 
   const topSemanal = useMemo(
-    () => [...allCollaborators].sort(() => 0.5 - Math.random()), // Placeholder sort
+    () => [...allCollaborators].sort(() => 0.5 - Math.random()),
     [allCollaborators],
   );
 
   return (
-    <SectionImg imageUrl={bgImage?.imageUrl} imageHint={bgImage?.imageHint}>
-      <Heading className="text-4xl font-bold text-primary mb-8 text-center">
-        Ranking Top Models
-      </Heading>
-      <Card className="w-full max-w-4xl mx-auto bg-card/80 p-6">
-        {isLoading ? (
-          <Flex justify="center" align="center" className="h-64">
-            <Spinner size="3" />
-            <Text ml="3">Cargando rankings...</Text>
-          </Flex>
-        ) : isError ? (
-          <Flex justify="center" align="center" className="h-64">
-            <Text color="red">Error al cargar los perfiles.</Text>
-          </Flex>
-        ) : (
-          <Grid columns={{ initial: "1", md: "2" }} gap="8">
-            <RankingList
-              title="Top Global"
-              icon={<Trophy size={24} />}
-              collaborators={topGlobal}
-            />
-            <RankingList
-              title="Top Semanal"
-              icon={<Trophy size={24} />}
-              collaborators={topSemanal}
-            />
-          </Grid>
+    <>
+      <AnimatePresence>
+        {showIntro && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, scale: 1.1 }}
+            transition={{ duration: 0.8 }}
+            className="fixed inset-0 z-[100] bg-black flex items-center justify-center"
+          >
+            <div className="relative w-full h-full">
+              <Image
+                src={introGifUrl}
+                alt="Ranking Intro"
+                layout="fill"
+                objectFit="cover"
+                unoptimized
+                priority
+              />
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                <Heading className="text-6xl md:text-8xl font-headline text-primary" style={{ fontFamily: "'Playball', cursive" }}>
+                  Top Global
+                </Heading>
+              </div>
+            </div>
+          </motion.div>
         )}
-        <Flex
-          direction="column"
-          gap="2"
-          mt="6"
-          p="4"
-          className="bg-muted rounded-lg"
-        >
-          <Heading as="h4" size="3" className="text-center">
-            Leyenda de Ranking
-          </Heading>
-          <Flex justify="center" mt="2">
-            <Flex align="center" gap="2">
-              <Star size={16} className="text-yellow-400" />{" "}
-              <Text size="2">Estrellas</Text>
+      </AnimatePresence>
+
+      <SectionImg imageUrl={bgImage?.imageUrl} imageHint={bgImage?.imageHint}>
+        <Heading className="text-4xl font-bold text-primary mb-8 text-center">
+          Ranking Top Models
+        </Heading>
+        <Card className="w-full max-w-4xl mx-auto bg-card/80 p-6">
+          {isLoading ? (
+            <Flex justify="center" align="center" className="h-64">
+              <Spinner size="3" />
+              <Text ml="3">Cargando rankings...</Text>
             </Flex>
-            <Flex align="center" gap="2">
-              <Heart size={16} className="text-red-500" />{" "}
-              <Text size="2">Seguidores</Text>
+          ) : isError ? (
+            <Flex justify="center" align="center" className="h-64">
+              <Text color="red">Error al cargar los perfiles.</Text>
             </Flex>
-            <Flex align="center" gap="2">
-              <Gem size={16} className="text-blue-400" />{" "}
-              <Text size="2">Joyas</Text>
+          ) : (
+            <Grid columns={{ initial: "1", md: "2" }} gap="8">
+              <RankingList
+                title="Top Global"
+                icon={<Trophy size={24} />}
+                collaborators={topGlobal}
+              />
+              <RankingList
+                title="Top Semanal"
+                icon={<Trophy size={24} />}
+                collaborators={topSemanal}
+              />
+            </Grid>
+          )}
+          <Flex
+            direction="column"
+            gap="2"
+            mt="6"
+            p="4"
+            className="bg-muted rounded-lg"
+          >
+            <Heading as="h4" size="3" className="text-center">
+              Leyenda de Ranking
+            </Heading>
+            <Flex justify="center" mt="2">
+              <Flex align="center" gap="2">
+                <Star size={16} className="text-yellow-400" />{" "}
+                <Text size="2">Estrellas</Text>
+              </Flex>
+              <Flex align="center" gap="2" ml="4">
+                <Heart size={16} className="text-red-500" />{" "}
+                <Text size="2">Seguidores</Text>
+              </Flex>
+              <Flex align="center" gap="2" ml="4">
+                <Gem size={16} className="text-blue-400" />{" "}
+                <Text size="2">Joyas</Text>
+              </Flex>
             </Flex>
+            <Text size="1" color="gray" className="text-center" mt="2">
+              Actualmente el ranking se basa en estrellas. ¡Próximamente más
+              métricas!
+            </Text>
           </Flex>
-          <Text size="1" color="gray" className="text-center" mt="2">
-            Actualmente el ranking se basa en estrellas. ¡Próximamente más
-            métricas!
-          </Text>
-        </Flex>
-      </Card>
-    </SectionImg>
+        </Card>
+      </SectionImg>
+    </>
   );
 }
