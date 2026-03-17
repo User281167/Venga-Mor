@@ -41,7 +41,6 @@ export default function LoginPage() {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
-      console.log(`Instalación: ${outcome}`);
       setDeferredPrompt(null);
     } else {
       const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
@@ -75,15 +74,15 @@ export default function LoginPage() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Gradiente profundo para lectura de botones */}
-      <div className="absolute inset-x-0 bottom-0 h-[90%] bg-gradient-to-t from-black via-black/95 to-transparent z-10" />
+      {/* Gradiente profundo para lectura de botones en la parte baja */}
+      <div className="absolute inset-x-0 bottom-0 h-[80%] bg-gradient-to-t from-black via-black/90 to-transparent z-10" />
 
-      <div className="relative z-20 w-full max-w-[380px] mx-auto p-4 flex flex-col items-center text-center pb-6">
+      <div className="relative z-20 w-full max-w-[380px] mx-auto p-4 flex flex-col items-center text-center pb-8 mb-4">
         <Heading
-          className="text-8xl font-headline text-primary mb-10"
+          className="text-8xl md:text-9xl font-headline text-primary mb-12"
           style={{
             fontFamily: "'Playball', cursive",
-            textShadow: "0px 0px 40px rgba(255,0,85,0.9)",
+            textShadow: "0px 0px 50px rgba(255,0,85,1)",
           }}
         >
           Venga Mor
@@ -93,7 +92,7 @@ export default function LoginPage() {
           <Link href="/iniciar-sesion" className="w-full">
             <Button
               size="4"
-              className="w-full cursor-pointer bg-primary text-primary-foreground h-16 text-2xl font-bold rounded-2xl shadow-2xl transition-transform active:scale-95"
+              className="w-full cursor-pointer bg-primary text-primary-foreground h-16 text-3xl font-bold rounded-2xl shadow-[0_0_30px_rgba(255,0,85,0.4)] transition-transform active:scale-95"
             >
               INGRESAR
             </Button>

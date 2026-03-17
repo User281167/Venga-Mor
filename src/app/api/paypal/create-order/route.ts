@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     const tokenData = await tokenRes.json();
     const accessToken = tokenData.access_token;
 
-    // 2. Crear Orden con custom_id para el Webhook y la captura
+    // 2. Crear Orden con custom_id para identificar al colaborador
     const orderRes = await fetch("https://api-m.paypal.com/v2/checkout/orders", {
       method: "POST",
       headers: {
@@ -42,8 +42,8 @@ export async function POST(req: Request) {
               currency_code: "USD",
               value: "5.00",
             },
-            custom_id: userId,
-            description: "Verificación de Perfil Oficial - Venga Mor"
+            custom_id: userId, // Vínculo directo con Firebase UID
+            description: "Verificación Oficial Venga Mor"
           },
         ],
       }),

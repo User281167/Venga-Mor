@@ -5,6 +5,8 @@ import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { ENV } from "@/lib/env";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 interface Props {
   userId: string;
@@ -38,14 +40,25 @@ export default function VerificationPayPalButton({ userId }: Props) {
             const details = await response.json();
             
             if (details.status === "COMPLETED") {
+                // PASO 4: Actualización manual en el cliente para feedback inmediato
+                const userRef = doc(db, "usuarios", userId);
+                const colabRef = doc(db, "colaboradores", userId);
+                
+                await updateDoc(userRef, { verificado: true });
+                try {
+                    await updateDoc(colabRef, { verificado: true });
+                } catch(e) {
+                    console.log("Documento de colaborador no existe aún o error menor.");
+                }
+
                 toast.success("¡Verificación completada con éxito!");
                 router.push("/confirmacion");
             } else {
                 toast.error("El pago no se pudo completar.");
             }
         } catch (error) {
-            console.error("Error calling capture-order API:", error);
-            toast.error("Error al procesar la confirmación del pago.");
+            console.error("Error confirmando pago:", error);
+            toast.error("Error al procesar la confirmación.");
         }
     };
 

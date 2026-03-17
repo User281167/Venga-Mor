@@ -30,19 +30,19 @@ export function ProfileShield({ collaborator, size = 48, className = "" }: Profi
   const comments = collaborator.comentariosCount || 0;
   const stars = collaborator.estrellas || 0;
 
-  // Lógica de prestigio para determinar nivel
-  const prestigeScore = (followers * 2) + comments + (stars * 5);
+  // Lógica de prestigio exigente para modelos nuevas
+  const prestigeScore = (followers * 2) + (comments * 0.5) + (stars * 10);
 
   let level = 1;
-  if (prestigeScore > 200) level = 10;
-  else if (prestigeScore > 150) level = 9;
-  else if (prestigeScore > 100) level = 8;
-  else if (prestigeScore > 75) level = 7;
-  else if (prestigeScore > 50) level = 6;
-  else if (prestigeScore > 35) level = 5;
-  else if (prestigeScore > 20) level = 4;
-  else if (prestigeScore > 10) level = 3;
-  else if (prestigeScore > 3) level = 2;
+  if (prestigeScore > 250) level = 10;
+  else if (prestigeScore > 200) level = 9;
+  else if (prestigeScore > 150) level = 8;
+  else if (prestigeScore > 100) level = 7;
+  else if (prestigeScore > 75) level = 6;
+  else if (prestigeScore > 50) level = 5;
+  else if (prestigeScore > 30) level = 4;
+  else if (prestigeScore > 15) level = 3;
+  else if (prestigeScore > 5) level = 2;
   else level = 1;
 
   const shield = SHIELD_MAP[level];
@@ -50,7 +50,7 @@ export function ProfileShield({ collaborator, size = 48, className = "" }: Profi
 
   return (
     <div 
-      className={`relative z-30 pointer-events-none transition-all duration-500 flex items-center justify-center bg-transparent ${className}`}
+      className={`relative z-30 pointer-events-none flex items-center justify-center bg-transparent ${className}`}
       style={{ width: size, height: size }}
     >
       <Image
