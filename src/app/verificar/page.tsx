@@ -7,13 +7,13 @@ import { ShieldCheck } from "lucide-react";
 import VerificationPayPalButton from "@/components/verification-paypal-button";
 import { useUser } from "@/context/user-context";
 import Link from "next/link";
-import Confetti from "@/components/confetti";
 import { useState } from "react";
+import Confetti from "react-confetti";
 
 export default function VerifyPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "subscription-bg");
   const { user, loading } = useUser();
-  const [success, setSuccess] = useState(true);
+  const [success, setSuccess] = useState(false);
 
   if (loading) {
     return (
@@ -42,7 +42,18 @@ export default function VerifyPage() {
   if (success) {
     return (
       <SectionImg imageUrl={bgImage?.imageUrl} imageHint={bgImage?.imageHint}>
-        <Confetti />;
+        <Confetti />
+
+        <Card className="p-6 bg-card/80 text-center">
+          <Heading>Perfil verificado</Heading>
+
+          <Text as="p" mt="2">
+            Tu perfil ya cuenta con la insignia de verificación.
+          </Text>
+          <Button asChild mt="4">
+            <Link href="/perfil">Ir a mi perfil</Link>
+          </Button>
+        </Card>
       </SectionImg>
     );
   }

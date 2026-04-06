@@ -37,7 +37,6 @@ export default function VerificationPayPalButton({ setSuccess }: Props) {
 
     toast.success("¡Pago aprobado! Tu perfil se activará en unos segundos.");
     setSuccess(true);
-    // router.push(`/confirmacion`);
   };
 
   const onError = (err: any) => {
