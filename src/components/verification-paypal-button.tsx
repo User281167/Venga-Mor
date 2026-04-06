@@ -1,62 +1,69 @@
-
 "use client";
 
-import { PayPalScriptProvider, PayPalButtons, OnApproveData } from "@paypal/react-paypal-js";
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { ENV } from "@/lib/env";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import {
+  captureVerifyProfilePaypal,
+  createVerifyProfilePaypal,
+} from "@/handlers/verifyProfilePaypal";
 
 interface Props {
-  userId: string;
+  setSuccess: (value: boolean) => void;
 }
 
-export default function VerificationPayPalButton({ userId }: Props) {
-    const router = useRouter();
+export default function VerificationPayPalButton({ setSuccess }: Props) {
+  const router = useRouter();
 
-    const createOrder = (data: Record<string, unknown>, actions: any) => {
-        return actions.order.create({
-            purchase_units: [
-                {
-                    description: "Verificación de Perfil Oficial - Venga Mor",
-                    amount: {
-                        currency_code: "USD",
-                        value: "5.00",
-                    },
-                    // ENVIAMOS EL ID DEL COLABORADOR LOGUEADO
-                    custom_id: userId, 
-                },
-            ],
-            application_context: {
-                shipping_preference: "NO_SHIPPING",
-            },
-        });
-    };
+  const createOrder = async () => {
+    const res = await createVerifyProfilePaypal();
 
-    const onApprove = (data: OnApproveData, actions: any) => {
-        toast.success("¡Pago aprobado! Tu perfil se activará en unos segundos.");
-        router.push(`/confirmacion`);
-        return Promise.resolve();
-    };
+    if (!res.success || !res.data) {
+      toast.error("Hubo un problema al crear la orden. Intenta de nuevo.");
+      throw new Error("Failed to create order");
+    }
 
-    const onError = (err: any) => {
-        toast.error("Hubo un problema con la transacción. Intenta de nuevo.");
-        console.error("PayPal Error:", err);
-    };
+    return res.data.orderID;
+  };
 
-    return (
-        <PayPalScriptProvider
-            options={{
-                clientId: ENV.PAYPAL_CLIENT_ID || "test",
-                intent: "capture",
-                currency: "USD"
-            }}
-        >
-            <PayPalButtons
-                style={{ layout: "vertical", color: "blue", shape: "rect", label: "pay" }}
-                createOrder={createOrder}
-                onApprove={onApprove}
-                onError={onError}
-            />
-        </PayPalScriptProvider>
-    );
+  const onApprove = async (data: any, actions: any) => {
+    const res = await captureVerifyProfilePaypal(data.orderID);
+
+    if (!res.success) {
+      toast.error("Hubo un problema al capturar la orden. Intenta de nuevo.");
+      return;
+    }
+
+    toast.success("¡Pago aprobado! Tu perfil se activará en unos segundos.");
+    setSuccess(true);
+    // router.push(`/confirmacion`);
+  };
+
+  const onError = (err: any) => {
+    toast.error("Hubo un problema con la transacción. Intenta de nuevo.");
+    console.error("PayPal Error:", err);
+  };
+
+  return (
+    <PayPalScriptProvider
+      options={{
+        clientId: ENV.PAYPAL_CLIENT_ID || "test",
+        intent: "capture",
+        currency: "USD",
+      }}
+    >
+      <PayPalButtons
+        style={{
+          layout: "vertical",
+          color: "blue",
+          shape: "rect",
+          label: "pay",
+        }}
+        createOrder={createOrder}
+        onApprove={onApprove}
+        onError={onError}
+      />
+    </PayPalScriptProvider>
+  );
 }
