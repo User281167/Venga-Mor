@@ -13,11 +13,10 @@ import {
   Slider,
   IconButton,
   Box,
-  Radio,
 } from "@radix-ui/themes";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
-import { themeColorNames, useTheme, availableExploreBgs } from "@/context/theme-context";
+import { themeColorNames, useTheme } from "@/context/theme-context";
 import { Play, Pause, Music, SkipBack, SkipForward } from "lucide-react";
 
 const messages = [
