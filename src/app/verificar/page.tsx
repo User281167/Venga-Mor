@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, Flex, Heading, Section, Text } from "@radix-ui/themes";
+import { Button, Card, Flex, Heading, Text } from "@radix-ui/themes";
 import SectionImg from "@/components/section-img";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { ShieldCheck } from "lucide-react";
@@ -9,16 +9,52 @@ import { useUser } from "@/context/user-context";
 import Link from "next/link";
 import { useState } from "react";
 import Confetti from "react-confetti";
+import { useCollaboratorProfile } from "@/hooks/useCollaboratorData";
 
 export default function VerifyPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "subscription-bg");
   const { user, loading } = useUser();
   const [success, setSuccess] = useState(false);
+  const { data: collaborator } = useCollaboratorProfile();
 
   if (loading) {
     return (
       <SectionImg imageUrl={bgImage?.imageUrl} imageHint={bgImage?.imageHint}>
         <Heading>Cargando...</Heading>
+      </SectionImg>
+    );
+  }
+
+  if (user?.tipo !== "colaborador") {
+    return (
+      <SectionImg imageUrl={bgImage?.imageUrl} imageHint={bgImage?.imageHint}>
+        <Card className="p-6 bg-card/80 text-center">
+          <Heading>No eres un colaborador</Heading>
+          <Text as="p" mt="2">
+            Necesitas ser un colaborador para verificar tu perfil.
+          </Text>
+
+          <Button asChild mt="4">
+            <Link href="/perfil">Crea tu cuenta desde tu perfil</Link>
+          </Button>
+        </Card>
+      </SectionImg>
+    );
+  }
+
+  if (collaborator?.verificado) {
+    return (
+      <SectionImg imageUrl={bgImage?.imageUrl} imageHint={bgImage?.imageHint}>
+        <Card className="p-6 bg-card/80 text-center">
+          <Heading>Perfil verificado</Heading>
+          <Text as="p" mt="2">
+            Tu perfil ha sido verificado.
+          </Text>
+
+          <Button asChild mt="4">
+            <Link href="/perfil">Ir a tu perfil</Link>
+          </Button>
+        </Card>
       </SectionImg>
     );
   }

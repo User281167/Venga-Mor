@@ -19,10 +19,12 @@ import MediaUploadPanel from "./media/media-upload-media";
 import FollowingList from "./following/following-list";
 import FollowersList from "./collaborator/followers-list";
 import SectionImg from "@/components/section-img";
+import { useCollaboratorProfile } from "@/hooks/useCollaboratorData";
 
 export default function PerfilPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "profile-bg");
   const { user, loading, logout } = useUser();
+  const { data: collaborator } = useCollaboratorProfile();
 
   return (
     <SectionImg imageUrl={bgImage?.imageUrl} imageHint={bgImage?.description}>
@@ -85,7 +87,7 @@ export default function PerfilPage() {
             )}
           </Skeleton>
 
-          {!loading && !user?.verificado && (
+          {!loading && !collaborator?.verificado && (
             <Button
               asChild
               variant="solid"

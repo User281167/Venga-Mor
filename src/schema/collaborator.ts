@@ -58,4 +58,6 @@ export const collaboratorFormSchema = z.object({
     .transform((v) => v.filter(Boolean) as string[]),
 });
 
-export type CollaboratorInfo = z.infer<typeof collaboratorFormSchema>;
+export type CollaboratorInfo = z.infer<typeof collaboratorFormSchema> & {
+  verificado: false;
+};
