@@ -4,13 +4,16 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
-import { getRankingCollaborators } from "@/handlers/getRankingCollaborators";
+import {
+  getRankingCollaborators,
+  type RankingOrderBy,
+} from "@/handlers/getRankingCollaborators";
 
-export function useRankingCollaborators() {
+export function useRankingCollaborators(orderBy: RankingOrderBy) {
   const query = useInfiniteQuery({
-    queryKey: ["ranking-collaborators"],
+    queryKey: ["ranking-collaborators", orderBy],
     queryFn: async ({ pageParam }) => {
-      const result = await getRankingCollaborators(pageParam ?? null);
+      const result = await getRankingCollaborators(pageParam ?? null, orderBy);
 
       if (!result.success || !result.data) {
         throw new Error(result.message || "Error al cargar ranking");

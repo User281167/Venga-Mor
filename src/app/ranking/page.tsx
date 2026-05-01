@@ -4,6 +4,7 @@ import { Card, Flex, Heading, Spinner, Text } from "@radix-ui/themes";
 import { useEffect, useMemo, useState } from "react";
 
 import SectionImg from "@/components/section-img";
+import type { RankingOrderBy } from "@/handlers/getRankingCollaborators";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 import { RankingIntro } from "./components/ranking-intro";
@@ -14,6 +15,7 @@ import { useRankingCollaborators } from "./hooks/use-ranking";
 export default function RankingPage() {
   const bgImage = PlaceHolderImages.find((p) => p.id === "profile-bg");
   const [showIntro, setShowIntro] = useState(true);
+  const [orderBy, setOrderBy] = useState<RankingOrderBy>("estrellas");
 
   useEffect(() => {
     const timer = setTimeout(() => setShowIntro(false), 2800);
@@ -21,7 +23,7 @@ export default function RankingPage() {
   }, []);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useRankingCollaborators();
+    useRankingCollaborators(orderBy);
 
   const collaborators = useMemo(
     () => data?.pages.flatMap((page) => page.data) ?? [],
@@ -49,6 +51,8 @@ export default function RankingPage() {
               collaborators={collaborators}
               hasNextPage={!!hasNextPage}
               isFetchingNextPage={isFetchingNextPage}
+              orderBy={orderBy}
+              onOrderByChange={(value) => setOrderBy(value as RankingOrderBy)}
               onLoadMore={() => fetchNextPage()}
             />
           )}

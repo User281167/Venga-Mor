@@ -34,7 +34,7 @@ export function RankingLegend() {
       </Flex>
 
       <Text size="1" color="gray" className="text-center" mt="2">
-        Actualmente el ranking solo se basa en las estrellas.
+        El orden cambia según el selector: estrellas o seguidores.
       </Text>
     </Flex>
   );

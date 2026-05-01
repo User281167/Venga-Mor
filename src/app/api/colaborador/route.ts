@@ -1,4 +1,3 @@
-import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebase-admin-connection";
 import { ApiResponse } from "@/lib/api-response";
 import { deepTrim, getUserID, getZodErrors, setUserRoleClaims } from "../utils";
@@ -46,6 +45,8 @@ export async function POST(req: Request) {
         deepTrim({
           ...data,
           estrellas: 0,
+          seguidoresCount: 0,
+          comentariosCount: 0,
           uid: user.uid,
           nombre: user.nombre,
           apellido: user.apellido,

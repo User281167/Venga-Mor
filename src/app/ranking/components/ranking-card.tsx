@@ -1,7 +1,7 @@
 "use client";
 
 import { Avatar, Card, Flex, Heading, Text } from "@radix-ui/themes";
-import { Star } from "lucide-react";
+import { Heart, Star, Users2Icon } from "lucide-react";
 
 import { Collaborator } from "@/types/collaborator";
 import Link from "next/link";
@@ -48,6 +48,11 @@ export function RankingCard({
           <Flex align="center" gap="1" className="shrink-0 text-yellow-400">
             <Star size={16} />
             <Text weight="bold">{starsText}</Text>
+          </Flex>
+
+          <Flex align="center" gap="1" className="shrink-0 text-red-400">
+            <Heart size={16} />
+            <Text weight="bold">{collaborator.seguidoresCount ?? 0}</Text>
           </Flex>
         </Flex>
       </Card>

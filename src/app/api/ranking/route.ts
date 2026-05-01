@@ -7,6 +7,16 @@ import { getUserID } from "../utils";
 
 const pageSize = 10;
 const fetchLimit = pageSize + 1;
+const orderByFields = {
+  estrellas: "estrellas",
+  seguidores: "seguidoresCount",
+} as const;
+
+type RankingOrderBy = keyof typeof orderByFields;
+
+const isRankingOrderBy = (value: string | null): value is RankingOrderBy => {
+  return value === "estrellas" || value === "seguidores";
+};
 
 export async function GET(req: Request) {
   try {
@@ -21,9 +31,21 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url);
     const lastId = searchParams.get("lastId");
+    const orderByParam = searchParams.get("orderby");
+
+    if (orderByParam && !isRankingOrderBy(orderByParam)) {
+      return new Response(
+        ApiResponse.failure("orderby inválido").toJSON(),
+        { status: 400 },
+      );
+    }
+
+    const orderBy: RankingOrderBy = isRankingOrderBy(orderByParam)
+      ? orderByParam
+      : "estrellas";
 
     let query: admin.firestore.Query = adminDb.collection("colaboradores");
-    query = query.orderBy("estrellas", "desc").limit(fetchLimit);
+    query = query.orderBy(orderByFields[orderBy], "desc").limit(fetchLimit);
 
     if (lastId) {
       const lastDoc = await adminDb
