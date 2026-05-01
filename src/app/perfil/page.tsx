@@ -87,17 +87,22 @@ export default function PerfilPage() {
             )}
           </Skeleton>
 
-          {!loading && !collaborator?.verificado && (
-            <Button
-              asChild
-              variant="solid"
-              className="w-full bg-yellow-500 hover:bg-yellow-600"
-            >
-              <Link href="/verificar">
-                <ShieldCheck className="mr-2 h-4 w-4" /> Verificar Perfil
-              </Link>
-            </Button>
-          )}
+          <Skeleton
+            loading={loading}
+            className="h-8 w-full max-w-screen-lg mx-auto rounded-lg"
+          >
+            {!!collaborator && !collaborator?.verificado && (
+              <Button
+                asChild
+                variant="solid"
+                className="w-full bg-yellow-500 hover:bg-yellow-600"
+              >
+                <Link href="/verificar">
+                  <ShieldCheck className="mr-2 h-4 w-4" /> Verificar Perfil
+                </Link>
+              </Button>
+            )}
+          </Skeleton>
 
           <Button
             variant="outline"
