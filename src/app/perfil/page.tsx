@@ -82,6 +82,19 @@ export default function PerfilPage() {
             loading={loading}
             className="h-8 w-full max-w-screen-lg mx-auto rounded-lg"
           >
+            <Button
+              asChild
+              variant="solid"
+              className="w-full bg-amber-500 hover:bg-amber-600"
+            >
+              <Link href="/perfil/jewelry">Administrar joyas</Link>
+            </Button>
+          </Skeleton>
+
+          <Skeleton
+            loading={loading}
+            className="h-8 w-full max-w-screen-lg mx-auto rounded-lg"
+          >
             {user?.tipo === "colaborador" && (
               <FollowersList colaboradorId={user.uid} />
             )}

@@ -1,3 +1,5 @@
+"use client";
+
 import { Section } from "@radix-ui/themes";
 import Image from "next/image";
 import { useTheme } from "@/context/theme-context";
